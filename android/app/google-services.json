@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "237762489358",
+    "project_id": "blaban-2d4e2",
+    "storage_bucket": "blaban-2d4e2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237762489358:android:844ee94b0614651b9fa05f",
+        "android_client_info": {
+          "package_name": "com.blaban.blaban_mart_user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvJ6BO5DQQ4UMr04Hn4y7mPkuegumLEN0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
