@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -78,6 +80,7 @@ class _StoreScreenState extends State<StoreScreen> {
   bool _userClickedTab = false;
   int? _pendingTabIndex;
   bool _initialCategorySet = false;
+  bool _canExit = false;
 
   @override
   void initState() {
@@ -111,7 +114,8 @@ class _StoreScreenState extends State<StoreScreen> {
       Get.find<StoreController>().changeSearchStatus(isUpdate: false);
     }
     Get.find<StoreController>().hideAnimation();
-    await Get.find<StoreController>().getStoreDetails(Store(id: widget.store!.id), widget.fromModule, slug: '')
+    final int storeId = widget.store?.id ?? Get.find<StoreController>().store?.id ?? 2;
+    await Get.find<StoreController>().getStoreDetails(Store(id: storeId), widget.fromModule, slug: '')
         .then((value) {Get.find<StoreController>().showButtonAnimation();});
     // Load the Pro active offer for this store's module so the Pro discount card
     // can render in the offer scroller for Pro members (the store screen otherwise
@@ -124,20 +128,12 @@ class _StoreScreenState extends State<StoreScreen> {
     if (Get.find<CategoryController>().categoryList == null) {
       Get.find<CategoryController>().getCategoryList(true);
     }
-    Get.find<StoreController>().getStoreBannerList(
-      widget.store!.id ?? Get.find<StoreController>().store!.id,
-    );
-    Get.find<StoreController>().getRestaurantRecommendedItemList(
-      widget.store!.id ?? Get.find<StoreController>().store!.id,
-      false,
-    );
-    Get.find<StoreController>().getStoreItemList(widget.store!.id ?? Get.find<StoreController>().store!.id, 1, 'all', false);
-    Get.find<StoreController>().getStoreCategoryItems(
-      (widget.store!.id ?? Get.find<StoreController>().store!.id)!,
-      notify: false,
-    );
+    Get.find<StoreController>().getStoreBannerList(storeId);
+    Get.find<StoreController>().getRestaurantRecommendedItemList(storeId, false);
+    Get.find<StoreController>().getStoreItemList(storeId, 1, 'all', false);
+    Get.find<StoreController>().getStoreCategoryItems(storeId, notify: false);
     if (AuthHelper.isLoggedIn()) {
-      Get.find<OrderController>().getStoreLastOrders(widget.store!.id ?? Get.find<StoreController>().store!.id);
+      Get.find<OrderController>().getStoreLastOrders(storeId);
       if(Get.find<SplashController>().proStaus && Get.find<ProfileController>().proStatus){
         Get.find<ProController>().getProActiveOffer(moduleType: Get.find<SplashController>().module?.moduleType);
       }
@@ -265,8 +261,14 @@ class _StoreScreenState extends State<StoreScreen> {
     if (Get.find<SplashController>().deeplinkRoute != null) {
       Get.find<SplashController>().setDeeplink(null);
       Get.offAllNamed(RouteHelper.getInitialRoute());
-    } else {
+    } else if (Navigator.canPop(context)) {
       Get.back();
+    } else {
+      if (GetPlatform.isAndroid) {
+        SystemNavigator.pop();
+      } else if (GetPlatform.isIOS) {
+        exit(0);
+      }
     }
   }
 
@@ -314,10 +316,11 @@ class _StoreScreenState extends State<StoreScreen> {
               child: Stack(children: <Widget>[
                 Positioned.fill(child: CustomImage(fit: BoxFit.cover, image: store.coverPhotoFullUrl ?? '')),
 
-                Positioned(
-                  top: topPadding + 12, left: Dimensions.paddingSizeDefault,
-                  child: _StoreCircleIconButton(icon: Icons.arrow_back, onTap: _handleBack),
-                ),
+                if (Navigator.canPop(context))
+                  Positioned(
+                    top: topPadding + 12, left: Dimensions.paddingSizeDefault,
+                    child: _StoreCircleIconButton(icon: Icons.arrow_back, onTap: _handleBack),
+                  ),
 
                 Positioned(
                   top: topPadding + 12, right: Dimensions.paddingSizeDefault,
@@ -353,8 +356,10 @@ class _StoreScreenState extends State<StoreScreen> {
                   child: SizedBox(
                     height: 70,
                     child: Row(children: <Widget>[
-                      _StoreSoftIconButton(icon: Icons.arrow_back, onTap: _handleBack),
-                      const SizedBox(width: Dimensions.paddingSizeSmall),
+                      if (Navigator.canPop(context)) ...[
+                        _StoreSoftIconButton(icon: Icons.arrow_back, onTap: _handleBack),
+                        const SizedBox(width: Dimensions.paddingSizeSmall),
+                      ],
                       Expanded(
                         child: ClipRect(
                           child: Transform.translate(
@@ -386,14 +391,31 @@ class _StoreScreenState extends State<StoreScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         if (Get.find<SplashController>().deeplinkRoute != null) {
           Get.find<SplashController>().setDeeplink(null);
           Get.offAllNamed(RouteHelper.getInitialRoute());
+        } else if (Navigator.canPop(context)) {
+          Get.back();
         } else {
-          try {
-            Get.back();
-          } catch (e) {
-            return;
+          if (_canExit) {
+            if (GetPlatform.isAndroid) {
+              SystemNavigator.pop();
+            } else if (GetPlatform.isIOS) {
+              exit(0);
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+            ));
+            _canExit = true;
+            Timer(const Duration(seconds: 2), () {
+              _canExit = false;
+            });
           }
         }
       },

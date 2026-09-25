@@ -212,7 +212,11 @@ class LocationController extends GetxController implements GetxService {
       return;
     }
 
-    ZoneResponseModel response = await getZone(AddressHelper.getUserAddressFromSharedPref()?.latitude??'0', AddressHelper.getUserAddressFromSharedPref()?.longitude??'0', false, updateInAddress: true);
+    final String? lat = AddressHelper.getUserAddressFromSharedPref()?.latitude;
+    final String? lng = AddressHelper.getUserAddressFromSharedPref()?.longitude;
+    final String effectiveLat = (lat != null && lat.isNotEmpty && lat != '0') ? lat : AppConstants.defaultLatitude;
+    final String effectiveLng = (lng != null && lng.isNotEmpty && lng != '0') ? lng : AppConstants.defaultLongitude;
+    ZoneResponseModel response = await getZone(effectiveLat, effectiveLng, false, updateInAddress: true);
 
     if(response.zoneIds.isEmpty) {
       print('====zone ids is empty==================');

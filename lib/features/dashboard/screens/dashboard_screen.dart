@@ -33,7 +33,6 @@ import 'package:sixam_mart/features/profile/screens/profile_screen.dart';
 import 'package:sixam_mart/features/ride_share_module/ride_home/screens/biding_list_screen.dart';
 import 'package:sixam_mart/features/ride_share_module/ride_order/controllers/ride_controller.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
-import 'package:sixam_mart/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart/helper/auth_helper.dart';
 import 'package:sixam_mart/helper/responsive_helper.dart';
 import 'package:sixam_mart/util/app_constants.dart';
@@ -235,32 +234,25 @@ class DashboardScreenState extends State<DashboardScreen> {
           onPopInvokedWithResult: (didPop, result) async {
             if (_pageIndex != 0) {
               _setPage(0);
-            } else if (splashController.selectedModuleIndex != 0) {
-              splashController.selectHomeModule();
             } else {
-              if(!ResponsiveHelper.isDesktop(context) && Get.find<SplashController>().module != null && Get.find<SplashController>().configModel!.module == null && splashController.moduleList != null && splashController.moduleList!.length != 1) {
-                splashController.removeModule();
-                Get.find<StoreController>().resetStoreData();
-              }else {
-                if(_canExit) {
-                  if (GetPlatform.isAndroid) {
-                    SystemNavigator.pop();
-                  } else if (GetPlatform.isIOS) {
-                    exit(0);
-                  }
-                }else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 2),
-                    margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                  ));
-                  _canExit = true;
-                  Timer(const Duration(seconds: 2), () {
-                    _canExit = false;
-                  });
+              if(_canExit) {
+                if (GetPlatform.isAndroid) {
+                  SystemNavigator.pop();
+                } else if (GetPlatform.isIOS) {
+                  exit(0);
                 }
+              }else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                  margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                ));
+                _canExit = true;
+                Timer(const Duration(seconds: 2), () {
+                  _canExit = false;
+                });
               }
             }
           },

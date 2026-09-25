@@ -33,16 +33,24 @@ class ApiClient extends GetxService {
     }
     AddressModel? addressModel;
     try {
-      addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
+      final String? addressStr = sharedPreferences.getString(AppConstants.userAddress);
+      if (addressStr != null && addressStr.isNotEmpty) {
+        addressModel = AddressModel.fromJson(jsonDecode(addressStr));
+      }
     } catch (_) {}
     int? moduleID;
-    if (GetPlatform.isWeb && sharedPreferences.containsKey(AppConstants.moduleId)) {
+    if (sharedPreferences.containsKey(AppConstants.moduleId)) {
       try {
         moduleID = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.moduleId)!)).id;
       } catch (_) {}
+    } else if (sharedPreferences.containsKey(AppConstants.cacheModuleId)) {
+      try {
+        moduleID = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.cacheModuleId)!)).id;
+      } catch (_) {}
     }
+    moduleID ??= 2;
     updateHeader(token, addressModel?.zoneIds, addressModel?.areaIds, sharedPreferences.getString(AppConstants.languageCode),
-      moduleID?.toString(), addressModel?.latitude, addressModel?.longitude, null);
+      moduleID.toString(), addressModel?.latitude, addressModel?.longitude, null);
   }
 
   Map<String, String> updateHeader(String? token, List<int>? zoneIDs, List<int>? operationIds, String? languageCode, String? moduleID,
@@ -65,8 +73,8 @@ class ApiClient extends GetxService {
       ///this will add in ride module
       // AppConstants.operationAreaId: operationIds != null ? jsonEncode(operationIds) : '',
       AppConstants.localizationKey: languageCode ?? AppConstants.languages[0].languageCode!,
-      AppConstants.latitude: latitude != null ? jsonEncode(latitude) : '',
-      AppConstants.longitude: longitude != null ? jsonEncode(longitude) : '',
+      AppConstants.latitude: latitude ?? '',
+      AppConstants.longitude: longitude ?? '',
       'Authorization': 'Bearer $token',
     });
     if (setHeader) {
@@ -87,6 +95,10 @@ class ApiClient extends GetxService {
         log('====> API Call: $uri\nHeader: $requestHeaders');
       }
       http.Response response = await http.get(Uri.parse(appBaseUrl + uri), headers: requestHeaders).timeout(Duration(seconds: timeoutInSeconds));
+      if (response.statusCode == 503 || response.statusCode == 429) {
+        await Future.delayed(const Duration(milliseconds: 600));
+        response = await http.get(Uri.parse(appBaseUrl + uri), headers: requestHeaders).timeout(Duration(seconds: timeoutInSeconds));
+      }
       // Module switched while this was in flight — drop it so it can't overwrite the
       // shared controllers bound to the now-active module's screen.
       if (moduleScoped && requestModuleId != _mainHeaders[AppConstants.moduleId]) {

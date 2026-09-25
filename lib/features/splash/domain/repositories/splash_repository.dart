@@ -5,7 +5,6 @@ import 'package:sixam_mart/api/local_client.dart';
 import 'package:sixam_mart/common/enums/data_source_enum.dart';
 import 'package:sixam_mart/common/models/response_model.dart';
 import 'package:sixam_mart/api/api_client.dart';
-import 'package:sixam_mart/features/splash/domain/models/landing_model.dart';
 import 'dart:convert';
 import 'package:sixam_mart/features/address/domain/models/address_model.dart';
 import 'package:sixam_mart/common/models/module_model.dart';
@@ -82,13 +81,20 @@ class SplashRepository implements SplashRepositoryInterface {
     }
 
     ModuleModel? module;
-    // if(sharedPreferences.containsKey(AppConstants.moduleId)) {
-    //   try {
-    //     module = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.moduleId)!));
-    //   }catch(e) {
-    //     debugPrint('Did not get shared Preferences module. Note: $e');
-    //   }
-    // }
+    if(sharedPreferences.containsKey(AppConstants.moduleId)) {
+      try {
+        module = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.moduleId)!));
+      } catch(e) {
+        debugPrint('Did not get shared Preferences module. Note: $e');
+      }
+    } else if(sharedPreferences.containsKey(AppConstants.cacheModuleId)) {
+      try {
+        module = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.cacheModuleId)!));
+      } catch(e) {
+        debugPrint('Did not get shared Preferences cache module. Note: $e');
+      }
+    }
+    module ??= ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
     return module;
   }
 
@@ -116,7 +122,10 @@ class SplashRepository implements SplashRepositoryInterface {
   Future<void> setStoreCategory(int storeCategoryID) async {
     AddressModel? addressModel;
     try {
-      addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
+      String? addressStr = sharedPreferences.getString(AppConstants.userAddress);
+      if (addressStr != null && addressStr.isNotEmpty) {
+        addressModel = AddressModel.fromJson(jsonDecode(addressStr));
+      }
     }catch(e) {
       debugPrint('Did not get shared Preferences address . Note: $e');
     }
@@ -156,7 +165,10 @@ class SplashRepository implements SplashRepositoryInterface {
   Future<void> setModule(ModuleModel? module) async {
     AddressModel? addressModel;
     try {
-      addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
+      String? addressStr = sharedPreferences.getString(AppConstants.userAddress);
+      if (addressStr != null && addressStr.isNotEmpty) {
+        addressModel = AddressModel.fromJson(jsonDecode(addressStr));
+      }
     }catch(e) {
       debugPrint('Did not get shared Preferences address . Note: $e');
     }

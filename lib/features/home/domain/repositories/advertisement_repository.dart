@@ -20,7 +20,7 @@ class AdvertisementRepository implements AdvertisementRepositoryInterface {
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.advertisementListUri);
+        Response response = await apiClient.getData(AppConstants.advertisementListUri, handleError: false);
         if(response.statusCode == 200) {
           advertisementList = [];
           response.body.forEach((data) {

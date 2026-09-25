@@ -7,6 +7,8 @@ import 'package:sixam_mart/features/location/domain/models/zone_response_model.d
 import 'package:sixam_mart/features/location/domain/repositories/location_repository_interface.dart';
 import 'package:sixam_mart/util/app_constants.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
+import 'package:sixam_mart/features/address/domain/models/address_model.dart';
+import 'package:sixam_mart/helper/address_helper.dart';
 
 class LocationRepository implements LocationRepositoryInterface {
   final ApiClient apiClient;
@@ -28,7 +30,9 @@ class LocationRepository implements LocationRepositoryInterface {
 
   @override
   Future<ZoneResponseModel> getZone(String? lat, String? lng, {bool handleError = false}) async {
-    Response response = await apiClient.getData('${AppConstants.zoneUri}?lat=$lat&lng=$lng', handleError: handleError);
+    final String effectiveLat = (lat != null && lat.isNotEmpty && lat != '0') ? lat : AppConstants.defaultLatitude;
+    final String effectiveLng = (lng != null && lng.isNotEmpty && lng != '0') ? lng : AppConstants.defaultLongitude;
+    Response response = await apiClient.getData('${AppConstants.zoneUri}?lat=$effectiveLat&lng=$effectiveLng', handleError: handleError);
     if(response.statusCode == 200) {
       ZoneResponseModel responseModel;
       List<int>? zoneIds = ZoneModel.fromJson(response.body).zoneIds;
@@ -36,6 +40,10 @@ class LocationRepository implements LocationRepositoryInterface {
       responseModel = ZoneResponseModel(true, '' , zoneIds ?? [], zoneData??[], [], response.statusCode, null);
       return responseModel;
     } else {
+      AddressModel? address = AddressHelper.getUserAddressFromSharedPref();
+      if (address?.zoneIds != null && address!.zoneIds!.isNotEmpty) {
+        return ZoneResponseModel(true, '', address.zoneIds!, address.zoneData ?? [], address.areaIds ?? [], response.statusCode, null);
+      }
       return ZoneResponseModel(false, response.statusText, [], [], [], response.statusCode, null);
     }
   }

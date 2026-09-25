@@ -27,13 +27,33 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:sixam_mart/features/home/widgets/cookies_view.dart';
 import 'helper/get_di.dart' as di;
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
+    if (mapsImplementation is GoogleMapsFlutterAndroid) {
+      mapsImplementation.useAndroidViewSurface = false;
+      mapsImplementation
+          .initializeWithRenderer(AndroidMapRenderer.latest)
+          .then((renderer) {
+        if (kDebugMode) {
+          print('Google Maps Android renderer initialized with: $renderer');
+        }
+      }).catchError((e) {
+        if (kDebugMode) {
+          print('Google Maps Android renderer initialization fallback: $e');
+        }
+      });
+    }
+  }
 
   if (kIsWeb) {
     usePathUrlStrategy();

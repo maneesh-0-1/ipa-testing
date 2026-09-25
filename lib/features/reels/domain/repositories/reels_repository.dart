@@ -24,7 +24,8 @@ class ReelsRepository implements ReelsRepositoryInterface {
     final Map<String, dynamic> query = <String, dynamic>{
       'offset': effectiveOffset.toString(),
       'limit': effectiveLimit.toString(),
-      if(!AuthHelper.isLoggedIn()) 'guest_id': AuthHelper.getGuestId(),
+      if(AuthHelper.isLoggedIn()) ...{}
+      else if(AuthHelper.getGuestId().isNotEmpty) 'guest_id': AuthHelper.getGuestId(),
     };
     final String uri = Uri.parse(AppConstants.reelListUri).replace(queryParameters: query).toString();
 
@@ -37,7 +38,7 @@ class ReelsRepository implements ReelsRepositoryInterface {
         return null;
 
       case DataSourceEnum.client:
-        final Response response = await apiClient.getData(uri);
+        final Response response = await apiClient.getData(uri, handleError: false);
         if(response.statusCode == 200) {
           await LocalClient.organize(DataSourceEnum.client, cacheId, jsonEncode(response.body), apiClient.getHeader());
           return _parseReelListModel(response.body);
@@ -48,8 +49,12 @@ class ReelsRepository implements ReelsRepositoryInterface {
 
   @override
   Future<ReelStatsModel?> getReelStats(int reelId) async {
+    final String guestParam = (!AuthHelper.isLoggedIn() && AuthHelper.getGuestId().isNotEmpty)
+        ? '&guest_id=${AuthHelper.getGuestId()}'
+        : '';
     final Response response = await apiClient.getData(
-      '${AppConstants.reelStatsUri}?reel_id=$reelId${!AuthHelper.isLoggedIn() ? '&guest_id=${AuthHelper.getGuestId()}' : ''}',
+      '${AppConstants.reelStatsUri}?reel_id=$reelId$guestParam',
+      handleError: false,
     );
 
     if(response.statusCode == 200) {
@@ -98,8 +103,11 @@ class ReelsRepository implements ReelsRepositoryInterface {
 
   @override
   Future<bool> visitReel(int reelId) async {
+    final String guestParam = (!AuthHelper.isLoggedIn() && AuthHelper.getGuestId().isNotEmpty)
+        ? '?guest_id=${AuthHelper.getGuestId()}'
+        : '';
     final Response response = await apiClient.postData(
-      '${AppConstants.reelVisitUri}${!AuthHelper.isLoggedIn() ? '?guest_id=${AuthHelper.getGuestId()}' : ''}',
+      '${AppConstants.reelVisitUri}$guestParam',
       {'reel_id': reelId},
       handleError: false,
     );

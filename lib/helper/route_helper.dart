@@ -233,7 +233,7 @@ class RouteHelper {
 
 
   static String getInitialRoute({bool fromSplash = false, String? moduleId, bool fromDeeplink = false}) {
-    return '$initial?module=${moduleId ?? ModuleHelper.getModule()?.slug ?? ModuleHelper.getModule()?.id ?? ModuleHelper.getCacheModule()?.slug}&from-splash=$fromSplash${fromDeeplink ? '&from_deeplink=true' : ''}';
+    return getStoreRoute(id: 2, page: 'store_new', slug: 'blaban', moduleId: 'blaban', fromDeeplink: fromDeeplink);
   }
   static String getSplashRoute(NotificationBodyModel? body, String? deeplink) {
     String data = 'null';
@@ -461,12 +461,15 @@ class RouteHelper {
         return const QrScreen();
       }
       return getRoute(
-        byPuss: (Get.parameters['module'] != null && Get.parameters['module']!.isNotEmpty && Get.parameters['module'] != 'null'),
+        byPuss: true,
         _waitForModule(
-          Get.parameters['module'], fromDeeplink: Get.parameters['from_deeplink'] == 'true',
-          DashboardScreen(pageIndex: 0, fromSplash: Get.parameters['from-splash'] == 'true'),
-          // MainScreen(pageIndex: 0, fromSplash: Get.parameters['from-splash'] == 'true'),
-        )
+          'blaban', fromDeeplink: Get.parameters['from_deeplink'] == 'true',
+          StoreScreen(
+            store: Store(id: 2),
+            fromModule: false,
+            slug: 'blaban',
+          ),
+        ),
       );
     }),
     GetPage(name: splash, page: () {
@@ -1107,6 +1110,10 @@ class RouteHelper {
 
   static Future<void> checkModuleId(String? parameters, {bool fromDeeplink = false}) async {
     if(parameters != null && parameters.isNotEmpty && parameters != 'null') {
+      final SplashController splash = Get.find<SplashController>();
+      if(splash.module != null && (splash.module!.slug == parameters || splash.module!.id.toString() == parameters)) {
+        return;
+      }
       String moduleSlug = parameters;
       ApiClient apiClient = Get.find<ApiClient>();
       SharedPreferences sharedPreferences = Get.find<SharedPreferences>();

@@ -15,7 +15,10 @@ class LanguageRepository implements LanguageRepositoryInterface {
   AddressModel? getAddressFormSharedPref() {
     AddressModel? addressModel;
     try {
-      addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));
+      String? addressStr = sharedPreferences.getString(AppConstants.userAddress);
+      if (addressStr != null && addressStr.isNotEmpty) {
+        addressModel = AddressModel.fromJson(jsonDecode(addressStr));
+      }
     }catch(e) {
       debugPrint('Did not get shared Preferences address: $e');
     }

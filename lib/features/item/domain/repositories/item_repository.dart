@@ -260,7 +260,7 @@ class ItemRepository implements ItemRepositoryInterface {
     switch(source) {
 
       case DataSourceEnum.client:
-        Response response = await apiClient.getData('${AppConstants.recommendedItemsUri}$type&limit=30', moduleScoped: true);
+        Response response = await apiClient.getData('${AppConstants.recommendedItemsUri}$type&limit=30', moduleScoped: true, handleError: false);
         if (response.statusCode == 200) {
           recommendedItemList = [];
           recommendedItemList.addAll(ItemModel.fromJson(response.body).items!);

@@ -19,6 +19,7 @@ import 'package:sixam_mart/features/rental_module/rental_cart_screen/controllers
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart/helper/auth_helper.dart';
+import 'package:sixam_mart/helper/module_helper.dart';
 import 'package:sixam_mart/util/app_constants.dart';
 class HomeScreen {
   static Future<void> loadData(bool reload, {bool fromModule = false}) async {
@@ -26,10 +27,17 @@ class HomeScreen {
     Get.find<LocationController>().syncZoneData();
     Get.find<FlashSaleController>().setEmptyFlashSale(fromModule: fromModule);
 
-    if(Get.find<SplashController>().module != null
-        && Get.find<SplashController>().module!.moduleType.toString() != AppConstants.ride
-        && !Get.find<SplashController>().configModel!.moduleConfig!.module!.isParcel!
-        && !Get.find<SplashController>().configModel!.moduleConfig!.module!.isTaxi!) {
+    final splashController = Get.find<SplashController>();
+    if(splashController.module == null) {
+      final defaultMod = splashController.configModel?.module
+          ?? splashController.getCacheModule()
+          ?? ModuleHelper.defaultModule;
+      splashController.setModule(defaultMod, notify: false);
+    }
+
+    if(splashController.module != null
+        && splashController.module!.moduleType.toString() != AppConstants.ride
+        && (splashController.configModel?.moduleConfig?.module == null || (!splashController.configModel!.moduleConfig!.module!.isParcel! && !splashController.configModel!.moduleConfig!.module!.isTaxi!))) {
 
       if(AuthHelper.isLoggedIn() && Get.find<SplashController>().configModel!.repeatOrderOption == 1) {
         Get.find<StoreController>().getVisitAgainStoreList(fromModule: fromModule);
@@ -79,13 +87,6 @@ class HomeScreen {
       }
     }
     Get.find<SplashController>().getModules();
-    if(Get.find<SplashController>().module == null && Get.find<SplashController>().configModel!.module == null) {
-      Get.find<BannerController>().getFeaturedBanner();
-      Get.find<StoreController>().getFeaturedStoreList();
-      if(AuthHelper.isLoggedIn()) {
-        Get.find<AddressController>().getAddressList();
-      }
-    }
     if(Get.find<SplashController>().module != null && Get.find<SplashController>().configModel!.moduleConfig!.module!.isParcel!) {
       Get.find<ParcelController>().getParcelCategoryList();
     }

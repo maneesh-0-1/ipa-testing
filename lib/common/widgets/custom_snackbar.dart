@@ -3,15 +3,28 @@ import 'package:get/get.dart';
 import 'package:sixam_mart/util/dimensions.dart';
 import 'package:sixam_mart/util/styles.dart';
 
+String? _lastSnackbarMessage;
+DateTime? _lastSnackbarTime;
+
 /// Modern floating snackbar (replaces the old Fluttertoast). Same signature as
 /// before so every existing call site keeps working — `getXSnackBar` is accepted
 /// for compatibility but no longer changes behaviour.
 void showCustomSnackBar(String? message, {bool isError = true, bool getXSnackBar = false, int? showDuration, double? bottomMargin, String? actionLabel, VoidCallback? onAction}) {
-  if (message == null || message.isEmpty) return;
+  if (message == null || message.trim().isEmpty) return;
 
-  // Replace any visible/queued snackbar so messages don't stack up.
+  // Never display raw HTML error pages (e.g. 503 Service Unavailable / 500) as snackbars
+  if (message.contains('<!DOCTYPE') || message.contains('<html') || message.contains('<body')) return;
+
+  final now = DateTime.now();
+  if (_lastSnackbarMessage == message && _lastSnackbarTime != null && now.difference(_lastSnackbarTime!).inMilliseconds < 2500) {
+    return;
+  }
+  _lastSnackbarMessage = message;
+  _lastSnackbarTime = now;
+
+  // Safely close currently open snackbar
   if (Get.isSnackbarOpen) {
-    Get.closeAllSnackbars();
+    Get.closeCurrentSnackbar();
   }
 
   final Color background = isError ? const Color(0xFFD32F2F) : const Color(0xFF039D55);

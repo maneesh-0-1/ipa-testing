@@ -293,13 +293,7 @@ class ModuleTabs extends StatelessWidget {
   }
 
   List<_FoodModuleModuleTabData> _buildTabs(SplashController splashController) {
-    final List<_FoodModuleModuleTabData> tabs = [
-      _FoodModuleModuleTabData(
-        label: 'home'.tr,
-        isSelected: splashController.selectedModuleIndex == 0,
-        onTap: () => splashController.selectHomeModule(),
-      ),
-    ];
+    final List<_FoodModuleModuleTabData> tabs = [];
 
     int selectedIndex = 1;
     if(splashController.moduleList != null && splashController.moduleList!.isNotEmpty) {

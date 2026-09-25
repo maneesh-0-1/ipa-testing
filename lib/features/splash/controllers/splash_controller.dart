@@ -18,13 +18,10 @@ import 'package:sixam_mart/api/api_client.dart';
 import 'package:sixam_mart/common/models/config_model.dart' hide DownloadUserAppLinks;
 import 'package:sixam_mart/common/models/module_model.dart';
 import 'package:get/get.dart';
-import 'package:sixam_mart/features/address/controllers/address_controller.dart';
 import 'package:sixam_mart/features/rental_module/rental_cart_screen/controllers/taxi_cart_controller.dart';
 import 'package:sixam_mart/features/rental_module/rental_favourite/controllers/taxi_favourite_controller.dart';
-import 'package:sixam_mart/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart/helper/auth_helper.dart';
 import 'package:sixam_mart/helper/maintance_helper.dart';
-import 'package:sixam_mart/helper/responsive_helper.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/features/home/screens/home_screen.dart';
 import 'package:sixam_mart/features/splash/domain/services/splash_service_interface.dart';
@@ -68,7 +65,7 @@ class SplashController extends GetxController implements GetxService {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  int _selectedModuleIndex = 0;
+  int _selectedModuleIndex = 1;
   int get selectedModuleIndex => _selectedModuleIndex;
 
   // Guards against rapid/continuous module switching: every switch bumps the token
@@ -135,16 +132,9 @@ class SplashController extends GetxController implements GetxService {
     }
   }
 
-  /// Selecting the Home tab. Mirrors the back-press (PopScope) behaviour: when not
-  /// locked to a single module, drop the active module and reset store data so Home
-  /// shows the multi-module landing instead of staying scoped to the last module.
+  /// Keep the active Blaban module selected — no Home landing
   void selectHomeModule() {
-    selectModuleIndex(0);
-    if(!ResponsiveHelper.isDesktop(Get.context) && _module != null && _configModel?.module == null
-        && _moduleList != null && _moduleList!.length != 1) {
-      removeModule();
-      Get.find<StoreController>().resetStoreData();
-    }
+    selectModuleIndex(1);
   }
 
   void setDeeplink(Uri? route) {
@@ -173,11 +163,12 @@ class SplashController extends GetxController implements GetxService {
     if(response.statusCode == 200) {
       _data = response.body;
       _configModel = ConfigModel.fromJson(response.body);
-      if(_configModel!.module != null) {
-        setModule(_configModel!.module);
-      }else if(GetPlatform.isWeb || (loadModuleData && _module != null)) {
-        setModule(GetPlatform.isWeb ? splashServiceInterface.getModule() : _module);
-      }
+      ModuleModel targetModule = _configModel!.module
+          ?? _module
+          ?? splashServiceInterface.getCacheModule()
+          ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
+      setModule(targetModule);
+      _selectedModuleIndex = 1;
       print('=====deeplink url: $_deeplinkRoute and canRoute: $canRoute');
       if(!canRoute || _deeplinkRoute != null) {
         return;
@@ -260,13 +251,13 @@ class SplashController extends GetxController implements GetxService {
   // }
 
   Future<void> initSharedData() async {
-    if(!GetPlatform.isWeb) {
-      _module = null;
-      splashServiceInterface.initSharedData();
-    }else {
-      _module = await splashServiceInterface.initSharedData();
-    }
+    _module = await splashServiceInterface.initSharedData();
     _cacheModule = splashServiceInterface.getCacheModule();
+    _module ??= splashServiceInterface.getModule()
+        ?? _cacheModule
+        ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
+    _cacheModule ??= _module;
+    _selectedModuleIndex = 1;
     setModule(_module, notify: false);
   }
 
@@ -456,18 +447,9 @@ class SplashController extends GetxController implements GetxService {
   }
 
   void removeModule() {
-    setModule(null);
-    Get.find<BannerController>().getFeaturedBanner();
-    getModules();
-    Get.find<HomeController>().forcefullyNullCashBackOffers();
-    if(AuthHelper.isLoggedIn()) {
-      Get.find<AddressController>().getAddressList();
-    }
-    Get.find<StoreController>().getFeaturedStoreList();
-    Get.find<CampaignController>().itemAndBasicCampaignNull();
-    if(_deeplinkRoute != null) {
-      setDeeplink(null);
-      HomeScreen.loadData(false);
+    // Keep B.Laban module active instead of reverting to Home
+    if (_configModel?.module != null) {
+      setModule(_configModel!.module);
     }
   }
 

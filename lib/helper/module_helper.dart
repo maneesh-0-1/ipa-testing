@@ -6,12 +6,19 @@ import 'package:sixam_mart/util/app_constants.dart';
 
 class ModuleHelper {
 
+  static final ModuleModel defaultModule = ModuleModel(
+    id: 2,
+    moduleName: 'B.Laban',
+    moduleType: AppConstants.food,
+    slug: 'blaban',
+  );
+
   static ModuleModel? getModule() {
-    return Get.find<SplashController>().module;
+    return Get.find<SplashController>().module ?? defaultModule;
   }
 
   static ModuleModel? getCacheModule() {
-    return Get.find<SplashController>().getCacheModule();
+    return Get.find<SplashController>().getCacheModule() ?? defaultModule;
   }
 
   static Module getModuleConfig(String? moduleType) {

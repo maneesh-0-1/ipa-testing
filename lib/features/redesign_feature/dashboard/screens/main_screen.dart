@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:sixam_mart/common/controllers/theme_controller.dart';
 import 'package:sixam_mart/common/widgets/back_to_top.dart';
 import 'package:sixam_mart/features/home/screens/home_screen.dart';
-import 'package:sixam_mart/features/smart_banner/controllers/smart_banner_controller.dart';
 import 'package:sixam_mart/features/home/widgets/refer_bottom_sheet_widget.dart';
 import 'package:sixam_mart/features/location/controllers/location_controller.dart';
 import 'package:sixam_mart/features/profile/controllers/profile_controller.dart';
@@ -15,7 +14,6 @@ import 'package:sixam_mart/features/redesign_feature/dashboard/widgets/search_he
 import 'package:sixam_mart/features/redesign_feature/dashboard/widgets/top_header_widget.dart';
 import 'package:sixam_mart/features/redesign_feature/food/screens/food_module_screen.dart';
 import 'package:sixam_mart/features/redesign_feature/grocery/screens/grocery_module_screen.dart';
-import 'package:sixam_mart/features/redesign_feature/home/screens/home_new_screen.dart';
 import 'package:sixam_mart/features/redesign_feature/parcel/screens/parcel_module_screen.dart';
 import 'package:sixam_mart/features/redesign_feature/parcel/widget/parcel_deliver_to_header_widget.dart';
 import 'package:sixam_mart/features/redesign_feature/pharmacy/screens/pharmacy_module_screen.dart';
@@ -71,9 +69,13 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
     });
 
     if(!ResponsiveHelper.isWeb()) {
+      final String? lat = AddressHelper.getUserAddressFromSharedPref()?.latitude;
+      final String? lng = AddressHelper.getUserAddressFromSharedPref()?.longitude;
+      final String effectiveLat = (lat != null && lat.isNotEmpty) ? lat : AppConstants.defaultLatitude;
+      final String effectiveLng = (lng != null && lng.isNotEmpty) ? lng : AppConstants.defaultLongitude;
       Get.find<LocationController>().getZone(
-        AddressHelper.getUserAddressFromSharedPref()?.latitude??'',
-        AddressHelper.getUserAddressFromSharedPref()?.longitude??'', false, updateInAddress: true,
+        effectiveLat,
+        effectiveLng, false, updateInAddress: true,
       );
     }
   }
@@ -215,12 +217,6 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
       await HomeScreen.loadData(true, fromModule: true);
     }
 
-    // Smart banners are shown only on the general Home dashboard (home_new_screen),
-    // and HomeScreen.loadData doesn't reload them — refresh them here on Home pull-to-refresh.
-    if (label == 'home' || (moduleType.isEmpty && label == 'home')) {
-      Get.find<SmartBannerController>().getSmartBanners(notify: false);
-    }
-
     splashController.setRefreshing(false);
   }
 
@@ -250,45 +246,24 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
   }
 
   ModuleModel _getSelectedModuleSelection(SplashController splashController) {
-    // if(widget.moduleType != null && !_hasSyncedSelectedModuleIndex) {
-    //   return const ModuleModel(label: 'Home');
-    // }
-
-    final int selectedIndex = splashController.selectedModuleIndex;
-    if(selectedIndex == 0) {
-      return const ModuleModel(label: 'Home');
+    if (splashController.module != null) {
+      final module = splashController.module!;
+      final String moduleType = module.moduleType?.toString() ?? AppConstants.food;
+      return ModuleModel(label: _moduleLabel(module.moduleName, moduleType), moduleType: moduleType);
     }
-
-    int tabIndex = 1;
-    if(splashController.moduleList != null && splashController.moduleList!.isNotEmpty) {
-      for(int index = 0; index < splashController.moduleList!.length; index++) {
-        final module = splashController.moduleList![index];
-        final String moduleType = splashController.moduleList![index].moduleType?.toString() ?? '';
-        if(selectedIndex == tabIndex) {
-          return ModuleModel(label: _moduleLabel(module.moduleName, moduleType), moduleType: moduleType);
-        }
-        tabIndex++;
-      }
-    } else {
-      if(selectedIndex == 1) {
-        return const ModuleModel(label: 'Food', moduleType: AppConstants.food);
-      } else if(selectedIndex == 2) {
-        return const ModuleModel(label: 'Grocery', moduleType: AppConstants.grocery);
-      } else if(selectedIndex == 3) {
-        return const ModuleModel(label: 'Shop', moduleType: AppConstants.ecommerce);
-      } else if(selectedIndex == 4) {
-        return const ModuleModel(label: 'Pharmacy', moduleType: AppConstants.pharmacy);
-      }
+    if (splashController.moduleList != null && splashController.moduleList!.isNotEmpty) {
+      final module = splashController.moduleList![0];
+      final String moduleType = module.moduleType?.toString() ?? AppConstants.food;
+      return ModuleModel(label: _moduleLabel(module.moduleName, moduleType), moduleType: moduleType);
     }
-
-    return const ModuleModel(label: 'Home');
+    return const ModuleModel(label: 'Food', moduleType: AppConstants.food);
   }
 
   Widget _buildModuleView(ModuleModel selectedModule) {
     final String moduleType = selectedModule.moduleType?.toLowerCase() ?? '';
     final String label = selectedModule.label.toLowerCase();
 
-    if (moduleType == AppConstants.food || label == 'food') {
+    if (moduleType == AppConstants.food || label == 'food' || label == 'b.laban' || label == 'blaban') {
       return FoodModuleScreen(
         searchHeaderKey: _searchHeaderKey,
         exploreRestaurantKey: _exploreRestaurantFilterKey,
@@ -330,22 +305,11 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
       return const RideHomeScreen();
     } else if (moduleType == AppConstants.service || label == 'service') {
       return ServiceScreen(scrollController: _scrollController);
-    } else if (label == 'home' && moduleType.isEmpty) {
-      return HomeNewScreen(
-        searchHeaderKey: _searchHeaderKey,
-        isSearchPinned: _isSearchPinned,
-      );
     } else {
-      if (moduleType.isNotEmpty) {
-        return FoodModuleScreen(
-          searchHeaderKey: _searchHeaderKey,
-          exploreRestaurantKey: _exploreRestaurantFilterKey,
-          scrollController: _scrollController,
-          isSearchPinned: _isSearchPinned,
-        );
-      }
-      return HomeNewScreen(
+      return FoodModuleScreen(
         searchHeaderKey: _searchHeaderKey,
+        exploreRestaurantKey: _exploreRestaurantFilterKey,
+        scrollController: _scrollController,
         isSearchPinned: _isSearchPinned,
       );
     }
@@ -375,35 +339,12 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
   Widget build(BuildContext context) {
     super.build(context);
     return GetBuilder<SplashController>(builder: (splashController) {
-      // When the zone offers a single module, lock the dashboard to that module:
-      // hide the module tab strip + Home landing, and show only that module's screen.
-      final bool isSingleModule = splashController.moduleList != null && splashController.moduleList!.length == 1;
-
       ModuleModel selectedModule = _getSelectedModuleSelection(splashController);
-      if (isSingleModule) {
-        // Resolve to the single module right away so HomeNewScreen never flashes
-        // for a frame before the post-frame selection lands. Uses the same label
-        // mapping as the indexed path, so the render switch resolves identically.
-        if (selectedModule.label.toLowerCase() == 'home') {
-          final singleModule = splashController.moduleList![0];
-          final String moduleType = singleModule.moduleType?.toString() ?? '';
-          selectedModule = ModuleModel(label: _moduleLabel(singleModule.moduleName, moduleType), moduleType: moduleType);
-        }
-        // Make it the active selection once (sets _module + loads its data). Deferred
-        // to post-frame to avoid calling update() during build; switchModule is
-        // internally idempotent so this won't loop.
-        if (splashController.selectedModuleIndex != 1) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) splashController.selectModuleByTabIndex(1);
-          });
-        }
-      }
 
       final String currentModuleType = selectedModule.moduleType?.toLowerCase() ?? '';
-      final bool isHomeModule = selectedModule.label.toLowerCase() == 'home' && currentModuleType.isEmpty;
       final bool isParcelModule = currentModuleType == AppConstants.parcel || selectedModule.label.toLowerCase() == 'parcel';
       final bool showPinnedSearch = _isSearchPinned;
-      final bool showPinnedExploreRestaurantFilter = !isHomeModule && _isSearchPinned && _isExploreRestaurantFilterPinned;
+      final bool showPinnedExploreRestaurantFilter = _isSearchPinned && _isExploreRestaurantFilterPinned;
 
       // Status bar tint: matches the TopHeaderWidget (disabled tint) at the top, and
       // the pinned search bar (card color) once the search layer sticks.
@@ -458,8 +399,8 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
                   controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    // Section: top header and module tabs (tabs hidden when a single module is active)
-                    SliverToBoxAdapter(child: TopHeaderWidget(key: _topHeaderKey, isHomeModule: isHomeModule, isParcelModule: isParcelModule, showModuleTabs: !isSingleModule)),
+                    // Section: top header without module tabs (Blaban direct load)
+                    SliverToBoxAdapter(child: TopHeaderWidget(key: _topHeaderKey, isHomeModule: false, isParcelModule: isParcelModule, showModuleTabs: false)),
 
                     // module view
                     _buildModuleView(selectedModule),
@@ -478,7 +419,7 @@ class _MainScreenState extends State<MainScreen> with AutomaticKeepAliveClientMi
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if(isParcelModule) const ParcelDeliverToHeaderWidget(),
-                      SearchAndQuickFilterWidget(isPinned: true, showQuickFilters: !isHomeModule, topFilterScrollOutOffset: isHomeModule ? 0 : _pinnedTopFilterScrollOutOffset, isHomeModule: isHomeModule, showBottomDivider: !showPinnedExploreRestaurantFilter,),
+                      SearchAndQuickFilterWidget(isPinned: true, showQuickFilters: true, topFilterScrollOutOffset: _pinnedTopFilterScrollOutOffset, isHomeModule: false, showBottomDivider: !showPinnedExploreRestaurantFilter,),
                     ],
                   ),
                 ),

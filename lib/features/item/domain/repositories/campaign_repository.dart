@@ -29,7 +29,7 @@ class CampaignRepository implements CampaignRepositoryInterface {
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.basicCampaignUri);
+        Response response = await apiClient.getData(AppConstants.basicCampaignUri, handleError: false);
         if (response.statusCode == 200) {
           basicCampaignList = [];
           response.body.forEach((campaign) => basicCampaignList!.add(BasicCampaignModel.fromJson(campaign)));
@@ -53,7 +53,7 @@ class CampaignRepository implements CampaignRepositoryInterface {
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.itemCampaignUri);
+        Response response = await apiClient.getData(AppConstants.itemCampaignUri, handleError: false);
         if (response.statusCode == 200) {
           itemCampaignList = [];
           response.body.forEach((camp) => itemCampaignList!.add(Item.fromJson(camp)));

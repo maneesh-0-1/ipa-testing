@@ -11,7 +11,9 @@ class ApiChecker {
         Get.find<FavouriteController>().removeFavourite();
         Get.offAllNamed(RouteHelper.getInitialRoute());
       });
-    }else {
+    } else if (response.statusCode == 503 || response.statusCode == 500 || response.statusCode == 502 || response.statusCode == 504) {
+      // Don't show aggressive snackbars on server load/temporary errors
+    } else {
       if(response.statusText != 'The guest id field is required.') {
         showCustomSnackBar(response.statusText, getXSnackBar: getXSnackBar);
       }

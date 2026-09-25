@@ -56,11 +56,9 @@ class SplashScreenState extends State<SplashScreen> {
       Get.find<CartController>().getAllCarts();
     }
     // _route();
-    print('=========here coming-----2-->> ${Get.find<SplashController>().deeplinkRoute == null}');
     if(Get.find<SplashController>().deeplinkRoute == null) {
-      Get.find<SplashController>().getConfigData(notificationBody: widget.body);
+      _route();
     }
-    _route();
   }
 
   @override
