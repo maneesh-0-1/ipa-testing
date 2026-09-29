@@ -125,10 +125,10 @@ class _ChooseLanguageNewScreenState extends State<ChooseLanguageNewScreen> {
 
   String _languageDisplayName(String name) {
     if (name.toLowerCase() == 'english') {
-      return 'English - Abc';
+      return 'English';
     }
     if (name.toLowerCase() == 'bengali') {
-      return 'Bengali - বাংলা';
+      return 'Bengali';
     }
     return name;
   }

@@ -81,6 +81,7 @@ Future<void> main() async {
             storageBucket: "stackmart-500c7.appspot.com",
             messagingSenderId: "237762489358",
             appId: "1:237762489358:android:844ee94b0614651b9fa05f",
+
           ),
         );
       } else {
