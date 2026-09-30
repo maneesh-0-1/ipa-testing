@@ -90,7 +90,7 @@ class LocationController extends GetxController implements GetxService {
   final List<PredictionModel> _predictionList = [];
   List<PredictionModel> get predictionList => _predictionList;
 
-  String  countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel?.country ?? "BD").dialCode!;
+  String  countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel?.country ?? "KW").dialCode ?? "+965";
 
   bool _isCameraMoving = false;
   bool get isCameraMoving => _isCameraMoving;

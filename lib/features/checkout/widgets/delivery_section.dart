@@ -201,7 +201,15 @@ class _ContactBlock extends StatelessWidget {
     if (!hasContact) {
       return _AddContactInfoButton(onTap: onAdd);
     }
-    final String formattedPhone = (dialCode != null && dialCode!.isNotEmpty) ? '$dialCode $phone' : phone;
+    final String safeDialCode = (dialCode == null || dialCode!.isEmpty || dialCode == '+91') ? '+965' : dialCode!;
+    String cleanPhone = phone.trim();
+    if (cleanPhone.startsWith('+91')) {
+      final without = cleanPhone.substring(3).trim();
+      if (without.length == 8) {
+        cleanPhone = without;
+      }
+    }
+    final String formattedPhone = cleanPhone.startsWith('+') ? cleanPhone : '$safeDialCode $cleanPhone';
     return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
       const _IconBadge(icon: Icons.person_outline),
       const SizedBox(width: Dimensions.paddingSizeSmall),

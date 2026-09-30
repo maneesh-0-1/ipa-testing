@@ -146,7 +146,7 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void initCountryCode({String? countryCode}){
-    countryDialCode = countryCode ?? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country ?? "BD").dialCode ?? "+880";
+    countryDialCode = countryCode ?? CountryCode.fromCountryCode(Get.find<SplashController>().configModel?.country ?? "KW").dialCode ?? "+965";
   }
 
   void toggleRememberMe() {

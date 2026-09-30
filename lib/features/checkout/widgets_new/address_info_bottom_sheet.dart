@@ -6,7 +6,6 @@ import 'package:sixam_mart/common/widgets/custom_button.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/common/widgets/custom_text_field.dart';
 import 'package:sixam_mart/features/checkout/controllers/checkout_controller.dart';
-import 'package:sixam_mart/features/language/controllers/language_controller.dart';
 import 'package:sixam_mart/helper/responsive_helper.dart';
 import 'package:sixam_mart/util/dimensions.dart';
 import 'package:sixam_mart/util/styles.dart';
@@ -62,6 +61,21 @@ class AddressInfoBottomSheet extends StatefulWidget {
 }
 
 class _AddressInfoBottomSheetState extends State<AddressInfoBottomSheet> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.checkoutController.countryDialCode == null || widget.checkoutController.countryDialCode == '+91') {
+      widget.checkoutController.countryDialCode = '+965';
+    }
+    if (_numberController.text.startsWith('+91')) {
+      final without = _numberController.text.substring(3).trim();
+      if (without.length == 8) {
+        _numberController.text = without;
+        widget.checkoutController.countryDialCode = '+965';
+      }
+    }
+  }
+
   TextEditingController get _nameController =>
       widget.isGuest ? widget.guestNameController! : widget.checkoutController.contactPersonNameController;
 
@@ -193,8 +207,10 @@ class _AddressInfoBottomSheetState extends State<AddressInfoBottomSheet> {
                 onCountryChanged: (CountryCode countryCode) {
                   widget.checkoutController.countryDialCode = countryCode.dialCode;
                 },
-                countryDialCode:
-                    widget.checkoutController.countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+                countryDialCode: (widget.checkoutController.countryDialCode != null &&
+                        widget.checkoutController.countryDialCode != '+91')
+                    ? widget.checkoutController.countryDialCode
+                    : '+965',
               ),
             ),
 

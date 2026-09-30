@@ -269,7 +269,7 @@ class ConfigModel {
     address = json['address'];
     phone = json['phone'];
     email = json['email'];
-    country = json['country'];
+    country = (json['country'] == null || json['country'] == 'IN' || json['country'] == 'BD') ? 'KW' : json['country'];
     defaultLocation = json['default_location'] != null ? DefaultLocation.fromJson(json['default_location']) : DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);
     if(defaultLocation?.lat == null || defaultLocation?.lng == null || (defaultLocation!.lat!.startsWith('25.') && defaultLocation!.lng!.startsWith('55.'))) {
       defaultLocation = DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);

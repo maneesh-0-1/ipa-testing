@@ -18,7 +18,6 @@ import 'package:sixam_mart/features/checkout/domain/models/surge_price_model.dar
 import 'package:sixam_mart/features/location/domain/models/zone_response_model.dart';
 import 'package:sixam_mart/features/coupon/controllers/coupon_controller.dart';
 import 'package:sixam_mart/features/item/controllers/item_controller.dart';
-import 'package:sixam_mart/features/language/controllers/language_controller.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart/features/profile/controllers/profile_controller.dart';
@@ -70,8 +69,9 @@ class CheckoutController extends GetxController implements GetxService {
   final FocusNode houseNode = FocusNode();
   final FocusNode floorNode = FocusNode();
 
-  String? countryDialCode = Get.find<AuthController>().getUserCountryCode().isNotEmpty ? Get.find<AuthController>().getUserCountryCode()
-      : CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode ?? Get.find<LocalizationController>().locale.countryCode;
+  String? countryDialCode = (Get.find<AuthController>().getUserCountryCode().isNotEmpty && Get.find<AuthController>().getUserCountryCode() != '+91')
+      ? Get.find<AuthController>().getUserCountryCode()
+      : (CountryCode.fromCountryCode(Get.find<SplashController>().configModel?.country ?? 'KW').dialCode ?? '+965');
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -1394,17 +1394,41 @@ class CheckoutController extends GetxController implements GetxService {
       name ='${Get.find<ProfileController>().userInfoModel!.fName ?? ''} ${Get.find<ProfileController>().userInfoModel!.lName ?? ''}';
     }
 
-    try {
+    String processPhone = (addressModel != null && addressModel.contactPersonNumber != null && addressModel.contactPersonNumber != 'null') ? addressModel.contactPersonNumber??'' : phone;
 
-      String processPhone = (addressModel != null && addressModel.contactPersonNumber != null && addressModel.contactPersonNumber != 'null') ? addressModel.contactPersonNumber??'' : phone;
+    if (processPhone.trim().isEmpty) {
+      countryDialCode = '+965';
+      contactPersonNumberController.text = '';
+    } else {
+      String cleanPhone = processPhone.trim();
+      if (cleanPhone.startsWith('+91')) {
+        String withoutCode = cleanPhone.substring(3).trim();
+        if (withoutCode.length == 8) {
+          cleanPhone = '+965$withoutCode';
+        }
+      } else if (!cleanPhone.startsWith('+')) {
+        if (cleanPhone.startsWith('965')) {
+          cleanPhone = '+$cleanPhone';
+        } else {
+          cleanPhone = '+965$cleanPhone';
+        }
+      }
 
-      PhoneNumber phoneNumber = PhoneNumber.parse(processPhone);
-      countryDialCode = '+${phoneNumber.countryCode}';
-      contactPersonNumberController.text = phoneNumber.international.substring(
-        countryDialCode!.length,
-      );
-    } catch (e) {
-      debugPrint('number can\'t parse : $e');
+      try {
+        PhoneNumber phoneNumber = PhoneNumber.parse(cleanPhone, callerCountry: IsoCode.KW);
+        countryDialCode = '+${phoneNumber.countryCode}';
+        if (countryDialCode == '+91') {
+          countryDialCode = '+965';
+        }
+        contactPersonNumberController.text = phoneNumber.nsn;
+      } catch (e) {
+        debugPrint('number can\'t parse : $e');
+        countryDialCode ??= '+965';
+        if (countryDialCode == '+91') {
+          countryDialCode = '+965';
+        }
+        contactPersonNumberController.text = cleanPhone.replaceAll(RegExp(r'^\+965|^\+91'), '').trim();
+      }
     }
     contactPersonAddressController.text = _address?.address ?? '';
     contactPersonNameController.text = _address?.contactPersonName ?? name;

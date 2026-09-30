@@ -100,9 +100,13 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
 
     bool isLoggedIn = AuthHelper.isLoggedIn();
-    Get.find<CheckoutController>().resetOrderTax();
-    Get.find<CheckoutController>().initAdditionData();
-    Get.find<CheckoutController>().couponController.text = '';
+    final checkoutCtrl = Get.find<CheckoutController>();
+    if (checkoutCtrl.countryDialCode == null || checkoutCtrl.countryDialCode == '+91') {
+      checkoutCtrl.countryDialCode = '+965';
+    }
+    checkoutCtrl.resetOrderTax();
+    checkoutCtrl.initAdditionData();
+    checkoutCtrl.couponController.text = '';
 
     Get.find<CheckoutController>().clearPrevData();
     Get.find<CheckoutController>().getDmTipMostTapped();

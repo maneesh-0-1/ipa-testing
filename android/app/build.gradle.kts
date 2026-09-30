@@ -43,14 +43,22 @@ android {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
+            val configuredStoreFile = keystoreProperties["storeFile"] as String?
+            storeFile = when {
+                configuredStoreFile != null && file(configuredStoreFile).exists() -> file(configuredStoreFile)
+                configuredStoreFile != null && rootProject.file(configuredStoreFile).exists() -> rootProject.file(configuredStoreFile)
+                file("upload-keystore.jks").exists() -> file("upload-keystore.jks")
+                else -> configuredStoreFile?.let { file(it) }
+            }
             storePassword = keystoreProperties["storePassword"] as String?
         }
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("debug") // or "release" if you have real keystore
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
@@ -62,5 +70,5 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation("com.google.firebase:firebase-messaging:23.4.1")
-    implementation("com.facebook.android:facebook-android-sdk:latest.release")
+    implementation("com.facebook.android:facebook-android-sdk:17.0.2")
 }
