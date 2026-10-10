@@ -54,7 +54,7 @@ class _NewPassScreenState extends State<NewPassScreen> {
           ) : null,
           child: Column(
             children: [
-              SizedBox(height: Dimensions.paddingSizeExtraSmall),
+              const SizedBox(height: Dimensions.paddingSizeExtraSmall),
               ResponsiveHelper.isDesktop(context) ? Align(
                 alignment: Alignment.topRight,
                 child: GestureDetector(

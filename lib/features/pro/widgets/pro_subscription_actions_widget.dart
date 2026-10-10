@@ -17,7 +17,7 @@ class ProSubscriptionActionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color buttonColor =  Color(0xffA16BFF);
+    const Color buttonColor =  Color(0xffA16BFF);
     final bool hasPlans = plans != null && plans!.isNotEmpty;
 
     return GetBuilder<ProController>(builder: (proController) {

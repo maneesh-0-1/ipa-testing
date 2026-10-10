@@ -9,7 +9,7 @@ class RideHomeController extends GetxController implements GetxService {
 
 
   Future<Response> getOfferList(int offset) async {
-    return Response();
+    return const Response();
   }
 
   Future<void> getBannerList() async {

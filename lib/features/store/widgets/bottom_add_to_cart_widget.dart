@@ -5,7 +5,6 @@ import 'package:sixam_mart/features/cart/controllers/cart_controller.dart';
 import 'package:sixam_mart/features/cart/domain/models/all_carts_model.dart';
 import 'package:sixam_mart/features/cart/screens/cart_screen.dart';
 import 'package:sixam_mart/features/cart/screens/global_cart_screen.dart';
-import 'package:sixam_mart/util/dimensions.dart';
 
 class BottomAddToCartWidget extends StatelessWidget {
   final int? storeId;

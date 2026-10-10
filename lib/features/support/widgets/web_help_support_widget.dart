@@ -22,7 +22,7 @@ class WebSupportScreen extends StatelessWidget {
           child: Column(
             children: [
               WebScreenTitleWidget(title: 'help_support'.tr),
-              SizedBox(height: Dimensions.paddingSizeExtremeLarge),
+              const SizedBox(height: Dimensions.paddingSizeExtremeLarge),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
                 child: Container(
@@ -38,7 +38,7 @@ class WebSupportScreen extends StatelessWidget {
                     child: Row(children: [
                         Expanded(child: Column(children: [
                           Image.asset(Images.helpAndSupport, width: 170, height: 120),
-                          SizedBox(height: Dimensions.paddingSizeDefault),
+                          const SizedBox(height: Dimensions.paddingSizeDefault),
                           Text('contact_for_support'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
                           Text("support_description".tr, textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
                         ])),
@@ -130,18 +130,18 @@ class CustomCard extends StatelessWidget {
             const SizedBox(width: Dimensions.paddingSizeDefault),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.6))),
-              subtitle != null ? const SizedBox(height: 4) : SizedBox.shrink(),
-              subtitle != null ? Text(subtitle!, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.6))) : SizedBox.shrink(),
+              subtitle != null ? const SizedBox(height: 4) : const SizedBox.shrink(),
+              subtitle != null ? Text(subtitle!, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.6))) : const SizedBox.shrink(),
             ])),
             const SizedBox(width: Dimensions.paddingSizeDefault),
           ]),
           Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            SizedBox(width: 40),
+            const SizedBox(width: 40),
             const SizedBox(width: Dimensions.paddingSizeDefault),
             Expanded(child: Text(mainText, style: subtitle != null ? robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault)
                 : robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.6)))),
             Container(width: 35, height: 35,
-              decoration: BoxDecoration(color:  const Color(0xFF4CAF50), shape: BoxShape.circle,),
+              decoration: const BoxDecoration(color:  Color(0xFF4CAF50), shape: BoxShape.circle,),
               child: GestureDetector(
                 onTap: onActionPressed,
                 child: Icon(icon, color: Colors.white, size: Dimensions.paddingSizeLarge),

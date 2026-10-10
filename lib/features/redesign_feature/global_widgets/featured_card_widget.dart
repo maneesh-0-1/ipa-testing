@@ -41,8 +41,8 @@ class FeaturedCardWidget extends StatelessWidget {
              if (topLeftBadge != null || topRightBadge != null)
               Positioned(left: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeSmall,
                 child: Container(
-                  decoration: BoxDecoration(color: Color(0xFF3F81EA), borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge)),
-                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(color: const Color(0xFF3F81EA), borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge)),
+                  padding: const EdgeInsets.all(3),
                   child: Row(children: <Widget>[
                     if (topLeftBadge != null)
                       _OverlayBadge(text: topLeftBadge!, backgroundColor: const Color(0xFFFFF4E8), textColor: const Color(0xFFEA8C21),
@@ -69,7 +69,7 @@ class FeaturedCardWidget extends StatelessWidget {
               ),
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Padding(
             padding: const EdgeInsets.only(top: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeExtraSmall),
             child: Row(children: <Widget>[

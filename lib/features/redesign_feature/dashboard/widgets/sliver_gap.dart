@@ -11,7 +11,7 @@ Widget sliverPadX({required Widget child, isSliver = false}) {
 
   if(isSliver){
    return SliverPadding(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: Dimensions.paddingSizeDefault,
       ),
       sliver: child,
@@ -19,7 +19,7 @@ Widget sliverPadX({required Widget child, isSliver = false}) {
   }
     return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: Dimensions.paddingSizeDefault,
         ),
         child: child,

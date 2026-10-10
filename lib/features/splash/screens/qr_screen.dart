@@ -13,21 +13,24 @@ class QrScreen extends StatefulWidget {
 }
 
 class _QrScreenState extends State<QrScreen> {
-
   @override
   void initState() {
     super.initState();
     _handleQrRouting();
   }
-  Future<void> _handleQrRouting() async {
 
+  Future<void> _handleQrRouting() async {
     final SplashController splashController = Get.find<SplashController>();
     await splashController.fetchAppDownloadSection();
     final links = splashController.appDownloadSection?.downloadUserAppLinks;
-    if (GetPlatform.isAndroid && links?.playstoreUrl != null && links!.playstoreUrl!.isNotEmpty) {
+    if (GetPlatform.isAndroid &&
+        links?.playstoreUrl != null &&
+        links!.playstoreUrl!.isNotEmpty) {
       String url = links.playstoreUrl!;
       redirectTo(url);
-    } else if (GetPlatform.isIOS && links?.appleStoreUrl != null && links!.appleStoreUrl!.isNotEmpty) {
+    } else if (GetPlatform.isIOS &&
+        links?.appleStoreUrl != null &&
+        links!.appleStoreUrl!.isNotEmpty) {
       String url = links.appleStoreUrl!;
       redirectTo(url);
     }
@@ -35,9 +38,6 @@ class _QrScreenState extends State<QrScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),);
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

@@ -32,7 +32,7 @@ class OrderBannerViewWidget extends StatelessWidget {
                 ))),
                 Expanded(flex: 2,
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                  const SizedBox(height: Dimensions.paddingSizeExtraLarge),
                   Text('your_food_will_delivered_within'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault)),
                   const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 

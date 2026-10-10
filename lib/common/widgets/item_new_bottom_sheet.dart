@@ -1802,8 +1802,12 @@ class _HeaderVideoPlayer extends StatefulWidget {
 class _HeaderVideoPlayerState extends State<_HeaderVideoPlayer> {
   // Active header-video instances, so the carousel/fullscreen can pause/resume them.
   static final Set<_HeaderVideoPlayerState> _instances = <_HeaderVideoPlayerState>{};
-  static void pauseAll() { for (final s in _instances.toList()) s._pause(); }
-  static void resumeAll() { for (final s in _instances.toList()) s._resume(); }
+  static void pauseAll() { for (final s in _instances.toList()) {
+    s._pause();
+  } }
+  static void resumeAll() { for (final s in _instances.toList()) {
+    s._resume();
+  } }
 
   VideoPlayerController? _fileController;
   YoutubePlayerController? _ytController;

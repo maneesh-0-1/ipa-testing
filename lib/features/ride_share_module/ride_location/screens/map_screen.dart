@@ -16,7 +16,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver{
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 

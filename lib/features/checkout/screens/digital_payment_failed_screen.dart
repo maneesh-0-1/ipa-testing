@@ -43,14 +43,14 @@ class _DigitalPaymentFailedScreenState extends State<DigitalPaymentFailedScreen>
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(Dimensions.radiusLarge),
-            topRight: Radius.circular(Dimensions.radiusLarge),
+            topLeft: const Radius.circular(Dimensions.radiusLarge),
+            topRight: const Radius.circular(Dimensions.radiusLarge),
             bottomRight: Radius.circular(ResponsiveHelper.isDesktop(Get.context) ? Dimensions.radiusLarge : 0),
             bottomLeft: Radius.circular(ResponsiveHelper.isDesktop(Get.context) ? Dimensions.radiusLarge : 0),
           ),
         ),
         child: Stack(children: [
-          PaymentIncompleteView(),
+          const PaymentIncompleteView(),
 
           Positioned(
             top: 0,

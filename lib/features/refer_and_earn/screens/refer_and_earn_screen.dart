@@ -87,7 +87,7 @@ class _ReferAndEarnScreenState extends State<ReferAndEarnScreen> {
               padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
               child: CustomInkWell(
                 onTap: () {
-                  Get.bottomSheet(BottomSheetForMobile());
+                  Get.bottomSheet(const BottomSheetForMobile());
                 },
                 child: Image.asset(Images.commentInfo, height: 25),
               ),
@@ -118,7 +118,7 @@ class _ReferAndEarnScreenState extends State<ReferAndEarnScreen> {
                               decoration: BoxDecoration(
                                 color: Theme.of(context).cardColor,
                                 borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                boxShadow: [BoxShadow(color: Theme.of(context).disabledColor.withValues(alpha: 0.2), blurRadius: 10, offset: Offset(0, 5))],
+                                boxShadow: [BoxShadow(color: Theme.of(context).disabledColor.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 5))],
                               ),
                               padding: EdgeInsets.all(ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeLarge),
                               margin: EdgeInsets.symmetric(horizontal: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : 0),

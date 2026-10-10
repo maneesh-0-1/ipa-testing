@@ -87,7 +87,7 @@ class MarkerHelper{
           ..close(),
         bubblePaint,
       );
-      canvas.drawParagraph(paragraph, Offset(hPad, vPad));
+      canvas.drawParagraph(paragraph, const Offset(hPad, vPad));
       // Icon centered at the bottom (map anchor = bottom-center of icon = default (0.5, 1.0))
       canvas.drawImage(iconImage, Offset(iconX, labelH + arrowH), Paint());
 

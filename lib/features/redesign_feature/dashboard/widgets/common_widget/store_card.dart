@@ -33,7 +33,7 @@ class StoreCard extends StatelessWidget {
             decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 3),
               boxShadow: [
                 BoxShadow(
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                   blurRadius: 5,
                   color: Colors.black.withAlpha(30),
                 ),
@@ -194,10 +194,10 @@ class StoreCard extends StatelessWidget {
                                         ],
                                       )),
 
-                                      SizedBox(width: Dimensions.paddingSizeExtraSmall,),
+                                      const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
 
                                       Container(
-                                        padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall,),
+                                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall,),
                                         decoration: BoxDecoration(
                                           color: Theme.of(context).primaryColor,
                                           borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
@@ -244,7 +244,7 @@ class _ItemsPreviewStack extends StatelessWidget {
           return Positioned(
             left: index * 25,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 2),
+              padding: const EdgeInsets.only(bottom: 2),
               child: Container(
                 height: 30, width: 30,
                 decoration: BoxDecoration(
@@ -252,7 +252,7 @@ class _ItemsPreviewStack extends StatelessWidget {
                     border: Border.all(color: Theme.of(context).cardColor, width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        offset: Offset(0, 1),
+                        offset: const Offset(0, 1),
                         blurRadius: 1,
                         color: Theme.of(context).textTheme.bodyLarge!.color!.withAlpha(50),
                       )

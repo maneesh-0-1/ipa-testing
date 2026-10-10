@@ -23,7 +23,7 @@ class SettingPage extends StatelessWidget {
       endDrawer: const MenuDrawer(), endDrawerEnableOpenDragGesture: false,
       key: UniqueKey(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
+        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
         child: Column(children: [
 
           ProfileButtonWidget(icon: Icons.language, title: 'language'.tr, languageName: AppConstants.languages[Get.find<LocalizationController>().selectedLanguageIndex].languageName, onTap: () {

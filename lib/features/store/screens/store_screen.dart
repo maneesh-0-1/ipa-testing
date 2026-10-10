@@ -1016,7 +1016,7 @@ class _StoreAnnouncementScroller extends StatelessWidget {
 
       // Pro card first (when the user has Pro), then the regular offer cards.
       final List<Widget> cards = <Widget>[
-        if (proCard != null) proCard,
+        ?proCard,
         ...offers.map((_StoreOfferData offer) => _StoreOfferCard(data: offer)),
       ];
 

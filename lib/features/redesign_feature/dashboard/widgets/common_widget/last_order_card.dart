@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:sixam_mart/common/widgets/custom_image.dart';
 import 'package:sixam_mart/features/order/controllers/order_controller.dart';
 import 'package:sixam_mart/features/order/domain/models/order_model.dart';
-import 'package:sixam_mart/features/order/screens/order_details_new_screen.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/store/screens/store_screen.dart';
 import 'package:sixam_mart/helper/date_converter.dart';

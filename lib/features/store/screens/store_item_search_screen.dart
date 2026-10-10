@@ -12,7 +12,6 @@ import 'package:sixam_mart/util/styles.dart';
 import 'package:sixam_mart/common/widgets/footer_view.dart';
 import 'package:sixam_mart/common/widgets/paginated_list_view.dart';
 import 'package:sixam_mart/common/widgets/veg_filter_widget.dart';
-import 'package:sixam_mart/features/store/widgets/bottom_cart_widget.dart';
 
 class StoreItemSearchScreen extends StatefulWidget {
   final String? storeID;
