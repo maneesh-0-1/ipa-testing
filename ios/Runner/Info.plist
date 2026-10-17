@@ -60,7 +60,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to the camera to upload customer profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location to manage coverage of restaurant and when add a new address.</string>
+	<string>B.Laban uses your location to show nearby restaurants, check delivery coverage, and ensure accurate order delivery.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>B.Laban uses your location to show nearby restaurants, check delivery coverage, and ensure accurate order delivery.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>B.Laban uses your location to show nearby restaurants, check delivery coverage, and ensure accurate order delivery.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires microphone access to record your voice for speech recognition.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

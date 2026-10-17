@@ -1,7 +1,7 @@
 name: sixam_mart
 description: B.Laban Resturant
 publish_to: 'none' #
-version: 1.0.0+3
+version: 1.0.0+14
 
 environment:
   sdk: ^3.10.0
