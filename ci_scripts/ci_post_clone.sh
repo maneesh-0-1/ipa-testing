@@ -21,25 +21,22 @@ echo "Repository root: $(pwd)"
 # Avoid git dubious ownership errors in CI containers
 git config --global --add safe.directory "*" || true
 
-# 2. Ensure RubyGems, Homebrew & CocoaPods are in PATH
-export GEM_HOME="$HOME/gems"
-export PATH="$GEM_HOME/bin:/opt/homebrew/bin:/usr/local/bin:${PATH}"
+# 2. Ensure Homebrew & CocoaPods are in PATH
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
 
-# 3. Ensure CocoaPods is installed BEFORE Flutter iOS config runs
+# 3. Ensure CocoaPods is installed
 if ! command -v pod >/dev/null 2>&1; then
-  echo "CocoaPods not found. Installing via RubyGems..."
-  gem install cocoapods --no-document --install-dir "$GEM_HOME" || {
-    echo "gem install failed; attempting brew..."
-    HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install cocoapods || true
+  echo "CocoaPods not found. Installing via Homebrew..."
+  brew install cocoapods || {
+    echo "brew install failed, falling back to gem install..."
+    gem install cocoapods --no-document
   }
 fi
 
-if command -v pod >/dev/null 2>&1; then
-  echo "CocoaPods path: $(command -v pod)"
-  echo "CocoaPods version: $(pod --version)"
-else
-  echo "WARNING: pod command not found in PATH."
-fi
+echo "CocoaPods path: $(command -v pod)"
+echo "CocoaPods version: $(pod --version)"
 
 # 4. Install / Verify Flutter SDK matching pubspec.lock (>=3.44.0)
 FLUTTER_VERSION="${FLUTTER_VERSION:-3.44.7}"
@@ -77,15 +74,12 @@ echo "=== Configuring iOS Project & Swift Packages ==="
 # Generates ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage and Generated.xcconfig
 flutter build ios --config-only --no-codesign
 
-echo "=== Running Pod Install ==="
-if [ -f "ios/Podfile" ] && command -v pod >/dev/null 2>&1; then
-  (cd ios && pod install)
-  if [ -f "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh" ]; then
-    sed -i.bak -e 's/source="$(readlink "${source}")"/source="$(readlink -f "${source}")"/g' "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh" || true
-  fi
-fi
+echo "=== Running Pod Install with Repo Update ==="
+cd ios
+pod install --repo-update
+cd ..
 
-echo "=== Synchronizing Package.resolved ==="
+echo "=== Synchronizing Package.resolved & Shared Schemes ==="
 mkdir -p ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
 mkdir -p ios/Runner.xcworkspace/xcshareddata/swiftpm
 
@@ -95,6 +89,11 @@ elif [ -f "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package
   cp "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved" "ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 fi
 
+mkdir -p ios/Runner.xcworkspace/xcshareddata/xcschemes
+if [ -f "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" ] && [ ! -f "ios/Runner.xcworkspace/xcshareddata/xcschemes/Runner.xcscheme" ]; then
+  cp "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" "ios/Runner.xcworkspace/xcshareddata/xcschemes/Runner.xcscheme"
+fi
+
 echo "=== Resolving Swift Package dependencies ==="
 if command -v xcodebuild >/dev/null 2>&1; then
   xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner || true
@@ -102,9 +101,15 @@ if command -v xcodebuild >/dev/null 2>&1; then
 fi
 
 echo "=== Verifying Generated Artifacts ==="
+if [ -d "ios/Pods/GoogleMaps" ]; then
+  echo "GoogleMaps pod is present in ios/Pods/GoogleMaps."
+else
+  echo "Checking Pods directory:"
+  ls -la ios/Pods || true
+fi
+
 if [ -d "ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" ]; then
   echo "FlutterGeneratedPluginSwiftPackage is present."
-  ls -la "ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage"
 else
   echo "WARNING: FlutterGeneratedPluginSwiftPackage was not found!"
 fi
@@ -113,12 +118,6 @@ if [ -f "ios/Flutter/Generated.xcconfig" ]; then
   echo "Generated.xcconfig is present."
 else
   echo "WARNING: Generated.xcconfig was not found!"
-fi
-
-if [ -f "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved" ]; then
-  echo "Package.resolved is present in Runner.xcodeproj."
-else
-  echo "WARNING: Package.resolved was not found in Runner.xcodeproj!"
 fi
 
 echo "Xcode Cloud ci_post_clone.sh finished successfully."
