@@ -80,6 +80,9 @@ flutter build ios --config-only --no-codesign
 echo "=== Running Pod Install ==="
 if [ -f "ios/Podfile" ] && command -v pod >/dev/null 2>&1; then
   (cd ios && pod install)
+  if [ -f "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh" ]; then
+    sed -i.bak -e 's/source="$(readlink "${source}")"/source="$(readlink -f "${source}")"/g' "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh" || true
+  fi
 fi
 
 echo "=== Synchronizing Package.resolved ==="
