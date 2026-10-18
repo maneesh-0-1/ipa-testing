@@ -21,17 +21,18 @@ echo "Repository root: $(pwd)"
 # Avoid git dubious ownership errors in CI containers
 git config --global --add safe.directory "*" || true
 
-# 2. Ensure Homebrew & CocoaPods are in PATH
+# 2. Configure GEM and PATH for fast CocoaPods installation
+export GEM_HOME="$HOME/gems"
+export PATH="$GEM_HOME/bin:/opt/homebrew/bin:/usr/local/bin:${PATH}"
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
-export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
 
-# 3. Ensure CocoaPods is installed
+# 3. Fast CocoaPods installation via RubyGems (takes ~15-30s instead of minutes with brew)
 if ! command -v pod >/dev/null 2>&1; then
-  echo "CocoaPods not found. Installing via Homebrew..."
-  brew install cocoapods || {
-    echo "brew install failed, falling back to gem install..."
-    gem install cocoapods --no-document
+  echo "CocoaPods not found. Installing via RubyGems..."
+  gem install cocoapods -v 1.16.2 --no-document --install-dir "$GEM_HOME" || {
+    echo "gem install failed, falling back to brew install..."
+    brew install cocoapods || true
   }
 fi
 
@@ -56,7 +57,7 @@ fi
 if [ "$NEED_CLONE" = true ]; then
   echo "Cloning Flutter SDK (${FLUTTER_VERSION})..."
   rm -rf "${FLUTTER_ROOT}"
-  git clone --depth 1 --branch "${FLUTTER_VERSION}" https://github.com/flutter/flutter.git "${FLUTTER_ROOT}"
+  git clone --depth 1 --branch "${FLUTTER_VERSION}" --progress https://github.com/flutter/flutter.git "${FLUTTER_ROOT}"
 fi
 
 export PATH="${FLUTTER_ROOT}/bin:${PATH}"
@@ -74,9 +75,13 @@ echo "=== Configuring iOS Project & Swift Packages ==="
 # Generates ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage and Generated.xcconfig
 flutter build ios --config-only --no-codesign
 
-echo "=== Running Pod Install with Repo Update ==="
+echo "=== Running Pod Install ==="
 cd ios
-pod install --repo-update
+# Run pod install with verbose streaming so Xcode Cloud never detects inactivity
+pod install --verbose
+if [ -f "Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh" ]; then
+  sed -i.bak -e 's/source="$(readlink "${source}")"/source="$(readlink -f "${source}")"/g' "Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh" || true
+fi
 cd ..
 
 echo "=== Synchronizing Package.resolved & Shared Schemes ==="
@@ -92,12 +97,6 @@ fi
 mkdir -p ios/Runner.xcworkspace/xcshareddata/xcschemes
 if [ -f "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" ] && [ ! -f "ios/Runner.xcworkspace/xcshareddata/xcschemes/Runner.xcscheme" ]; then
   cp "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" "ios/Runner.xcworkspace/xcshareddata/xcschemes/Runner.xcscheme"
-fi
-
-echo "=== Resolving Swift Package dependencies ==="
-if command -v xcodebuild >/dev/null 2>&1; then
-  xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner || true
-  xcodebuild -resolvePackageDependencies -project ios/Runner.xcodeproj -scheme Runner || true
 fi
 
 echo "=== Verifying Generated Artifacts ==="
