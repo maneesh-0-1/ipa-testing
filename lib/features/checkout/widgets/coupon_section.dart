@@ -34,13 +34,18 @@ class CouponSection extends StatelessWidget {
     required this.variationPrice,
   });
 
+  int? get _resolvedStoreId =>
+      checkoutController.store?.id ??
+      (Get.isRegistered<StoreController>() ? Get.find<StoreController>().store?.id : null) ??
+      storeId;
+
   Future<bool> _applyCoupon(String code) async {
     final couponCtrl = Get.find<CouponController>();
     final couponDiscount = await couponCtrl.applyCoupon(
       code,
       (price - discount) + addOns + variationPrice,
       deliveryCharge,
-      Get.find<StoreController>().store!.id,
+      _resolvedStoreId,
     );
     if ((couponDiscount ?? 0) > 0) {
       showCustomSnackBar(
@@ -67,7 +72,7 @@ class CouponSection extends StatelessWidget {
 
   void _openSheet(BuildContext context) {
     final sheet = CouponBottomSheet(
-      storeId: Get.find<StoreController>().store!.id,
+      storeId: _resolvedStoreId,
       checkoutController: checkoutController,
       onCouponSelected: _applyCoupon,
     );

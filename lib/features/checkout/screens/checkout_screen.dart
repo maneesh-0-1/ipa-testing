@@ -165,12 +165,10 @@ class CheckoutScreenState extends State<CheckoutScreen> {
       }
     }
 
-    if(isLoggedIn) {
-      Get.find<CouponController>().getCouponList(
-        customerId: Get.find<ProfileController>().userInfoModel?.id,
-        storeId: widget.storeId ?? (_cartList != null && _cartList!.isNotEmpty ? _cartList![0]!.item!.storeId : null),
-      );
-    }
+    Get.find<CouponController>().getCouponList(
+      customerId: isLoggedIn ? Get.find<ProfileController>().userInfoModel?.id : null,
+      storeId: widget.storeId ?? (_cartList != null && _cartList!.isNotEmpty ? _cartList![0]!.item!.storeId : null),
+    );
 
     if(widget.storeId != null){
       Get.find<CheckoutController>().initCheckoutData(widget.storeId);

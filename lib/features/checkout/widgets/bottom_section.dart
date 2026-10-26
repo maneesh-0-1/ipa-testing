@@ -80,17 +80,17 @@ class BottomSection extends StatelessWidget {
 
         isDesktop ? pricingView(context: context, takeAway: takeAway) : const SizedBox(),
 
-        SizedBox(height: isDesktop && !isGuestLoggedIn ? Dimensions.paddingSizeSmall : 0),
+        SizedBox(height: isDesktop ? Dimensions.paddingSizeSmall : 0),
 
         /// Coupon
-        isDesktop && !isGuestLoggedIn ? CouponSection(
+        isDesktop ? CouponSection(
           storeId: storeId, checkoutController: checkoutController, total: total, price: price,
           discount: discount, addOns: addOns, deliveryCharge: deliveryCharge, variationPrice: variationPrice,
         ) : const SizedBox(),
 
         Padding(
           padding: EdgeInsets.fromLTRB(
-            Dimensions.paddingSizeDefault, isDesktop && !isGuestLoggedIn ? Dimensions.paddingSizeDefault : 0,
+            Dimensions.paddingSizeDefault, isDesktop ? Dimensions.paddingSizeDefault : 0,
             Dimensions.paddingSizeDefault, isDesktop ? Dimensions.paddingSizeDefault : 0,
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

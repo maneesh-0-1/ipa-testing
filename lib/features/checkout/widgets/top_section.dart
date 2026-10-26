@@ -169,7 +169,7 @@ class TopSection extends StatelessWidget {
         SizedBox(height: isGuestLoggedIn && Get.find<SplashController>().configModel!.centralizeLoginSetup!.manualLoginStatus! ? Dimensions.paddingSizeSmall : 0),
 
         /// Coupon..
-        !isDesktop && !isGuestLoggedIn ? CouponSection(
+        !isDesktop ? CouponSection(
           storeId: storeId, checkoutController: checkoutController, total: total, price: price,
           discount: discount, addOns: addOns, deliveryCharge: deliveryCharge, variationPrice: variationPrice,
         ) : const SizedBox(),
