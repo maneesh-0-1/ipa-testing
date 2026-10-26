@@ -18,6 +18,7 @@ import 'package:sixam_mart/features/item/domain/models/item_model.dart';
 import 'package:sixam_mart/features/language/controllers/language_controller.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/store/domain/models/store_model.dart';
+import 'package:sixam_mart/helper/auth_helper.dart';
 import 'package:sixam_mart/helper/date_converter.dart';
 import 'package:sixam_mart/helper/price_converter.dart';
 import 'package:sixam_mart/helper/responsive_helper.dart';
@@ -136,7 +137,8 @@ class ItemWidget extends StatelessWidget {
 
                         isAvailable ? const SizedBox() : NotAvailableWidget(isStore: isStore),
 
-                        Positioned(
+                        if (AuthHelper.isLoggedIn())
+                          Positioned(
                           top: 5, left: 5,
                           child: GetBuilder<FavouriteController>(builder: (favouriteController) {
                             bool isWished = isStore ? favouriteController.wishStoreIdList.contains(store!.id) : favouriteController.wishItemIdList.contains(item!.id);

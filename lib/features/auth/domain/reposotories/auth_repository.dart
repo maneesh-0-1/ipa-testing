@@ -252,7 +252,11 @@ class AuthRepository implements AuthRepositoryInterface{
 
   @override
   String getUserCountryCode() {
-    return sharedPreferences.getString(AppConstants.userCountryCode) ?? "";
+    String code = sharedPreferences.getString(AppConstants.userCountryCode) ?? "";
+    if (code.isEmpty || code == '+91' || code == 'IN') {
+      return '+965';
+    }
+    return code;
   }
 
   @override
@@ -269,6 +273,9 @@ class AuthRepository implements AuthRepositoryInterface{
 
   @override
   Future<void> saveOtpUserNumber(String number, String countryCode) async {
+    if (countryCode == '+91' || countryCode == 'IN' || countryCode.isEmpty) {
+      countryCode = '+965';
+    }
     await sharedPreferences.setString(AppConstants.otpUserNumber, number);
     await sharedPreferences.setString(AppConstants.otpUserCountryCode, countryCode);
   }

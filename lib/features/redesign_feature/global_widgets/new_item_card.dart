@@ -128,20 +128,21 @@ class _HorizontalNewItemCard extends StatelessWidget {
                   if (foodItem.isVeg) const _ImageBadge(assetPath: Images.vegLogo),
                 ]),
               ),
-              Positioned(top: 6, right: 6,
-                child: item != null
-                  ? _ItemFavouriteButton(item: item!, containerSize: 28, iconSize: 16)
-                  : GestureDetector(
-                      onTap: onFavouriteTap,
-                      child: Container(width: 28, height: 28,
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle,
-                          boxShadow: <BoxShadow>[BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 2))],
+              if (AuthHelper.isLoggedIn())
+                Positioned(top: 6, right: 6,
+                  child: item != null
+                    ? _ItemFavouriteButton(item: item!, containerSize: 28, iconSize: 16)
+                    : GestureDetector(
+                        onTap: onFavouriteTap,
+                        child: Container(width: 28, height: 28,
+                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle,
+                            boxShadow: <BoxShadow>[BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 2))],
+                          ),
+                          child: Icon(foodItem.isFavourited ? Icons.favorite : Icons.favorite_border,
+                            color: const Color(0xFFE53935), size: 16),
                         ),
-                        child: Icon(foodItem.isFavourited ? Icons.favorite : Icons.favorite_border,
-                          color: const Color(0xFFE53935), size: 16),
                       ),
-                    ),
-              ),
+                ),
             ]),
           ),
         ]),
@@ -175,19 +176,20 @@ class _FoodItemImageSection extends StatelessWidget {
             if (foodItem.isVeg) const _ImageBadge(assetPath: Images.vegLogo),
           ]),
         ),
-        Positioned(top: 10, right: 10,
-          child: item != null
-            ? _ItemFavouriteButton(item: item!, containerSize: 36, iconSize: 22)
-            : GestureDetector(
-                onTap: onFavouriteTap,
-                child: Container(width: 36, height: 36,
-                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle,
-                    boxShadow: <BoxShadow>[BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 2))],
+        if (AuthHelper.isLoggedIn())
+          Positioned(top: 10, right: 10,
+            child: item != null
+              ? _ItemFavouriteButton(item: item!, containerSize: 36, iconSize: 22)
+              : GestureDetector(
+                  onTap: onFavouriteTap,
+                  child: Container(width: 36, height: 36,
+                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle,
+                      boxShadow: <BoxShadow>[BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 2))],
+                    ),
+                    child: Icon(foodItem.isFavourited ? Icons.favorite : Icons.favorite_border, color: const Color(0xFFE53935), size: 22),
                   ),
-                  child: Icon(foodItem.isFavourited ? Icons.favorite : Icons.favorite_border, color: const Color(0xFFE53935), size: 22),
                 ),
-              ),
-        ),
+          ),
       ]),
     );
   }
@@ -221,6 +223,9 @@ class _ItemFavouriteButtonState extends State<_ItemFavouriteButton> with SingleT
 
   @override
   Widget build(BuildContext context) {
+    if (!AuthHelper.isLoggedIn()) {
+      return const SizedBox();
+    }
     return GetBuilder<FavouriteController>(builder: (favController) {
       final bool isWished = favController.wishItemIdList.contains(widget.item.id);
       return GestureDetector(

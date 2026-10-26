@@ -417,10 +417,10 @@ class AppConstants {
   /// Delivery Tips
   static List<String> tips = ['custom', '15', '10', '20', '40', '0'];
   static List<String> deliveryInstructionList = [
-    'deliver_to_front_door',
-    'deliver_the_reception_desk',
-    'avoid_calling_phone',
-    'come_with_no_sound',
+    'leave_at_the_door',
+    'avoid_ringing_the_bell',
+    'leave_with_security',
+    'hand_it_to_me',
   ];
 
   static List<ChooseUsModel> whyChooseUsList = [

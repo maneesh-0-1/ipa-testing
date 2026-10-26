@@ -65,7 +65,7 @@ class CodePickerWidget extends StatefulWidget {
     this.backgroundColor,
     this.boxDecoration,
     this.comparator,
-    this.countryFilter,
+    this.countryFilter = const ['KW'],
     this.hideSearch = false,
     this.showDropDownButton = false,
     this.dialogSize,
@@ -112,6 +112,9 @@ class _CodePickerWidgetState extends State<CodePickerWidget> {
     super.didChangeDependencies();
     elements = elements!.map((e) => e.localize(context)).toList();
     _onInit(selectedItem!);
+    if (widget.onChanged != null && selectedItem != null) {
+      widget.onChanged!(selectedItem!);
+    }
   }
 
   @override

@@ -44,6 +44,9 @@ class _AddFavouriteViewState extends State<AddFavouriteView> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    if (!AuthHelper.isLoggedIn()) {
+      return const SizedBox();
+    }
     return Positioned(
       top: widget.top, right: widget.right, left: widget.left,
       child: GetBuilder<FavouriteController>(builder: (favouriteController) {

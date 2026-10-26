@@ -216,7 +216,7 @@ class ItemTitleViewWidget extends StatelessWidget {
           ),
           const SizedBox(width: Dimensions.paddingSizeSmall),
 
-          item!.availableTimeStarts != null ? const SizedBox() : Container(
+          (item!.availableTimeStarts != null || !AuthHelper.isLoggedIn()) ? const SizedBox() : Container(
             padding: const EdgeInsets.all(8), alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor.withValues(alpha: 0.05),

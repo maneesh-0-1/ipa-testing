@@ -310,6 +310,7 @@ class _CartScreenState extends State<CartScreen> {
       Expanded(
         child: SingleChildScrollView(
           controller: scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(children: [
 
             // Cart items card

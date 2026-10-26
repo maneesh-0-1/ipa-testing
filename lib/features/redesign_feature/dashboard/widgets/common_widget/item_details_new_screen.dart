@@ -258,7 +258,8 @@ class _ItemDetailsNewScreenState extends State<ItemDetailsNewScreen> {
                                           },
                                         ),
                                         actions: [
-                                          Padding(
+                                          if (AuthHelper.isLoggedIn())
+                                            Padding(
                                             padding: const EdgeInsets.only(
                                               right: Dimensions.paddingSizeSmall,
                                             ),

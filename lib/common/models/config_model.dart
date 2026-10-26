@@ -269,7 +269,7 @@ class ConfigModel {
     address = json['address'];
     phone = json['phone'];
     email = json['email'];
-    country = (json['country'] == null || json['country'] == 'IN' || json['country'] == 'BD') ? 'KW' : json['country'];
+    country = 'KW';
     defaultLocation = json['default_location'] != null ? DefaultLocation.fromJson(json['default_location']) : DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);
     if(defaultLocation?.lat == null || defaultLocation?.lng == null || (defaultLocation!.lat!.startsWith('25.') && defaultLocation!.lng!.startsWith('55.'))) {
       defaultLocation = DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);
@@ -368,7 +368,7 @@ class ConfigModel {
     subscriptionBusinessModel = json['subscription_business_model'];
     commissionBusinessModel = json['commission_business_model'];
     subscriptionFreeTrialType = json['subscription_free_trial_type'];
-    countryPickerStatus = json['country_picker_status'] == 1;
+    countryPickerStatus = false;
     firebaseOtpVerification = json['firebase_otp_verification'] == 1;
     centralizeLoginSetup = json['centralize_login'] != null ? CentralizeLoginSetup.fromJson(json['centralize_login']) : null;
     vehicleDistanceMinPrice = json['vehicle_distance_min']?.toDouble();

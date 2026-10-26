@@ -66,8 +66,9 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   late LatLng _initialPosition;
   bool _otherSelect = false;
   final Debouncer _idleDebouncer = Debouncer(delay: const Duration(milliseconds: AppConstants.idleDebounceDuration));
-  String? _countryDialCode = Get.find<AuthController>().getUserCountryCode().isNotEmpty ? Get.find<AuthController>().getUserCountryCode()
-      : CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+  String? _countryDialCode = (Get.find<AuthController>().getUserCountryCode().isNotEmpty && Get.find<AuthController>().getUserCountryCode() != '+91' && Get.find<AuthController>().getUserCountryCode() != 'IN')
+      ? Get.find<AuthController>().getUserCountryCode()
+      : '+965';
 
   @override
   void initState() {
@@ -420,7 +421,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                         CustomTextField(
                                           showTitle: true,
                                           hintText: 'street_number'.tr,
-                                          titleText: '${'street_number'.tr} (${'optional'.tr})',
+                                          titleText: 'street_number'.tr,
+                                          required: true,
                                           showLabelText: false,
                                           inputType: TextInputType.streetAddress,
                                           focusNode: _streetNode,
@@ -434,7 +436,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                             child: CustomTextField(
                                               showTitle: true,
                                               hintText: 'house_name'.tr,
-                                              titleText: '${'house'.tr} (${'optional'.tr})',
+                                              titleText: 'house'.tr,
+                                              required: true,
                                               showLabelText: false,
                                               inputType: TextInputType.text,
                                               focusNode: _houseNode,
@@ -449,7 +452,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                               hintText: 'floor_number'.tr,
                                               showLabelText: false,
                                               showTitle: true,
-                                              titleText: "${'floor'.tr} (${'optional'.tr})",
+                                              titleText: 'floor'.tr,
+                                              required: true,
                                               inputType: TextInputType.text,
                                               focusNode: _floorNode,
                                               inputAction: TextInputAction.done,
@@ -689,7 +693,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                     onCountryChanged: (CountryCode countryCode) {
                       _countryDialCode = countryCode.dialCode;
                     },
-                    countryDialCode: _countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+                    countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                   ),
                   const SizedBox(height: Dimensions.paddingSizeExtremeLarge),
 
@@ -706,36 +710,39 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   SizedBox(height: widget.forGuest ? Dimensions.paddingSizeExtremeLarge : 0),
 
                   CustomTextField(
-                    labelText: '${'street_number'.tr} (${'optional'.tr})',
+                    labelText: 'street_number'.tr,
                     titleText: 'write_street_number'.tr,
                     inputType: TextInputType.streetAddress,
                     focusNode: _streetNode,
                     nextFocus: _houseNode,
                     controller: _streetNumberController,
+                    required: true,
                   ),
                   const SizedBox(height: Dimensions.paddingSizeExtremeLarge),
 
                   Row(children: [
                     Expanded(
                       child: CustomTextField(
-                        labelText: '${'house'.tr} (${'optional'.tr})',
+                        labelText: 'house'.tr,
                         titleText: 'write_house_number'.tr,
                         inputType: TextInputType.text,
                         focusNode: _houseNode,
                         nextFocus: _floorNode,
                         controller: _houseController,
+                        required: true,
                       ),
                     ),
                     const SizedBox(width: Dimensions.paddingSizeExtremeLarge),
 
                     Expanded(
                       child: CustomTextField(
-                        labelText: "${'floor'.tr} (${'optional'.tr})",
+                        labelText: 'floor'.tr,
                         titleText: 'write_floor_number'.tr,
                         inputType: TextInputType.text,
                         focusNode: _floorNode,
                         inputAction: TextInputAction.done,
                         controller: _floorController,
+                        required: true,
                       ),
                     ),
                   ]),
@@ -824,6 +831,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       showCustomSnackBar('invalid_phone_number'.tr);
     } else if(widget.forGuest && _emailController.text.isEmpty) {
       showCustomSnackBar('please_enter_contact_person_email'.tr);
+    } else if(_streetNumberController.text.trim().isEmpty) {
+      showCustomSnackBar('please_enter_the_street_number'.tr);
+    } else if(_houseController.text.trim().isEmpty) {
+      showCustomSnackBar('please_enter_the_house_number'.tr);
+    } else if(_floorController.text.trim().isEmpty) {
+      showCustomSnackBar('please_enter_the_floor_number'.tr);
     } else {
       AddressModel addressModel = AddressModel(
         id: widget.address?.id,

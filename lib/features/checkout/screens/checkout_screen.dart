@@ -92,6 +92,12 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   void initState() {
     super.initState();
 
+    final cartController = Get.find<CartController>();
+    final checkoutController = Get.find<CheckoutController>();
+    if (cartController.isCartTakeawayOnly(widget.cartList)) {
+      checkoutController.setOrderType('take_away', notify: false);
+    }
+
     initCall();
     print('=======guest id: ${AuthHelper.getGuestId()}');
   }
@@ -169,6 +175,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     if(widget.storeId != null){
       Get.find<CheckoutController>().initCheckoutData(widget.storeId);
       Get.find<CouponController>().removeCouponData(false);
+    }
+    if (Get.find<CartController>().isCartTakeawayOnly(_cartList ?? widget.cartList)) {
+      Get.find<CheckoutController>().setOrderType('take_away', notify: false);
     }
     Get.find<CheckoutController>().pickPrescriptionImage(isRemove: true, isCamera: false);
     _isWalletActive = Get.find<SplashController>().configModel!.customerWalletStatus == 1;
@@ -411,7 +420,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
               Expanded(child: SingleChildScrollView(
                 controller: _scrollController,
-                // physics: const BouncingScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 child: FooterView(child: SizedBox(
                   width: Dimensions.webMaxWidth,
                   child: ResponsiveHelper.isDesktop(context) ? Padding(

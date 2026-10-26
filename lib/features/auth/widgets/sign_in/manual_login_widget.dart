@@ -55,8 +55,8 @@ class ManualLoginNewWidget extends StatelessWidget {
           child: Column( mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min, children: [
             const SizedBox(height: Dimensions.paddingSizeSmall - 5),
             CustomTextField(
-              onCountryChanged: (countryCode) => authController.countryDialCode = countryCode.dialCode!,
-              countryDialCode: authController.isNumberLogin ? authController.countryDialCode : null,
+              onCountryChanged: (countryCode) => authController.countryDialCode = (countryCode.dialCode == '+91' ? '+965' : (countryCode.dialCode ?? '+965')),
+              countryDialCode: authController.isNumberLogin ? ((authController.countryDialCode != '+91' && authController.countryDialCode.isNotEmpty) ? authController.countryDialCode : '+965') : null,
               labelText: 'email_or_phone'.tr,
               titleText: 'type_your_number_or_mail'.tr,
               controller: phoneController,
@@ -226,8 +226,8 @@ class ManualLoginNewWidget extends StatelessWidget {
             const SizedBox(height: Dimensions.paddingSizeDefault),
 
             CustomTextField(
-              onCountryChanged: (countryCode) => authController.countryDialCode = countryCode.dialCode!,
-              countryDialCode: authController.isNumberLogin ? authController.countryDialCode : null,
+              onCountryChanged: (countryCode) => authController.countryDialCode = (countryCode.dialCode == '+91' ? '+965' : (countryCode.dialCode ?? '+965')),
+              countryDialCode: authController.isNumberLogin ? ((authController.countryDialCode != '+91' && authController.countryDialCode.isNotEmpty) ? authController.countryDialCode : '+965') : null,
               labelText: 'email_or_phone'.tr,
               titleText: 'enter_email_or_phone'.tr,
               controller: phoneController,

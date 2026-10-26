@@ -14,6 +14,7 @@ import 'package:sixam_mart/features/store/domain/models/recommended_product_mode
 import 'package:sixam_mart/features/store/domain/models/store_banner_model.dart';
 import 'package:sixam_mart/features/review/domain/models/review_model.dart';
 import 'package:sixam_mart/features/location/domain/models/zone_response_model.dart';
+import 'package:sixam_mart/features/cart/controllers/cart_controller.dart';
 import 'package:sixam_mart/features/checkout/controllers/checkout_controller.dart';
 import 'package:sixam_mart/features/store/domain/models/store_model.dart';
 import 'package:sixam_mart/helper/address_helper.dart';
@@ -538,7 +539,10 @@ class StoreController extends GetxController implements GetxService {
         }*/
       }
       Get.find<CheckoutController>().setOrderType(
-        _store != null ? _store!.delivery! ? 'delivery' : 'take_away' : 'delivery', notify: false,
+        Get.find<CartController>().isCartTakeawayOnly()
+            ? 'take_away'
+            : (_store != null ? _store!.delivery! ? 'delivery' : 'take_away' : 'delivery'),
+        notify: false,
       );
       _isLoading = false;
       update();

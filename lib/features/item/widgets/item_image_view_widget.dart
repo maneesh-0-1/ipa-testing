@@ -122,6 +122,7 @@ class ItemImageViewWidget extends StatelessWidget {
             ),
           ) : const SizedBox(),
 
+          if (AuthHelper.isLoggedIn())
           Positioned(
             right: 10, top: 10,
             child: Container(

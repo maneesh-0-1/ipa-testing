@@ -15,6 +15,7 @@ import 'package:sixam_mart/features/item/controllers/item_controller.dart';
 import 'package:sixam_mart/features/item/domain/models/item_model.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/store/domain/models/store_model.dart';
+import 'package:sixam_mart/helper/auth_helper.dart';
 import 'package:sixam_mart/helper/date_converter.dart';
 import 'package:sixam_mart/helper/price_converter.dart';
 import 'package:sixam_mart/helper/responsive_helper.dart';
@@ -238,7 +239,8 @@ class WebItemWidget extends StatelessWidget {
                   ]),
                 ),
 
-                Positioned(
+                if (AuthHelper.isLoggedIn())
+                  Positioned(
                   top: 10, right: 10,
                   child: GetBuilder<FavouriteController>(builder: (favouriteController) {
                     bool isWished = isStore ? favouriteController.wishStoreIdList.contains(store!.id) : favouriteController.wishItemIdList.contains(item!.id);

@@ -914,9 +914,9 @@ class _DeliveryInstructionExpandState extends State<_DeliveryInstructionExpand> 
 
     final String display;
     if ((selected ?? '').isNotEmpty && custom.isNotEmpty) {
-      display = '$selected ($custom)';
+      display = '${selected!.tr} ($custom)';
     } else if ((selected ?? '').isNotEmpty) {
-      display = selected!;
+      display = selected!.tr;
     } else if (custom.isNotEmpty) {
       display = custom;
     } else {

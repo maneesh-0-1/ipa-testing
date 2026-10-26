@@ -96,6 +96,7 @@ class _CartItemWidgetState extends State<CartItemWidget> {
             borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
           ),
           child: CustomInkWell(
+            enableRippleEffect: true,
             onTap: () {
               ResponsiveHelper.isMobile(context)
                   ? showModalBottomSheet(
@@ -477,7 +478,10 @@ class _CartItemQuantityPill extends StatelessWidget {
         // Increase
         InkWell(
           onTap: isLoading ? null : () {
-            Get.find<CartController>().forcefullySetModule(Get.find<CartController>().cartList[0].item!.moduleId!);
+            final int? modId = cart.item?.moduleId ?? (Get.find<CartController>().cartList.isNotEmpty ? Get.find<CartController>().cartList[0].item?.moduleId : null);
+            if (modId != null) {
+              Get.find<CartController>().forcefullySetModule(modId);
+            }
             Get.find<CartController>().setQuantity(true, cartIndex, cart.stock, cart.quantityLimit);
           },
           borderRadius: const BorderRadius.only(

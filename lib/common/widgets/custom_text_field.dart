@@ -196,9 +196,14 @@ class CustomTextFieldState extends State<CustomTextField> {
                     flagWidth: 25,
                     padding: EdgeInsets.zero,
                     onChanged: widget.onCountryChanged,
-                    initialSelection: widget.countryDialCode,
-                    favorite: [widget.countryDialCode ?? ''],
-                    enabled: Get.find<SplashController>().configModel?.countryPickerStatus,
+                    initialSelection: (widget.countryDialCode != null &&
+                            widget.countryDialCode != '+91' &&
+                            widget.countryDialCode != 'IN')
+                        ? widget.countryDialCode
+                        : '+965',
+                    favorite: const ['+965', 'KW'],
+                    countryFilter: const ['KW'],
+                    enabled: false,
                     dialogBackgroundColor: Theme.of(context).cardColor,
                     textStyle: robotoRegular.copyWith(
                       fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyMedium!.color,

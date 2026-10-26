@@ -1735,17 +1735,18 @@ class _StoreCompactItemCard extends StatelessWidget {
                     if (item.veg == 1)const _ImageRoundBadge(assetPath: Images.vegTag),
                   ]),
                 ),
-                Positioned(top: 8, right: 8,
-                  child: GetBuilder<FavouriteController>(
-                    builder: (favouriteController) {
-                      final bool isWished = favouriteController.wishItemIdList.contains(item.id);
-                      return _CardCircleButton(
-                        size: 28,
-                        child: CustomFavouriteWidget(item: item, isWished: isWished, size: 21),
-                      );
-                    },
+                if (AuthHelper.isLoggedIn())
+                  Positioned(top: 8, right: 8,
+                    child: GetBuilder<FavouriteController>(
+                      builder: (favouriteController) {
+                        final bool isWished = favouriteController.wishItemIdList.contains(item.id);
+                        return _CardCircleButton(
+                          size: 28,
+                          child: CustomFavouriteWidget(item: item, isWished: isWished, size: 21),
+                        );
+                      },
+                    ),
                   ),
-                ),
                 if(isAvailable) Positioned(right: 7, bottom: 7,
                   child: CartCountView(item: item, index: index, child: const _AddSquareButton(size: 36)),
                 ),

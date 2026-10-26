@@ -132,7 +132,7 @@ class SelectedCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
 
-      Expanded(child: Text(title, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor), maxLines: 2, overflow: TextOverflow.ellipsis)),
+      Expanded(child: Text(title.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor), maxLines: 2, overflow: TextOverflow.ellipsis)),
       const SizedBox(width: Dimensions.paddingSizeLarge),
 
       Icon(isSelect ? Icons.check_box : Icons.check_box_outline_blank, color: isSelect ? Theme.of(context).primaryColor : Theme.of(context).disabledColor, size: 25, ),

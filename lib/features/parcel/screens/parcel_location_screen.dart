@@ -83,9 +83,9 @@ class _ParcelLocationScreenState extends State<ParcelLocationScreen> {
   }
 
   Future<void> _initCall() async {
-    _countryDialCode = Get.find<AuthController>().getUserCountryCode().isNotEmpty
+    _countryDialCode = (Get.find<AuthController>().getUserCountryCode().isNotEmpty && Get.find<AuthController>().getUserCountryCode() != '+91' && Get.find<AuthController>().getUserCountryCode() != 'IN')
         ? Get.find<AuthController>().getUserCountryCode()
-        : CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+        : '+965';
 
     final parcelController = Get.find<ParcelController>();
     final checkoutController = Get.find<CheckoutController>();
@@ -196,8 +196,8 @@ class _ParcelLocationScreenState extends State<ParcelLocationScreen> {
     String pNumber = '';
     try {
       final PhoneNumber phoneNumber = PhoneNumber.parse(number);
-      code = '+${phoneNumber.countryCode}';
-      pNumber = phoneNumber.international.substring(code.length);
+      code = (phoneNumber.countryCode == 91) ? '+965' : '+${phoneNumber.countryCode}';
+      pNumber = phoneNumber.international.substring('+${phoneNumber.countryCode}'.length);
     } catch (e) {
       debugPrint('number can\'t parse : $e');
     }
@@ -842,9 +842,9 @@ class _DeliveryInstructionCard extends StatelessWidget {
 
     final String displayText;
     if ((instructionText ?? '').isNotEmpty && customNote.isNotEmpty) {
-      displayText = '$instructionText ($customNote)';
+      displayText = '${instructionText!.tr} ($customNote)';
     } else if ((instructionText ?? '').isNotEmpty) {
-      displayText = instructionText!;
+      displayText = instructionText!.tr;
     } else if (customNote.isNotEmpty) {
       displayText = customNote;
     } else {

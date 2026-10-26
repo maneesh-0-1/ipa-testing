@@ -657,7 +657,7 @@ class _ItemNewBottomSheetState extends State<ItemNewBottomSheet> {
                   ),
                 )),
 
-                widget.isCampaign ? const SizedBox(width: 52) : GetBuilder<FavouriteController>(builder: (wishList) {
+                (widget.isCampaign || !AuthHelper.isLoggedIn()) ? const SizedBox(width: 52) : GetBuilder<FavouriteController>(builder: (wishList) {
                   final bool isFavourite = wishList.wishItemIdList.contains(item.id);
                   return _buildHeaderButton(
                     context: context, progress: titleOpacity,

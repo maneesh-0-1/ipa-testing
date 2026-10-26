@@ -60,8 +60,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   void _initCall(){
     AuthController authController  = Get.find<AuthController>();
-    _countryDialCode = authController.getUserCountryCode().isNotEmpty ? authController.getUserCountryCode()
-        : CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+    _countryDialCode = (authController.getUserCountryCode().isNotEmpty && authController.getUserCountryCode() != '+91' && authController.getUserCountryCode() != 'IN')
+        ? authController.getUserCountryCode()
+        : '+965';
 
     // if(Get.find<AuthController>().isLoggedIn() && Get.find<ProfileController>().userInfoModel == null) {
     //   Get.find<ProfileController>().getUserInfo();
@@ -84,7 +85,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     try{
       PhoneValid phoneNumber = await CustomValidator.isPhoneValid(number);
       _phoneController.text = phoneNumber.phone.replaceFirst('+${phoneNumber.countryCode}', '');
-      _countryDialCode = '+${phoneNumber.countryCode}';
+      _countryDialCode = (phoneNumber.countryCode == '91') ? '+965' : '+${phoneNumber.countryCode}';
     }catch(_) {}
     setState(() {
       _isPhoneLoading = false;
@@ -219,7 +220,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         required: true,
                         isPhone: true,
                         onCountryChanged: (CountryCode countryCode) => _countryDialCode = countryCode.dialCode,
-                        countryDialCode: _countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+                        countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                         suffixImage: profileController.userInfoModel!.isPhoneVerified! ? Images.verifiedIcon : null,
                       ),
 
@@ -406,7 +407,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               required: true,
                               isPhone: true,
                               onCountryChanged: (CountryCode countryCode) => _countryDialCode = countryCode.dialCode,
-                              countryDialCode: _countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+                              countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                               suffixImage: profileController.userInfoModel!.isPhoneVerified! ? Images.verifiedIcon : null,
                             ),
 

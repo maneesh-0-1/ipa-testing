@@ -12,7 +12,6 @@ import 'package:sixam_mart/util/styles.dart';
 import 'package:sixam_mart/common/widgets/footer_view.dart';
 import 'package:sixam_mart/common/widgets/paginated_list_view.dart';
 import 'package:sixam_mart/common/widgets/veg_filter_widget.dart';
-import 'package:sixam_mart/features/store/widgets/bottom_cart_widget.dart';
 
 class StoreItemSearchScreen extends StatefulWidget {
   final String? storeID;
@@ -121,19 +120,16 @@ class _StoreItemSearchScreenState extends State<StoreItemSearchScreen> {
                 ),
               ),
 
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: GetBuilder<CartController>(
-                  builder: (cartController) {
-                    if (ResponsiveHelper.isDesktop(context)) return const SizedBox();
-                    final int? currentStoreId = int.tryParse(widget.storeID??'');
-                    if (currentStoreId == null) return const SizedBox();
-                    final AllCartsModel? existingCart = cartController.getCartsForStore(currentStoreId);
-                    return existingCart != null && Get.find<StoreController>().store != null ? BottomAddToCartWidget(storeId: currentStoreId) : const SizedBox();
-                  },
-                ),
+              GetBuilder<CartController>(
+                builder: (cartController) {
+                  if (ResponsiveHelper.isDesktop(context)) return const SizedBox();
+                  final int? currentStoreId = int.tryParse(widget.storeID ?? '');
+                  if (currentStoreId == null) return const SizedBox();
+                  final AllCartsModel? existingCart = cartController.getCartsForStore(currentStoreId);
+                  return existingCart != null && Get.find<StoreController>().store != null
+                      ? BottomAddToCartWidget(storeId: currentStoreId)
+                      : const SizedBox();
+                },
               ),
             ],
           ),

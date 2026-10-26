@@ -42,7 +42,7 @@ class SignUpNewWidgetState extends State<SignUpNewWidget> {
   void initState() {
     super.initState();
     _formKeySignUp = widget.formKey ?? GlobalKey<FormState>();
-    _countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+    _countryDialCode = '+965';
     if(widget.referCode != null) {
       _referCodeController.text = widget.referCode!;
     }
@@ -104,8 +104,7 @@ class SignUpNewWidgetState extends State<SignUpNewWidget> {
                 onCountryChanged: (CountryCode countryCode) {
                   _countryDialCode = countryCode.dialCode;
                 },
-                countryDialCode: _countryDialCode != null ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code
-                    : Get.find<LocalizationController>().locale.countryCode,
+                countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                 validator: (value) => ValidateCheck.validateEmptyText(value, "please_enter_phone_number".tr),
               ),
               const SizedBox(height: Dimensions.paddingSizeLarge),

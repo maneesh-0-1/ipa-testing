@@ -42,9 +42,9 @@ class _GuestTrackOrderInputViewWidgetState extends State<GuestTrackOrderInputVie
     isOrder = widget.selectType! == 'orders';
     isRide = widget.selectType == 'rides';
 
-    _countryDialCode = Get.find<AuthController>().getUserCountryCode().isNotEmpty
+    _countryDialCode = (Get.find<AuthController>().getUserCountryCode().isNotEmpty && Get.find<AuthController>().getUserCountryCode() != '+91' && Get.find<AuthController>().getUserCountryCode() != 'IN')
         ? Get.find<AuthController>().getUserCountryCode()
-        : CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+        : '+965';
   }
 
   @override
@@ -94,7 +94,7 @@ class _GuestTrackOrderInputViewWidgetState extends State<GuestTrackOrderInputVie
                     onCountryChanged: (CountryCode countryCode) {
                       _countryDialCode = countryCode.dialCode;
                     },
-                    countryDialCode: _countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+                    countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                     required: true,
                     validator: (value) => ValidateCheck.validateEmptyText(value, null),
                   ),
@@ -167,7 +167,7 @@ class _GuestTrackOrderInputViewWidgetState extends State<GuestTrackOrderInputVie
             onCountryChanged: (CountryCode countryCode) {
               _countryDialCode = countryCode.dialCode;
             },
-            countryDialCode: _countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+            countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
             required: true,
             validator: (value) => ValidateCheck.validateEmptyText(value, null),
           ),

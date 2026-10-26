@@ -48,7 +48,7 @@ class _NewUserSetupScreenState extends State<NewUserSetupScreen> {
     super.initState();
     _isSocial = widget.loginType == CentralizeLoginType.social.name;
     _formKeyInfo = GlobalKey<FormState>();
-    _countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+    _countryDialCode = '+965';
     _isSocial ? _nameController.text = widget.name : _nameController.text = '';
   }
 
@@ -118,8 +118,7 @@ class _NewUserSetupScreenState extends State<NewUserSetupScreen> {
                   onCountryChanged: (CountryCode countryCode) {
                     _countryDialCode = countryCode.dialCode;
                   },
-                  countryDialCode: _countryDialCode != null ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code
-                      : Get.find<LocalizationController>().locale.countryCode,
+                  countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                   validator: (value) => ValidateCheck.validateEmptyText(value, "please_enter_phone_number".tr),
                 ) : CustomTextField(
                   titleText: 'enter_email'.tr,

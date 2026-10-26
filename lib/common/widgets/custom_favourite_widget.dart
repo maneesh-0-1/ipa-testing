@@ -43,6 +43,9 @@ class _CustomFavouriteWidgetState extends State<CustomFavouriteWidget> with Sing
 
   @override
   Widget build(BuildContext context) {
+    if (!AuthHelper.isLoggedIn()) {
+      return const SizedBox();
+    }
     return InkWell(
       splashColor: Colors.transparent,
       onTap: Get.find<FavouriteController>().isRemoving ? null : () {

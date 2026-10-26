@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class _OfferScreenState extends State<OfferScreen> {
   _OfferFilter _selectedFilter = _OfferFilter.all;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  Timer? _searchDebounce;
 
   int _selectedVisibleIndex = 0;
 
@@ -101,6 +103,7 @@ class _OfferScreenState extends State<OfferScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -124,10 +127,14 @@ class _OfferScreenState extends State<OfferScreen> {
   }
 
   void _onSearchChanged(String value) {
-    Get.find<OfferController>().setSearchQuery(value);
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      Get.find<OfferController>().setSearchQuery(value);
+    });
   }
 
   void _clearSearch() {
+    _searchDebounce?.cancel();
     _searchController.clear();
     Get.find<OfferController>().setSearchQuery('');
   }
@@ -183,11 +190,30 @@ class _OfferScreenState extends State<OfferScreen> {
       body: SafeArea(
         bottom: false,
         child: GetBuilder<OfferController>(builder: (controller) {
-          final List<NewItem> items = controller.itemList?.items ?? <NewItem>[];
-          final List<StoreOfferGroupData> restaurants = _mapStoresToRestaurantData(controller.storeList?.stores);
-          final List<Store> exclusiveDeals = controller.exclusiveDeals ?? <Store>[];
-          final int totalCount = controller.totalResultCount;
-          final bool hasSearchText = controller.searchQuery.isNotEmpty;
+          final List<NewItem> allItems = controller.itemList?.items ?? <NewItem>[];
+          final List<StoreOfferGroupData> allRestaurants = _mapStoresToRestaurantData(controller.storeList?.stores);
+          final List<Store> allExclusiveDeals = controller.exclusiveDeals ?? <Store>[];
+          final String query = controller.searchQuery.toLowerCase().trim();
+          final bool hasSearchText = query.isNotEmpty;
+
+          final List<NewItem> items = hasSearchText
+              ? allItems.where((i) => (i.name?.toLowerCase().contains(query) ?? false)).toList()
+              : allItems;
+          final List<StoreOfferGroupData> restaurants = hasSearchText
+              ? allRestaurants.where((r) =>
+                  (r.store.name?.toLowerCase().contains(query) ?? false) ||
+                  r.rawItems.any((ti) => (ti.name?.toLowerCase().contains(query) ?? false))).toList()
+              : allRestaurants;
+          final List<Store> exclusiveDeals = hasSearchText
+              ? allExclusiveDeals.where((s) => (s.name?.toLowerCase().contains(query) ?? false)).toList()
+              : allExclusiveDeals;
+          final int totalCount = hasSearchText
+              ? (_selectedFilter == _OfferFilter.food
+                  ? items.length
+                  : _selectedFilter == _OfferFilter.restaurants
+                      ? restaurants.length
+                      : items.length + restaurants.length)
+              : controller.totalResultCount;
           final bool isFood = _isFoodModuleSelected(Get.find<SplashController>());
           final Size screenSize = MediaQuery.of(context).size;
           final double moduleTabHeight = (screenSize.height * 0.045).clamp(32.0, 44.0);
@@ -219,6 +245,10 @@ class _OfferScreenState extends State<OfferScreen> {
                 controller: _searchController,
                 hasText: hasSearchText,
                 onChanged: _onSearchChanged,
+                onSubmitted: (text) {
+                  _searchDebounce?.cancel();
+                  Get.find<OfferController>().setSearchQuery(text);
+                },
                 onClear: _clearSearch,
               ),
             ),
@@ -525,9 +555,16 @@ class _OfferSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final bool hasText;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onSubmitted;
   final VoidCallback onClear;
 
-  const _OfferSearchBar({required this.controller, required this.hasText, required this.onChanged, required this.onClear});
+  const _OfferSearchBar({
+    required this.controller,
+    required this.hasText,
+    required this.onChanged,
+    this.onSubmitted,
+    required this.onClear,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -550,6 +587,7 @@ class _OfferSearchBar extends StatelessWidget {
         child: TextField(
           controller: controller,
           onChanged: onChanged,
+          onSubmitted: onSubmitted,
           textInputAction: TextInputAction.search,
           style: robotoRegular.copyWith(
             fontSize: Dimensions.fontSizeDefault,
@@ -703,7 +741,7 @@ class _OfferTypeFilterBar extends StatelessWidget {
     );
     final List<(_OfferFilter, String)> tabs = <(_OfferFilter, String)>[
       (_OfferFilter.all, 'all'.tr),
-      (_OfferFilter.food, isFood ? 'food'.tr : 'items'.tr),
+      (_OfferFilter.food, isFood ? 'foods'.tr : 'items'.tr),
       (_OfferFilter.restaurants, isFood ? 'restaurants'.tr : 'stores'.tr),
     ];
 

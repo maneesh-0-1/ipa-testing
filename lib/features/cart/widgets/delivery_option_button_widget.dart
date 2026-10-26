@@ -1,4 +1,5 @@
 import 'package:sixam_mart/common/widgets/custom_tool_tip_widget.dart';
+import 'package:sixam_mart/features/cart/controllers/cart_controller.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/checkout/controllers/checkout_controller.dart';
 import 'package:sixam_mart/helper/price_converter.dart';
@@ -30,8 +31,11 @@ class _DeliveryOptionButtonWidgetState extends State<DeliveryOptionButtonWidget>
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 200), (){
-      Get.find<CheckoutController>().setOrderType(Get.find<SplashController>().configModel!.homeDeliveryStatus == 1
-          && Get.find<CheckoutController>().store!.delivery! ? 'delivery' : 'take_away', notify: true);
+      final isTakeawayOnly = Get.find<CartController>().isCartTakeawayOnly();
+      Get.find<CheckoutController>().setOrderType(
+        isTakeawayOnly ? 'take_away' : (Get.find<SplashController>().configModel!.homeDeliveryStatus == 1
+          && Get.find<CheckoutController>().store!.delivery! ? 'delivery' : 'take_away'),
+        notify: true);
     });
   }
   @override
@@ -41,6 +45,9 @@ class _DeliveryOptionButtonWidgetState extends State<DeliveryOptionButtonWidget>
 
       return InkWell(
         onTap: () {
+          if (Get.find<CartController>().isCartTakeawayOnly() && widget.value != 'take_away') {
+            return;
+          }
           checkoutController.setOrderType(widget.value);
           checkoutController.setInstruction(-1);
 

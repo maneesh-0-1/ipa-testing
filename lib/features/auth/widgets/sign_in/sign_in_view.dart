@@ -62,17 +62,17 @@ class _SignInNewViewState extends State<SignInNewView> {
         // Pre-fill from OTP-specific storage
         String otpNumber = authController.getOtpUserNumber();
         String otpCountryCode = authController.getOtpUserCountryCode();
-        _countryDialCode = otpCountryCode.isNotEmpty
+        _countryDialCode = (otpCountryCode.isNotEmpty && otpCountryCode != '+91' && otpCountryCode != 'IN')
             ? otpCountryCode
-            : CountryCode.fromCountryCode(splashController.configModel!.country!).dialCode;
+            : '+965';
         _phoneController.text = otpNumber;
       } else {
         // Pre-fill from manual-specific storage
         String manualNumber = authController.getUserNumber();
         String manualCountryCode = authController.getUserCountryCode();
-        _countryDialCode = manualCountryCode.isNotEmpty
+        _countryDialCode = (manualCountryCode.isNotEmpty && manualCountryCode != '+91' && manualCountryCode != 'IN')
             ? manualCountryCode
-            : CountryCode.fromCountryCode(splashController.configModel!.country!).dialCode;
+            : '+965';
         _phoneController.text = manualNumber;
         _passwordController.text = authController.getUserPassword();
       }
@@ -82,7 +82,7 @@ class _SignInNewViewState extends State<SignInNewView> {
       } else {
         authController.toggleIsNumberLogin(value: false);
       }
-      authController.initCountryCode(countryCode: _countryDialCode != "" ? _countryDialCode : null);
+      authController.initCountryCode(countryCode: _countryDialCode != "" ? _countryDialCode : '+965');
     });
 
     if (!kIsWeb) {
@@ -103,9 +103,12 @@ class _SignInNewViewState extends State<SignInNewView> {
           _phoneController.text = authController.getUserNumber();
           _passwordController.text = authController.getUserPassword();
           String savedCountryCode = authController.getUserCountryCode();
-          if (savedCountryCode.isNotEmpty) {
+          if (savedCountryCode.isNotEmpty && savedCountryCode != '+91' && savedCountryCode != 'IN') {
             _countryDialCode = savedCountryCode;
             authController.initCountryCode(countryCode: savedCountryCode);
+          } else {
+            _countryDialCode = '+965';
+            authController.initCountryCode(countryCode: '+965');
           }
           if (_phoneController.text.isNotEmpty && !_phoneController.text.contains('@')) {
             authController.toggleIsNumberLogin(value: true);

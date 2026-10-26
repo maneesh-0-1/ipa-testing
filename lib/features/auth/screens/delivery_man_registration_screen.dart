@@ -65,7 +65,7 @@ class _DeliveryManRegistrationScreenState extends State<DeliveryManRegistrationS
 
     _formKeyStep1 = GlobalKey<FormState>();
     _formKeyStep2 = GlobalKey<FormState>();
-    _countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
+    _countryDialCode = '+965';
     if(Get.find<DeliverymanRegistrationController>().showPassView){
       Get.find<DeliverymanRegistrationController>().showHidePass();
     }
@@ -261,8 +261,7 @@ class _DeliveryManRegistrationScreenState extends State<DeliveryManRegistrationS
                               onCountryChanged: (CountryCode countryCode) {
                                 _countryDialCode = countryCode.dialCode;
                               },
-                              countryDialCode: _countryDialCode != null ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code
-                                  : Get.find<LocalizationController>().locale.countryCode,
+                              countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                               required: true,
                               validator: (value) => ValidateCheck.validatePhone(value, null),
                             ),
@@ -878,8 +877,7 @@ class _DeliveryManRegistrationScreenState extends State<DeliveryManRegistrationS
                             onCountryChanged: (CountryCode countryCode) {
                               _countryDialCode = countryCode.dialCode;
                             },
-                            countryDialCode: _countryDialCode != null ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code
-                                : Get.find<LocalizationController>().locale.countryCode,
+                            countryDialCode: (_countryDialCode != null && _countryDialCode != '+91' && _countryDialCode != 'IN') ? _countryDialCode : '+965',
                           ),
                         ),
                       ]),

@@ -116,7 +116,7 @@ class _BlueNotesPanel extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (instruction != null)
-          _NoteSection(title: 'delivery_instruction'.tr, body: instruction!),
+          _NoteSection(title: 'delivery_instruction'.tr, body: instruction!.tr),
         if (instruction != null && unavailable != null)
           Divider(height: 6, thickness: 1, color: dividerColor, indent: Dimensions.paddingSizeSmall, endIndent: Dimensions.paddingSizeSmall),
         if (unavailable != null)

@@ -107,6 +107,7 @@ class Item {
   int? organic;
   int? quantityLimit;
   int? flashSale;
+  int? isTakeawayOnly;
   bool? isStoreHalalActive;
   bool? isHalalItem;
   bool? isPrescriptionRequired;
@@ -179,6 +180,7 @@ class Item {
     this.storeLogoFullUrl,
     this.freeDelivery,
     this.offerLabel,
+    this.isTakeawayOnly,
   });
 
   Item.fromJson(Map<String, dynamic> json) {
@@ -264,6 +266,7 @@ class Item {
     organic = json['organic'];
     quantityLimit = json['maximum_cart_quantity'];
     flashSale = json['flash_sale'];
+    isTakeawayOnly = json['is_takeaway_only'] == 1 || json['is_takeaway_only'] == true ? 1 : 0;
     isStoreHalalActive = json['halal_tag_status'] == 1;
     isHalalItem = json['is_halal'] == 1;
     isPrescriptionRequired = json['is_prescription_required'] == 1;
@@ -337,6 +340,7 @@ class Item {
     data['organic'] = organic;
     data['maximum_cart_quantity'] = quantityLimit;
     data['flash_sale'] = flashSale;
+    data['is_takeaway_only'] = isTakeawayOnly;
     data['halal_tag_status'] = isStoreHalalActive;
     data['is_halal'] = isHalalItem;
     data['is_prescription_required'] = isPrescriptionRequired;

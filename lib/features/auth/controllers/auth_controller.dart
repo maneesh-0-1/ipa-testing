@@ -146,7 +146,10 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void initCountryCode({String? countryCode}){
-    countryDialCode = countryCode ?? CountryCode.fromCountryCode(Get.find<SplashController>().configModel?.country ?? "KW").dialCode ?? "+965";
+    if (countryCode == null || countryCode == '+91' || countryCode == 'IN' || countryCode.isEmpty) {
+      countryCode = '+965';
+    }
+    countryDialCode = countryCode;
   }
 
   void toggleRememberMe() {
@@ -207,7 +210,11 @@ class AuthController extends GetxController implements GetxService {
   }
 
   String getUserCountryCode() {
-    return authServiceInterface.getUserCountryCode();
+    String code = authServiceInterface.getUserCountryCode();
+    if (code.isEmpty || code == '+91' || code == 'IN') {
+      return '+965';
+    }
+    return code;
   }
 
   String getUserPassword() {
@@ -215,6 +222,9 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void saveUserNumberAndPassword(String number, String password, String countryCode) {
+    if (countryCode == '+91' || countryCode == 'IN' || countryCode.isEmpty) {
+      countryCode = '+965';
+    }
     authServiceInterface.saveUserNumberAndPassword(number, password, countryCode);
   }
 

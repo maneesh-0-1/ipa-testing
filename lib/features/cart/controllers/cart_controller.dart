@@ -98,6 +98,13 @@ class CartController extends GetxController implements GetxService {
     getAllCarts(notify: false);
   }
 
+  bool isCartTakeawayOnly([List<CartModel?>? cartList]) {
+    final list = cartList ?? _cartList;
+    return list.any((cart) {
+      return cart?.item?.isTakeawayOnly == 1;
+    });
+  }
+
   void setDirectlyAddToCartIndex(int? index) {
     _directAddCartItemIndex = index;
   }
@@ -246,27 +253,42 @@ class CartController extends GetxController implements GetxService {
 
   Future<void> setQuantity(bool isIncrement, int cartIndex, int? stock, int ? quantityLimit) async {
     if (_isLoading) return;
+    if (cartIndex < 0 || cartIndex >= _cartList.length) return;
 
     _isLoading = true;
     update();
 
-    int oldQuantity = _cartList[cartIndex].quantity!;
-    _cartList[cartIndex].quantity = await cartServiceInterface.decideItemQuantity(isIncrement, _cartList, cartIndex, stock, quantityLimit, Get.find<SplashController>().configModel!.moduleConfig!.module!.stock!);
+    try {
+      int oldQuantity = _cartList[cartIndex].quantity ?? 1;
+      final bool moduleStock = Get.find<SplashController>().configModel?.moduleConfig?.module?.stock ?? false;
+      _cartList[cartIndex].quantity = await cartServiceInterface.decideItemQuantity(
+        isIncrement, _cartList, cartIndex, stock, quantityLimit, moduleStock,
+      );
 
-    if (oldQuantity == _cartList[cartIndex].quantity) {
+      if (oldQuantity == _cartList[cartIndex].quantity) {
+        return;
+      }
+
+      final String? moduleType = _cartList[cartIndex].item?.moduleType;
+      final bool newVariation = moduleType != null ? (ModuleHelper.getModuleConfig(moduleType).newVariation ?? false) : false;
+
+      double discountedPrice = await cartServiceInterface.calculateDiscountedPrice(
+        _cartList[cartIndex], _cartList[cartIndex].quantity!, newVariation,
+      );
+      if(newVariation) {
+        await Get.find<ItemController>().setExistInCart(_cartList[cartIndex].item, null, notify: true);
+      }
+
+      await updateCartQuantityOnline(
+        _cartList[cartIndex].id!, discountedPrice, _cartList[cartIndex].quantity!,
+        storeId: _cartList[cartIndex].item?.storeId,
+      );
+    } catch (e) {
+      debugPrint('Error in setQuantity: $e');
+    } finally {
       _isLoading = false;
       update();
-      return;
     }
-
-    double discountedPrice = await cartServiceInterface.calculateDiscountedPrice(_cartList[cartIndex], _cartList[cartIndex].quantity!, ModuleHelper.getModuleConfig(_cartList[cartIndex].item!.moduleType).newVariation!);
-    if(ModuleHelper.getModuleConfig(_cartList[cartIndex].item!.moduleType).newVariation!) {
-     await Get.find<ItemController>().setExistInCart(_cartList[cartIndex].item, null, notify: true);
-    }
-
-    await updateCartQuantityOnline(_cartList[cartIndex].id!, discountedPrice, _cartList[cartIndex].quantity!,
-      storeId: _cartList[cartIndex].item?.storeId);
-
   }
 
   Future<void> removeFromCart(int index, {Item? item}) async {
@@ -361,14 +383,19 @@ class CartController extends GetxController implements GetxService {
   Future<void> updateCartQuantityOnline(int cartId, double price, int quantity, {int? storeId}) async {
     _isLoading = true;
     update();
-    bool success = await cartServiceInterface.updateCartQuantityOnline(cartId, price, quantity, storeId: storeId);
-    if(success) {
-      await getAllCarts();
-      calculationCart();
-      await Future.delayed(const Duration(milliseconds: 200));
+    try {
+      bool success = await cartServiceInterface.updateCartQuantityOnline(cartId, price, quantity, storeId: storeId);
+      if(success) {
+        await getAllCarts(notify: false);
+        calculationCart();
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+    } catch (e) {
+      debugPrint('Error updating cart quantity online: $e');
+    } finally {
+      _isLoading = false;
+      update();
     }
-    _isLoading = false;
-    update();
   }
 
   Future<void> getCartDataOnline({int? storeId}) async {
@@ -449,33 +476,40 @@ class CartController extends GetxController implements GetxService {
     if(notify) {
       update();
     }
-    final List<AllCartsModel>? result = await cartServiceInterface.getAllCarts();
-    // A newer getAllCarts() call was made while this one was in flight — discard
-    // this response so it cannot overwrite fresher data with stale results.
-    if(generation != _allCartsGeneration) return;
-    _allCartsGroups = result;
-    if(_allCartsGroups != null) {
-      final int? currentModuleId = ModuleHelper.getModule()?.id ?? ModuleHelper.getCacheModule()?.id;
-      if(currentModuleId != null) {
-        final List<OnlineCartModel> flat = <OnlineCartModel>[];
-        for(AllCartsModel group in _allCartsGroups!) {
-          for(OnlineCartModel om in (group.onlineCarts ?? <OnlineCartModel>[])) {
-            if(om.moduleId == currentModuleId) {
-              // Scope to the active cart screen store when one is open; otherwise include all.
-              if(_activeCartScreenStoreId == null || group.store?.id == _activeCartScreenStoreId) {
-                flat.add(om);
+    try {
+      final List<AllCartsModel>? result = await cartServiceInterface.getAllCarts();
+      // A newer getAllCarts() call was made while this one was in flight — discard
+      // this response so it cannot overwrite fresher data with stale results.
+      if(generation != _allCartsGeneration) return;
+      _allCartsGroups = result;
+      if(_allCartsGroups != null) {
+        final int? currentModuleId = ModuleHelper.getModule()?.id ?? ModuleHelper.getCacheModule()?.id;
+        if(currentModuleId != null) {
+          final List<OnlineCartModel> flat = <OnlineCartModel>[];
+          for(AllCartsModel group in _allCartsGroups!) {
+            for(OnlineCartModel om in (group.onlineCarts ?? <OnlineCartModel>[])) {
+              if(om.moduleId == currentModuleId) {
+                // Scope to the active cart screen store when one is open; otherwise include all.
+                if(_activeCartScreenStoreId == null || group.store?.id == _activeCartScreenStoreId) {
+                  flat.add(om);
+                }
               }
             }
           }
+          _cartList = [];
+          _cartList = cartServiceInterface.formatOnlineCartToLocalCart(onlineCartModel: flat);
+          calculationCart();
         }
-        _cartList = [];
-        _cartList = cartServiceInterface.formatOnlineCartToLocalCart(onlineCartModel: flat);
-        calculationCart();
+      }
+    } catch (e) {
+      debugPrint('Error in getAllCarts: $e');
+    } finally {
+      if (generation == _allCartsGeneration) {
+        _isAllCartsLoading = false;
+        _isLoading = false;
+        if(notify) update();
       }
     }
-    _isAllCartsLoading = false;
-    _isLoading = false;
-    update();
   }
 
   AllCartsModel? getCartsForStore(int storeId) {

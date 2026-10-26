@@ -499,7 +499,7 @@ class _ResultFilterBar extends StatelessWidget {
         .showRestaurantText!;
     final List<(_SearchFilter, String)> filters = [
       (_SearchFilter.all, 'all'.tr),
-      (_SearchFilter.items, showRestaurant ? 'food'.tr : 'item'.tr),
+      (_SearchFilter.items, showRestaurant ? 'foods'.tr : 'items'.tr),
       (_SearchFilter.stores, showRestaurant ? 'restaurants'.tr : 'stores'.tr),
     ];
 

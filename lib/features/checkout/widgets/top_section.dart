@@ -4,6 +4,7 @@ import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:sixam_mart/common/models/config_model.dart';
 import 'package:sixam_mart/common/widgets/custom_dropdown.dart';
 import 'package:sixam_mart/features/address/domain/models/address_model.dart';
+import 'package:sixam_mart/features/cart/controllers/cart_controller.dart';
 import 'package:sixam_mart/features/cart/domain/models/cart_model.dart';
 import 'package:sixam_mart/features/checkout/controllers/checkout_controller.dart';
 import 'package:sixam_mart/features/checkout/widgets/coupon_section.dart';
@@ -21,6 +22,7 @@ import 'package:sixam_mart/helper/responsive_helper.dart';
 import 'package:sixam_mart/util/dimensions.dart';
 
 import 'upload_prescription_widget.dart';
+import 'package:sixam_mart/features/checkout/widgets/checkout_order_items_widget.dart';
 
 class TopSection extends StatelessWidget {
   final CheckoutController checkoutController;
@@ -96,13 +98,17 @@ class TopSection extends StatelessWidget {
         ) : const SizedBox(),
         const SizedBox(height: Dimensions.paddingSizeLarge),
 
+        CheckoutOrderItemsWidget(cartList: cartList),
+        const SizedBox(height: Dimensions.paddingSizeLarge),
+
         // delivery option
         DeliveryTypeSection(
-          homeDeliveryEnabled: storeId != null
-              || (Get.find<SplashController>().configModel!.homeDeliveryStatus == 1 && checkoutController.store!.delivery!),
-          takeAwayEnabled: storeId == null
+          cartList: cartList,
+          homeDeliveryEnabled: !Get.find<CartController>().isCartTakeawayOnly(cartList) && (storeId != null
+              || (Get.find<SplashController>().configModel!.homeDeliveryStatus == 1 && checkoutController.store!.delivery!)),
+          takeAwayEnabled: (storeId == null
               && Get.find<SplashController>().configModel!.takeawayStatus == 1
-              && checkoutController.store!.takeAway!,
+              && checkoutController.store!.takeAway!) || Get.find<CartController>().isCartTakeawayOnly(cartList),
           total: total,
           charge: charge,
         ),

@@ -359,7 +359,9 @@ class SearchScreenState extends State<SearchScreen> {
                               : Theme.of(context).disabledColor.withValues(alpha: 0.1),
                         ),
                         icon: Icon(Icons.tune, size: 20,
-                          color: searchController.hasActiveItemFilter ? Theme.of(context).primaryColor : null,
+                          color: searchController.hasActiveItemFilter
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.75),
                         ),
                       ),
                     ],
@@ -455,29 +457,9 @@ class SearchScreenState extends State<SearchScreen> {
             ? _itemsAndStors.first.moduleId
             : null;
 
-        // Global keyword submit with no suggestions fetched yet (e.g. submitted
-        // before the suggestion debounce fired): fetch suggestions first, then scope
-        // the result module to the first suggestion. Falls back to the default module
-        // when nothing matches. Module-wise search is unaffected.
-        final bool needSuggestionFirst = entry == null && !nearby
-            && searchController.isGlobalSearch && _itemsAndStors.isEmpty;
-        if(needSuggestionFirst) {
-          _suggestionDebounce?.cancel();
-          _isActionSearchLoading = true;
-          if(mounted) setState(() {});
-          final List<RecentSearchEntry> results = await searchController.getSearchSuggestions(queryText);
-          if(!mounted) return;
-          // Ignore the response if the user changed the query while it was in flight.
-          if(queryText == _searchController.text.trim()) {
-            _itemsAndStors = results;
-            preferredModuleId = results.isNotEmpty ? results.first.moduleId : null;
-          }
-          _isActionSearchLoading = false;
-          if(mounted) setState(() {});
-        } else if(_isActionSearchLoading) {
-          _isActionSearchLoading = false;
-          if(mounted) setState(() {});
-        }
+        _suggestionDebounce?.cancel();
+        _isActionSearchLoading = false;
+        if(mounted) setState(() {});
 
         searchController.searchData(queryText, fromHome, recentEntry: entry, preferredModuleId: preferredModuleId);
       } else {

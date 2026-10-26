@@ -9,6 +9,7 @@ import 'package:sixam_mart/util/images.dart';
 import 'package:sixam_mart/util/styles.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/common/widgets/hover/text_hover.dart';
+import 'package:sixam_mart/common/widgets/branches_dialog.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class FooterView extends StatefulWidget {
@@ -250,24 +251,28 @@ class _FooterViewState extends State<FooterView> {
 
                         ]),
 
-                        Column(children: [
+                        InkWell(
+                          onTap: () => Get.dialog(const BranchesDialog()),
+                          hoverColor: Colors.transparent,
+                          child: Column(children: [
 
-                          Image.asset(Images.findUsHere, width: 50, height: 50),
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                            Image.asset(Images.findUsHere, width: 50, height: 50),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                          Text('find_us_here'.tr, style: robotoBold),
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                            Text('find_us_here'.tr, style: robotoBold),
+                            const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                          SizedBox(
-                            width: 200,
-                            child: Text(
-                              _config.address ?? '',
-                              textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis,
-                              style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall),
+                            SizedBox(
+                              width: 200,
+                              child: Text(
+                                _config.address ?? '',
+                                textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis,
+                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall),
+                              ),
                             ),
-                          ),
 
-                        ]),
+                          ]),
+                        ),
                       ],
                     ),
                   ),
