@@ -52,7 +52,7 @@ class ProfileButtonWidget extends StatelessWidget {
                 )),
                 const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                Icon(Icons.keyboard_arrow_down, size: 15),
+                const Icon(Icons.keyboard_arrow_down, size: 15),
               ],
             ),
           ) : const SizedBox(),

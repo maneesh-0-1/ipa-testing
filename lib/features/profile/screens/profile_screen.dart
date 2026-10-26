@@ -198,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         iconAsset: Images.termsIcon,
         route: RouteHelper.termsAndCondition,
       ),
-      ProfileMenuItem(
+      const ProfileMenuItem(
         titleKey: 'privacy_policy',
         iconAsset: Images.termsIcon,
         route: RouteHelper.privacyPolicy,
@@ -206,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ];
 
     if (isRideShare) {
-      items.add(ProfileMenuItem(
+      items.add(const ProfileMenuItem(
         titleKey: 'safety_policy',
         iconAsset: Images.termsIcon,
         route: RouteHelper.safety,
@@ -214,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (config.refundPolicyStatus == 1) {
-      items.add(ProfileMenuItem(
+      items.add(const ProfileMenuItem(
         titleKey: 'refund_policy',
         iconAsset: Images.termsIcon,
         route: RouteHelper.refundPolicy,
@@ -222,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (config.cancellationPolicyStatus == 1) {
-      items.add(ProfileMenuItem(
+      items.add(const ProfileMenuItem(
         titleKey: 'cancellation_policy',
         iconAsset: Images.termsIcon,
         route: RouteHelper.cancellationPolicy,
@@ -230,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (config.shippingPolicyStatus == 1) {
-      items.add(ProfileMenuItem(
+      items.add(const ProfileMenuItem(
         titleKey: 'shipping_policy',
         iconAsset: Images.termsIcon,
         route: RouteHelper.shippingPolicy,

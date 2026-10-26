@@ -59,7 +59,7 @@ class _SavedAddressBottomSheetState extends State<SavedAddressBottomSheet> {
           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20), bottom: Radius.circular(isDesktop ? 20 : 0)),
+            borderRadius: BorderRadius.vertical(top: const Radius.circular(20), bottom: Radius.circular(isDesktop ? 20 : 0)),
           ),
           child: Stack(children: [
             Padding(
@@ -92,7 +92,7 @@ class _SavedAddressBottomSheetState extends State<SavedAddressBottomSheet> {
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-                        padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
+                        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                         decoration: BoxDecoration(
                           color: (widget.isSender && widget.senderAddressController.text == address?.address) || (!widget.isSender && widget.receiverAddressController.text == address?.address)
                               ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Theme.of(context).cardColor,

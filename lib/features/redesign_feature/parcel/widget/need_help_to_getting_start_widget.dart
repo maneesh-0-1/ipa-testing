@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:sixam_mart/features/redesign_feature/dashboard/widgets/single_deal_widget.dart';
 import 'package:sixam_mart/features/redesign_feature/parcel/widget/easiest_way_to_get_services_bottom_sheet.dart';

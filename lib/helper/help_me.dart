@@ -7,7 +7,7 @@ const kLogTag = "[demandium]";
 const kLogEnable = true;
 DateTime? loginClickTime;
 
-printLog(dynamic data) {
+void printLog(dynamic data) {
   if (kLogEnable) {
     if (kDebugMode) {
       print("$kLogTag${data.toString()}");

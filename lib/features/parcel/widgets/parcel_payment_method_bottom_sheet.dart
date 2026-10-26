@@ -85,7 +85,7 @@ class _ParcelPaymentMethodBottomSheetState extends State<ParcelPaymentMethodBott
                     walletView(parcelController),
 
                     widget.isCashOnDeliveryActive ? paymentButtonView(
-                      padding: EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
+                      padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
                       title: 'cash_on_delivery'.tr,
                       isSelected: parcelController.paymentIndex == 0,
                       disablePayments: false,

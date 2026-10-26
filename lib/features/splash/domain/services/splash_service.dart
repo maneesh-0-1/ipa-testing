@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:sixam_mart/common/enums/data_source_enum.dart';
 import 'package:sixam_mart/common/models/config_model.dart';
 import 'package:sixam_mart/common/models/response_model.dart';
-import 'package:sixam_mart/features/splash/domain/models/landing_model.dart';
 import 'package:sixam_mart/common/models/module_model.dart';
 import 'package:sixam_mart/features/splash/domain/repositories/splash_repository_interface.dart';
 import 'package:sixam_mart/features/splash/domain/services/splash_service_interface.dart';

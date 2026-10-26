@@ -109,13 +109,13 @@ class _ProPaymentBottomSheetWidgetState extends State<ProPaymentBottomSheetWidge
                 ),
 
                 if(hasDigital) ...[
-                  SizedBox(height: Dimensions.paddingSizeLarge,),
+                  const SizedBox(height: Dimensions.paddingSizeLarge,),
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                       border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.2)),
                     ),
-                    padding: EdgeInsets.only(left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeSmall),
+                    padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeSmall),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

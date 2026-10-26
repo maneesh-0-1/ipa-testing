@@ -15,20 +15,38 @@ class MadicineCardWidget extends StatelessWidget {
   final double width;
   final bool isBorder;
 
-  const MadicineCardWidget({super.key, required this.item, required this.width, this.isBorder = false});
+  const MadicineCardWidget({
+    super.key,
+    required this.item,
+    required this.width,
+    this.isBorder = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final double? startingPrice = Get.find<ItemController>().getStartingPrice(item);
+    final double? startingPrice = Get.find<ItemController>().getStartingPrice(
+      item,
+    );
     final bool hasDiscount = (item.discount ?? 0) > 0;
     final String currentPrice = PriceConverter.convertPrice(
-      startingPrice, discount: item.discount, discountType: item.discountType,
+      startingPrice,
+      discount: item.discount,
+      discountType: item.discountType,
     );
-    final String previousPrice = hasDiscount ? PriceConverter.convertPrice(startingPrice) : '';
+    final String previousPrice = hasDiscount
+        ? PriceConverter.convertPrice(startingPrice)
+        : '';
     final String? discountLabel = hasDiscount
-        ? PriceConverter.percentageCalculation('${startingPrice ?? 0}', '${item.discount}', item.discountType ?? 'percent')
+        ? PriceConverter.percentageCalculation(
+            '${startingPrice ?? 0}',
+            '${item.discount}',
+            item.discountType ?? 'percent',
+          )
         : null;
-    final String? phrmaName = (item.genericName != null && item.genericName!.isNotEmpty) ? item.genericName!.first : null;
+    final String? phrmaName =
+        (item.genericName != null && item.genericName!.isNotEmpty)
+        ? item.genericName!.first
+        : null;
     final String storeName = item.storeName ?? '';
     final String title = item.name ?? '';
     final String? packType = item.unitType;
@@ -40,7 +58,9 @@ class MadicineCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-        border: isBorder ? Border.all(color: Theme.of(context).disabledColor.withAlpha(50)) : null,
+        border: isBorder
+            ? Border.all(color: Theme.of(context).disabledColor.withAlpha(50))
+            : null,
       ),
       child: Row(
         children: [
@@ -57,7 +77,8 @@ class MadicineCardWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       StoreVerifiedAvatar(
-                        imageUrl: item.storeLogoFullUrl ?? item.storeImageFullUrl,
+                        imageUrl:
+                            item.storeLogoFullUrl ?? item.storeImageFullUrl,
                         isVerified: item.verifiedSeller == 1,
                         size: 18,
                       ),
@@ -87,8 +108,14 @@ class MadicineCardWidget extends StatelessWidget {
                     ),
                   ),
 
-                  if(phrmaName != null)
-                    Text(phrmaName, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
+                  if (phrmaName != null)
+                    Text(
+                      phrmaName,
+                      style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeSmall,
+                        color: Theme.of(context).disabledColor,
+                      ),
+                    ),
 
                   const Spacer(),
                   Row(
@@ -104,7 +131,7 @@ class MadicineCardWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if(previousPrice.isNotEmpty) ...[
+                      if (previousPrice.isNotEmpty) ...[
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
@@ -123,9 +150,16 @@ class MadicineCardWidget extends StatelessWidget {
                   ),
                   const Spacer(),
 
-                  if(packType != null) FittedBox(
-                    child: Text(packType, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).textTheme.bodyLarge?.color)),
-                  )
+                  if (packType != null)
+                    FittedBox(
+                      child: Text(
+                        packType,
+                        style: robotoRegular.copyWith(
+                          fontSize: Dimensions.fontSizeExtraSmall,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -162,7 +196,10 @@ class _TrendingDishPreview extends StatelessWidget {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-              child: CustomImage(image: item.imageFullUrl??'', fit: BoxFit.cover),
+              child: CustomImage(
+                image: item.imageFullUrl ?? '',
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
@@ -182,22 +219,39 @@ class _TrendingDishPreview extends StatelessWidget {
 class _OfferCardWidget extends StatelessWidget {
   final String? label;
   final bool? isFree;
-  const _OfferCardWidget({this.label, this.isFree});
+  const _OfferCardWidget() : isFree = null, label = null;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-      decoration: BoxDecoration(color: (isFree ?? false) ? Colors.blueAccent : Theme.of(context).colorScheme.error, borderRadius: BorderRadius.circular(Dimensions.radiusLarge)),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Dimensions.paddingSizeExtraSmall,
+      ),
+      decoration: BoxDecoration(
+        color: (isFree ?? false)
+            ? Colors.blueAccent
+            : Theme.of(context).colorScheme.error,
+        borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if ((isFree ?? false)) ...[
-            Icon(Icons.delivery_dining_outlined, size: Dimensions.fontSizeSmall, color: Colors.white),
+            Icon(
+              Icons.delivery_dining_outlined,
+              size: Dimensions.fontSizeSmall,
+              color: Colors.white,
+            ),
             const SizedBox(width: 5),
           ],
 
-          Text((isFree ?? false) ? 'Free' : label!, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.white)),
+          Text(
+            (isFree ?? false) ? 'Free' : label!,
+            style: robotoBold.copyWith(
+              fontSize: Dimensions.fontSizeSmall,
+              color: Colors.white,
+            ),
+          ),
         ],
       ),
     );

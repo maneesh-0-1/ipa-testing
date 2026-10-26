@@ -42,7 +42,7 @@ class ServiceInfoListWidget extends StatelessWidget {
                   color: Theme.of(context).primaryColor,
                 ),
                 padding: const EdgeInsets.all(2),
-                child: Icon(Icons.check, color: Colors.white, size: 10,),
+                child: const Icon(Icons.check, color: Colors.white, size: 10,),
               ),
               const SizedBox(width: Dimensions.paddingSizeDefault),
 

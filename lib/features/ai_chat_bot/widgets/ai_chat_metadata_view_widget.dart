@@ -388,7 +388,7 @@ class _AiChatStoreCard extends StatelessWidget {
             : '${PriceConverter.convertPrice(discountAmount)} ${'off'.tr}')
         : '';
 
-    final Color openColor = const Color(0xff1FA84B);
+    const Color openColor = Color(0xff1FA84B);
     final Color closedColor = Theme.of(context).colorScheme.error;
 
     return Container(

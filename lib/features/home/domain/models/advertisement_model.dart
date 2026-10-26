@@ -155,22 +155,22 @@ class StoreDetails {
     if (json['top_items'] != null) {
       topItems = <TopItems>[];
       json['top_items'].forEach((v) {
-        topItems!.add(new TopItems.fromJson(v));
+        topItems!.add(TopItems.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['slug'] = this.slug;
-    data['logo_full_url'] = this.logoFullUrl;
-    data['cover_photo_full_url'] = this.coverPhotoFullUrl;
-    data['module_id'] = this.moduleId;
-    data['module_type'] = this.moduleType;
-    if (this.topItems != null) {
-      data['top_items'] = this.topItems!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['slug'] = slug;
+    data['logo_full_url'] = logoFullUrl;
+    data['cover_photo_full_url'] = coverPhotoFullUrl;
+    data['module_id'] = moduleId;
+    data['module_type'] = moduleType;
+    if (topItems != null) {
+      data['top_items'] = topItems!.map((v) => v.toJson()).toList();
     }
     return data;
   }

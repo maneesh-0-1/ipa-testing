@@ -62,7 +62,7 @@ class Bidding {
     id = json['id']?.toString();
     tripRequestsId = json['ride_requests_id']?.toString();
     rideRequest = json['ride_request'] != null
-        ? new RideRequest.fromJson(json['ride_request'])
+        ? RideRequest.fromJson(json['ride_request'])
         : null;
     driver =
     json['driver'] != null ? Driver.fromJson(json['driver']) : null;
@@ -136,17 +136,17 @@ class RideRequest {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['ref_id'] = this.refId;
-    data['estimated_fare'] = this.estimatedFare;
-    data['actual_fare'] = this.actualFare;
-    data['return_fee'] = this.returnFee;
-    data['due_amount'] = this.dueAmount;
-    data['discount_actual_fare'] = this.discountActualFare;
-    data['estimated_distance'] = this.estimatedDistance;
-    data['paid_fare'] = this.paidFare;
-    data['actual_distance'] = this.actualDistance;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['ref_id'] = refId;
+    data['estimated_fare'] = estimatedFare;
+    data['actual_fare'] = actualFare;
+    data['return_fee'] = returnFee;
+    data['due_amount'] = dueAmount;
+    data['discount_actual_fare'] = discountActualFare;
+    data['estimated_distance'] = estimatedDistance;
+    data['paid_fare'] = paidFare;
+    data['actual_distance'] = actualDistance;
     return data;
   }
 }

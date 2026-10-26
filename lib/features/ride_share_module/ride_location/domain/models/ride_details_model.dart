@@ -280,18 +280,18 @@ class TripStatus {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['pending'] = this.pending;
-    data['accepted'] = this.accepted;
-    data['confirmed'] = this.confirmed;
-    data['out_for_pickup'] = this.outForPickup;
-    data['picked_up'] = this.pickedUp;
-    data['ongoing'] = this.ongoing;
-    data['completed'] = this.completed;
-    data['rejected'] = this.rejected;
-    data['cancelled'] = this.cancelled;
-    data['failed'] = this.failed;
-    data['note'] = this.note;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['pending'] = pending;
+    data['accepted'] = accepted;
+    data['confirmed'] = confirmed;
+    data['out_for_pickup'] = outForPickup;
+    data['picked_up'] = pickedUp;
+    data['ongoing'] = ongoing;
+    data['completed'] = completed;
+    data['rejected'] = rejected;
+    data['cancelled'] = cancelled;
+    data['failed'] = failed;
+    data['note'] = note;
     return data;
   }
 }
