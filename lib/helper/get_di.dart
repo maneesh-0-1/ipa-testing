@@ -632,7 +632,6 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => ItemController(itemServiceInterface: Get.find()));
   Get.lazyPut(() => CartController(cartServiceInterface: Get.find()));
   Get.lazyPut(() => StoreController(storeServiceInterface: storeServiceInterface));
-  Get.lazyPut(() => StoreController(storeServiceInterface: storeServiceInterface));
   Get.lazyPut(() => FavouriteController(favouriteServiceInterface: Get.find()));
   Get.lazyPut(() => HomeController(homeServiceInterface: Get.find()));
   Get.lazyPut(() => ReelsController(reelsServiceInterface: Get.find()), fenix: true);
@@ -650,7 +649,6 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => PaymentController(paymentServiceInterface: Get.find()));
   Get.lazyPut(() => HtmlController(htmlServiceInterface: Get.find()));
   Get.lazyPut(() => ReviewController(reviewServiceInterface: Get.find()));
-  Get.lazyPut(() => CategoryController(categoryServiceInterface: Get.find()));
   Get.lazyPut(() => LoyaltyController(loyaltyServiceInterface: Get.find()));
   Get.lazyPut(() => VerificationController(verificationServiceInterface: Get.find()));
   Get.lazyPut(() => BrandsController(brandsServiceInterface: Get.find()));
@@ -695,8 +693,6 @@ Future<Map<String, Map<String, String>>> init() async {
   ServiceDetailsServiceInterface serviceDetailsServiceInterface = ServiceDetailsService(serviceDetailsRepositoryInterface: Get.find());
   Get.lazyPut(() => serviceDetailsServiceInterface, fenix: true);
   Get.lazyPut(() => ServiceDetailsController(serviceDetailsServiceInterface: Get.find()), fenix: true);
-  Get.lazyPut(() => serviceDetailsServiceInterface);
-  Get.lazyPut(() => ServiceDetailsController(serviceDetailsServiceInterface: Get.find()));
   ProviderDetailsRepositoryInterface providerDetailsRepositoryInterface = ProviderDetailsRepository(apiClient: Get.find());
   Get.lazyPut(() => providerDetailsRepositoryInterface, fenix: true);
   ProviderDetailsServiceInterface providerDetailsServiceInterface = ProviderDetailsService(providerDetailsRepositoryInterface: Get.find());

@@ -28,10 +28,14 @@ class FavouriteService implements FavouriteServiceInterface {
   @override
   List<Item?> wishItemList(Item item) {
     List<Item?> wishItemList = [];
-    for (var zone in AddressHelper.getUserAddressFromSharedPref()!.zoneData!) {
-      for (var module in zone.modules!) {
+    final zoneData = AddressHelper.getUserAddressFromSharedPref()?.zoneData;
+    if (zoneData == null) {
+      return wishItemList;
+    }
+    for (var zone in zoneData) {
+      for (var module in zone.modules ?? const []) {
         if(module.id == item.moduleId){
-          if(module.pivot!.zoneId == item.zoneId){
+          if(module.pivot?.zoneId == item.zoneId){
             wishItemList.add(item);
           }
         }
@@ -43,10 +47,14 @@ class FavouriteService implements FavouriteServiceInterface {
   @override
   List<int?> wishItemIdList (Item item) {
     List<int?> wishItemIdList = [];
-    for (var zone in AddressHelper.getUserAddressFromSharedPref()!.zoneData!) {
-      for (var module in zone.modules!) {
+    final zoneData = AddressHelper.getUserAddressFromSharedPref()?.zoneData;
+    if (zoneData == null) {
+      return wishItemIdList;
+    }
+    for (var zone in zoneData) {
+      for (var module in zone.modules ?? const []) {
         if(module.id == item.moduleId){
-          if(module.pivot!.zoneId == item.zoneId){
+          if(module.pivot?.zoneId == item.zoneId){
             wishItemIdList.add(item.id);
           }
         }
@@ -58,11 +66,16 @@ class FavouriteService implements FavouriteServiceInterface {
   @override
   List<Store?> wishStoreList(dynamic store) {
     List<Store?> wishStoreList = [];
-    for (var zone in AddressHelper.getUserAddressFromSharedPref()!.zoneData!) {
-      for (var module in zone.modules!) {
-        if(module.id == Store.fromJson(store).moduleId){
-          if(module.pivot!.zoneId == Store.fromJson(store).zoneId){
-            wishStoreList.add(Store.fromJson(store));
+    final zoneData = AddressHelper.getUserAddressFromSharedPref()?.zoneData;
+    if (zoneData == null) {
+      return wishStoreList;
+    }
+    final Store parsedStore = Store.fromJson(store);
+    for (var zone in zoneData) {
+      for (var module in zone.modules ?? const []) {
+        if(module.id == parsedStore.moduleId){
+          if(module.pivot?.zoneId == parsedStore.zoneId){
+            wishStoreList.add(parsedStore);
           }
         }
       }
@@ -73,11 +86,16 @@ class FavouriteService implements FavouriteServiceInterface {
   @override
   List<int?> wishStoreIdList(dynamic store) {
     List<int?> wishStoreIdList = [];
-    for (var zone in AddressHelper.getUserAddressFromSharedPref()!.zoneData!) {
-      for (var module in zone.modules!) {
-        if(module.id == Store.fromJson(store).moduleId){
-          if(module.pivot!.zoneId == Store.fromJson(store).zoneId){
-            wishStoreIdList.add(Store.fromJson(store).id);
+    final zoneData = AddressHelper.getUserAddressFromSharedPref()?.zoneData;
+    if (zoneData == null) {
+      return wishStoreIdList;
+    }
+    final Store parsedStore = Store.fromJson(store);
+    for (var zone in zoneData) {
+      for (var module in zone.modules ?? const []) {
+        if(module.id == parsedStore.moduleId){
+          if(module.pivot?.zoneId == parsedStore.zoneId){
+            wishStoreIdList.add(parsedStore.id);
           }
         }
       }

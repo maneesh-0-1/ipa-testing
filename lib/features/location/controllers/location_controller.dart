@@ -511,15 +511,18 @@ class LocationController extends GetxController implements GetxService {
 
   Future<bool> checkLocationActive() async {
     bool isActiveLocation = await Geolocator.isLocationServiceEnabled();
+    final AddressModel? userAddress = AddressHelper.getUserAddressFromSharedPref();
+    final double? savedLat = double.tryParse(userAddress?.latitude ?? '');
+    final double? savedLng = double.tryParse(userAddress?.longitude ?? '');
 
-    if(isActiveLocation) {
+    if(isActiveLocation && savedLat != null && savedLng != null) {
       Position myPosition = await locationServiceInterface.getPosition(null, LatLng(
-        double.parse(Get.find<SplashController>().configModel!.defaultLocation!.lat ?? AppConstants.defaultLatitude),
-        double.parse(Get.find<SplashController>().configModel!.defaultLocation!.lng ?? AppConstants.defaultLongitude),
+        double.tryParse(Get.find<SplashController>().configModel?.defaultLocation?.lat ?? AppConstants.defaultLatitude) ?? double.parse(AppConstants.defaultLatitude),
+        double.tryParse(Get.find<SplashController>().configModel?.defaultLocation?.lng ?? AppConstants.defaultLongitude) ?? double.parse(AppConstants.defaultLongitude),
       ));
 
       double distance = Geolocator.distanceBetween(
-        double.parse(AddressHelper.getUserAddressFromSharedPref()!.latitude!), double.parse(AddressHelper.getUserAddressFromSharedPref()!.longitude!), myPosition.latitude, myPosition.longitude,
+        savedLat, savedLng, myPosition.latitude, myPosition.longitude,
       ) / 1000;
 
       if (kDebugMode) {
@@ -648,7 +651,10 @@ class LocationController extends GetxController implements GetxService {
       return true;
     }
     final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
-    bool isConnected = connectivityResult.contains(ConnectivityResult.wifi) || connectivityResult.contains(ConnectivityResult.mobile);
+    bool isConnected = connectivityResult.contains(ConnectivityResult.wifi)
+        || connectivityResult.contains(ConnectivityResult.mobile)
+        || connectivityResult.contains(ConnectivityResult.ethernet)
+        || connectivityResult.contains(ConnectivityResult.vpn);
     if(!isConnected && !Platform.isIOS) {
       Get.offAll(()=> const NoInternetScreen());
       return false;

@@ -3,12 +3,12 @@ import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 
 class MaintenanceHelper{
   static bool isMaintenanceEnable() {
-    bool isMaintenanceMode = Get.find<SplashController>().configModel!.maintenanceMode!;
-    String platform = GetPlatform.isWeb ? 'user_web_app' : 'user_mobile_app';
+    final configModel = Get.find<SplashController>().configModel;
+    final bool isMaintenanceMode = configModel?.maintenanceMode ?? false;
+    final String platform = GetPlatform.isWeb ? 'user_web_app' : 'user_mobile_app';
 
-    bool isInMaintenance = isMaintenanceMode && Get.find<SplashController>().configModel!.maintenanceModeData != null
-        && Get.find<SplashController>().configModel!.maintenanceModeData!.maintenanceSystemSetup!.contains(platform);
-
-    return isInMaintenance;
+    return isMaintenanceMode
+        && configModel?.maintenanceModeData?.maintenanceSystemSetup != null
+        && configModel!.maintenanceModeData!.maintenanceSystemSetup!.contains(platform);
   }
 }

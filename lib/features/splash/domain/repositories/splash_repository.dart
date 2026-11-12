@@ -21,21 +21,34 @@ class SplashRepository implements SplashRepositoryInterface {
 
   @override
   Future<Response> getConfigData({required DataSourceEnum source}) async {
-    Response responseData = Response(statusCode: 00, body: ApiClient.noInternetMessage);
+    Response responseData = Response(statusCode: 0, body: ApiClient.noInternetMessage, statusText: ApiClient.noInternetMessage);
     String cacheId = AppConstants.configUri + AppConstants.appVersion.toString();
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.configUri);
-        if (response.statusCode == 200) {
+        Response response = await apiClient.getData(AppConstants.configUri, handleError: false, timeout: 15);
+        if (response.statusCode == 200 && response.body is Map<String, dynamic>) {
           responseData = Response(statusCode: 200, body: response.body);
           LocalClient.organize(source, cacheId, jsonEncode(response.body), apiClient.getHeader());
+        } else {
+          responseData = Response(
+            statusCode: response.statusCode ?? 0,
+            body: response.body ?? ApiClient.noInternetMessage,
+            statusText: response.statusText ?? ApiClient.noInternetMessage,
+          );
         }
 
       case DataSourceEnum.local:
         String? cacheResponseData = await LocalClient.organize(source, cacheId, null, null);
-        if(cacheResponseData != null) {
-          responseData = Response(statusCode: 200, body: jsonDecode(cacheResponseData));
+        if(cacheResponseData != null && cacheResponseData.isNotEmpty) {
+          try {
+            final dynamic decoded = jsonDecode(cacheResponseData);
+            if (decoded is Map<String, dynamic>) {
+              responseData = Response(statusCode: 200, body: decoded);
+            }
+          } catch (e) {
+            debugPrint('Config cache decode error: $e');
+          }
         }
     }
     return responseData;
@@ -144,7 +157,7 @@ class SplashRepository implements SplashRepositoryInterface {
     switch(source) {
       case DataSourceEnum.client:
         Response response = await apiClient.getData(AppConstants.moduleUri, headers: headers);
-        if (response.statusCode == 200) {
+        if (response.statusCode == 200 && response.body is List) {
           moduleList = [];
           response.body.forEach((storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)));
           LocalClient.organize(source, cacheId, jsonEncode(response.body), apiClient.getHeader());
@@ -152,9 +165,13 @@ class SplashRepository implements SplashRepositoryInterface {
 
       case DataSourceEnum.local:
         String? cacheResponseData = await LocalClient.organize(source, cacheId, null, null);
-        if(cacheResponseData != null) {
-          moduleList = [];
-          jsonDecode(cacheResponseData).forEach((storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)));
+        if(cacheResponseData != null && cacheResponseData.isNotEmpty) {
+          try {
+            moduleList = [];
+            jsonDecode(cacheResponseData).forEach((storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)));
+          } catch (e) {
+            debugPrint('Module cache decode error: $e');
+          }
         }
     }
 
@@ -238,7 +255,7 @@ class SplashRepository implements SplashRepositoryInterface {
 
   @override
   bool getSavedCookiesData() {
-    return sharedPreferences.getBool(AppConstants.acceptCookies)!;
+    return sharedPreferences.getBool(AppConstants.acceptCookies) ?? false;
   }
 
   @override
@@ -264,7 +281,7 @@ class SplashRepository implements SplashRepositoryInterface {
 
   @override
   bool getSuggestedLocationStatus() {
-    return sharedPreferences.getBool(AppConstants.suggestedLocation)!;
+    return sharedPreferences.getBool(AppConstants.suggestedLocation) ?? false;
   }
 
   @override

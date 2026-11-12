@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/helper/route_helper.dart';
 import 'package:sixam_mart/util/dimensions.dart';
 import 'package:sixam_mart/util/images.dart';
@@ -8,7 +9,8 @@ import 'package:get/get.dart';
 
 class NoInternetScreen extends StatelessWidget {
   final Widget? child;
-  const NoInternetScreen({super.key, this.child});
+  final VoidCallback? onRetry;
+  const NoInternetScreen({super.key, this.child, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +36,18 @@ class NoInternetScreen extends StatelessWidget {
             GestureDetector(
               onTap: () async {
                 final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
-
-                if(!connectivityResult.contains(ConnectivityResult.none)) {
-                  try {
-                    Get.off(child);
-                  } catch (e) {
+                final bool offline = connectivityResult.isEmpty ||
+                    (connectivityResult.length == 1 && connectivityResult.contains(ConnectivityResult.none));
+                if(!offline) {
+                  if (onRetry != null) {
+                    onRetry!();
+                  } else if (child != null) {
+                    Get.off(() => child!);
+                  } else {
                     Get.offAllNamed(RouteHelper.getInitialRoute());
                   }
+                } else {
+                  showCustomSnackBar('no_internet_connection'.tr);
                 }
               },
               child: Container(

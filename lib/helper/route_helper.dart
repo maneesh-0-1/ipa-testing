@@ -576,13 +576,13 @@ class RouteHelper {
           Get.parameters['module'], fromDeeplink: Get.parameters['from_deeplink'] == 'true',
           Get.arguments ?? StoreScreen(
             store: Store(id: Get.parameters['id'] != 'null' && Get.parameters['id'] != null
-                ? int.parse(Get.parameters['id']!)
+                ? int.tryParse(Get.parameters['id']!)
                 : null),
             fromModule: Get.parameters['page'] != null && Get.parameters['page'] == 'module',
             slug: Get.parameters['slug'] ?? '',
           ),
         ),
-        byPuss: Get.parameters['slug']?.isNotEmpty ?? false || (Get.parameters['module'] != null && Get.parameters['module']!.isNotEmpty && Get.parameters['module'] != 'null'),
+        byPuss: (Get.parameters['slug']?.isNotEmpty ?? false) || (Get.parameters['module'] != null && Get.parameters['module']!.isNotEmpty && Get.parameters['module'] != 'null'),
       );
     }),
     GetPage(name: orderDetails, page: () {
@@ -1055,13 +1055,14 @@ class RouteHelper {
   ];
 
   static Widget getRoute(Widget navigateTo, {AccessLocationScreen? locationScreen, bool byPuss = false}) {
-    double? minimumVersion = 0;
+    double minimumVersion = 0;
+    final configModel = Get.find<SplashController>().configModel;
     if (GetPlatform.isAndroid) {
-      minimumVersion = Get.find<SplashController>().configModel!.appMinimumVersionAndroid;
+      minimumVersion = configModel?.appMinimumVersionAndroid ?? 0;
     } else if (GetPlatform.isIOS) {
-      minimumVersion = Get.find<SplashController>().configModel!.appMinimumVersionIos;
+      minimumVersion = configModel?.appMinimumVersionIos ?? 0;
     }
-    return (AppConstants.appVersion < minimumVersion! && !GetPlatform.isWeb) ? const UpdateScreen(isUpdate: true)
+    return (AppConstants.appVersion < minimumVersion && !GetPlatform.isWeb) ? const UpdateScreen(isUpdate: true)
         : MaintenanceHelper.isMaintenanceEnable() ? const UpdateScreen(isUpdate: false)
         : (AddressHelper.getUserAddressFromSharedPref() == null && !byPuss)
         ? AccessLocationScreen(fromSignUp: false, fromHome: false, route: Get.currentRoute) : navigateTo;
@@ -1096,7 +1097,7 @@ class RouteHelper {
         builder: (context, snapshot) {
           print('-------module future builder: ${snapshot.connectionState} // has data: ${snapshot.hasData} // error: ${snapshot.hasError}');
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CustomLoaderWidget());
+            return const Scaffold(body: Center(child: CustomLoaderWidget()));
           }
           return child;
         },
@@ -1110,73 +1111,79 @@ class RouteHelper {
 
   static Future<void> checkModuleId(String? parameters, {bool fromDeeplink = false}) async {
     if(parameters != null && parameters.isNotEmpty && parameters != 'null') {
-      final SplashController splash = Get.find<SplashController>();
-      if(splash.module != null && (splash.module!.slug == parameters || splash.module!.id.toString() == parameters)) {
-        return;
-      }
-      String moduleSlug = parameters;
-      ApiClient apiClient = Get.find<ApiClient>();
-      SharedPreferences sharedPreferences = Get.find<SharedPreferences>();
-      AddressModel? addressModel = AddressHelper.getUserAddressFromSharedPref();
-      print('-----111-----config model is null: ${Get.find<SplashController>().configModel == null} // address: $addressModel // $fromDeeplink');
-
-      if(addressModel != null) {
-        print('-------address is not null, proceeding----');
-        if(!fromDeeplink && !GetPlatform.isWeb) {
-          print('-------from deeplink, not executing function');
+      try {
+        final SplashController splash = Get.find<SplashController>();
+        if(splash.module != null && (splash.module!.slug == parameters || splash.module!.id.toString() == parameters)) {
           return;
         }
-        await _moduleCheck(moduleSlug, apiClient, sharedPreferences, addressModel);
-      } else {
-        bool v = await Get.find<SplashController>().getModules(headers: {'Content-Type': 'application/json; charset=UTF-8', AppConstants.localizationKey: Get.find<LocalizationController>().locale.languageCode}, dataSource: DataSourceEnum.client);
-        print('-----222-----module fetch status: $v');
-        if(v) {
-          if(Get.find<SplashController>().moduleList != null) {
-            bool canContinue = true;
+        String moduleSlug = parameters;
+        ApiClient apiClient = Get.find<ApiClient>();
+        SharedPreferences sharedPreferences = Get.find<SharedPreferences>();
+        AddressModel? addressModel = AddressHelper.getUserAddressFromSharedPref();
+        print('-----111-----config model is null: ${Get.find<SplashController>().configModel == null} // address: $addressModel // $fromDeeplink');
 
-            ModuleModel? foundModule;
-            for (ModuleModel module in Get.find<SplashController>().moduleList!) {
-              print('-------module slug: ${module.slug} == $moduleSlug');
-              if(module.slug == moduleSlug || module.id.toString() == moduleSlug) {
-                foundModule = module;
-                break;
+        if(addressModel != null) {
+          print('-------address is not null, proceeding----');
+          if(!fromDeeplink && !GetPlatform.isWeb) {
+            print('-------from deeplink, not executing function');
+            return;
+          }
+          await _moduleCheck(moduleSlug, apiClient, sharedPreferences, addressModel);
+        } else {
+          bool v = await Get.find<SplashController>().getModules(headers: {'Content-Type': 'application/json; charset=UTF-8', AppConstants.localizationKey: Get.find<LocalizationController>().locale.languageCode}, dataSource: DataSourceEnum.client);
+          print('-----222-----module fetch status: $v');
+          if(v) {
+            if(Get.find<SplashController>().moduleList != null) {
+              bool canContinue = true;
+
+              ModuleModel? foundModule;
+              for (ModuleModel module in Get.find<SplashController>().moduleList!) {
+                print('-------module slug: ${module.slug} == $moduleSlug');
+                if(module.slug == moduleSlug || module.id.toString() == moduleSlug) {
+                  foundModule = module;
+                  break;
+                }
               }
-            }
-            if(!AuthHelper.isLoggedIn() && !AuthHelper.isGuestLoggedIn()) {
-              print('-------doing guest login > 1');
-              ResponseModel responseModel = await Get.find<AuthController>().guestLogin();
-              canContinue = responseModel.isSuccess;
-            }
-            if(!canContinue) {
-              Get.offAllNamed(getInitialRoute());
-              return;
-            }
-            print('-------found module: ${foundModule?.slug ?? foundModule?.id} // can route : $canContinue');
-            if(foundModule != null) {
-              Get.find<SplashController>().setModule(foundModule);
-              apiClient.updateHeader(
-                sharedPreferences.getString(AppConstants.token), null, null,
-                sharedPreferences.getString(AppConstants.languageCode), moduleSlug, '0', '0', null
-              );
-            } else {
-              apiClient.updateHeader(
-                sharedPreferences.getString(AppConstants.token), null, null,
-                sharedPreferences.getString(AppConstants.languageCode), null, '0', '0', null
-              );
-              Get.dialog(ZoneWarningDialog(
-                title: 'module_is_not_available'.tr,
-                onPressed: () async {
-                  Get.back();
-                  await Get.find<SplashController>().setModule(null);
-                  ShallowRouterHelper.updateParameter('module', 'null');
-                  Get.offAllNamed(getInitialRoute(moduleId: 'null'));
-                },
-              ), barrierDismissible: false);
-              return;
+              if(!AuthHelper.isLoggedIn() && !AuthHelper.isGuestLoggedIn()) {
+                print('-------doing guest login > 1');
+                try {
+                  ResponseModel responseModel = await Get.find<AuthController>().guestLogin().timeout(const Duration(seconds: 10));
+                  canContinue = responseModel.isSuccess;
+                } catch (_) {
+                  canContinue = false;
+                }
+              }
+              if(!canContinue && fromDeeplink) {
+                Get.offAllNamed(getInitialRoute());
+                return;
+              }
+              print('-------found module: ${foundModule?.slug ?? foundModule?.id} // can route : $canContinue');
+              if(foundModule != null) {
+                await Get.find<SplashController>().setModule(foundModule);
+                apiClient.updateHeader(
+                  sharedPreferences.getString(AppConstants.token), null, null,
+                  sharedPreferences.getString(AppConstants.languageCode), moduleSlug, '0', '0', null
+                );
+              } else if (fromDeeplink) {
+                apiClient.updateHeader(
+                  sharedPreferences.getString(AppConstants.token), null, null,
+                  sharedPreferences.getString(AppConstants.languageCode), null, '0', '0', null
+                );
+                Get.dialog(ZoneWarningDialog(
+                  title: 'module_is_not_available'.tr,
+                  onPressed: () async {
+                    Get.back();
+                    await Get.find<SplashController>().setModule(null);
+                    ShallowRouterHelper.updateParameter('module', 'null');
+                    Get.offAllNamed(getInitialRoute(moduleId: 'null'));
+                  },
+                ), barrierDismissible: false);
+                return;
+              }
             }
           }
         }
-      }
+      } catch (_) {}
     }
   }
 

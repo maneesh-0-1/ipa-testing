@@ -75,29 +75,32 @@ class LocationService implements LocationServiceInterface{
   @override
   void configureFirebaseMessaging(AddressModel address) {
     if(!GetPlatform.isWeb) {
-      if(Get.find<SplashController>().configModel!.demo!) {
-        FirebaseMessaging.instance.subscribeToTopic('demo_reset');
-      } else {
-        FirebaseMessaging.instance.unsubscribeFromTopic('demo_reset');
-      }
-      if (AddressHelper.getUserAddressFromSharedPref() != null) {
-        if(AddressHelper.getUserAddressFromSharedPref()!.zoneIds != null) {
-          for(int zoneID in AddressHelper.getUserAddressFromSharedPref()!.zoneIds!) {
-            FirebaseMessaging.instance.unsubscribeFromTopic('zone_${zoneID}_customer');
+      try {
+        if(Get.find<SplashController>().configModel?.demo ?? false) {
+          FirebaseMessaging.instance.subscribeToTopic('demo_reset');
+        } else {
+          FirebaseMessaging.instance.unsubscribeFromTopic('demo_reset');
+        }
+        final AddressModel? savedAddress = AddressHelper.getUserAddressFromSharedPref();
+        if (savedAddress != null) {
+          if(savedAddress.zoneIds != null) {
+            for(int zoneID in savedAddress.zoneIds!) {
+              FirebaseMessaging.instance.unsubscribeFromTopic('zone_${zoneID}_customer');
+            }
+          }else if(savedAddress.zoneId != null) {
+            FirebaseMessaging.instance.unsubscribeFromTopic('zone_${savedAddress.zoneId}_customer');
           }
-        }else {
-          FirebaseMessaging.instance.unsubscribeFromTopic('zone_${AddressHelper.getUserAddressFromSharedPref()!.zoneId}_customer');
+        } else if(address.zoneId != null) {
+          FirebaseMessaging.instance.subscribeToTopic('zone_${address.zoneId}_customer');
         }
-      } else {
-        FirebaseMessaging.instance.subscribeToTopic('zone_${address.zoneId}_customer');
-      }
-      if(address.zoneIds != null) {
-        for(int zoneID in address.zoneIds!) {
-          FirebaseMessaging.instance.subscribeToTopic('zone_${zoneID}_customer');
+        if(address.zoneIds != null) {
+          for(int zoneID in address.zoneIds!) {
+            FirebaseMessaging.instance.subscribeToTopic('zone_${zoneID}_customer');
+          }
+        } else if(address.zoneId != null) {
+          FirebaseMessaging.instance.subscribeToTopic('zone_${address.zoneId}_customer');
         }
-      } else {
-        FirebaseMessaging.instance.subscribeToTopic('zone_${address.zoneId}_customer');
-      }
+      } catch (_) {}
     }
   }
 

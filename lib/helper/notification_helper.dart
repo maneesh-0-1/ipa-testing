@@ -37,9 +37,13 @@ class NotificationHelper {
 
   static Future<void> initialize(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
     var androidInitialize = const AndroidInitializationSettings('notification_icon');
-    var iOSInitialize = const DarwinInitializationSettings();
+    var iOSInitialize = const DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
     var initializationsSettings = InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation < AndroidFlutterLocalNotificationsPlugin>()!.requestNotificationsPermission();
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
     flutterLocalNotificationsPlugin.initialize(initializationsSettings, onDidReceiveNotificationResponse: (NotificationResponse load) async {
       try{
         if(load.payload!.isNotEmpty) {
@@ -83,10 +87,10 @@ class NotificationHelper {
       }
 
 
-      bool pusherDisConnected = Get.find<SplashController>().pusherConnectionStatus == null || Get.find<SplashController>().pusherConnectionStatus == 'Disconnected' || Get.find<SplashController>().configModel!.webSocketStatus == false;
+      bool pusherDisConnected = Get.find<SplashController>().pusherConnectionStatus == null || Get.find<SplashController>().pusherConnectionStatus == 'Disconnected' || Get.find<SplashController>().configModel?.webSocketStatus == false;
 
       if (kDebugMode) {
-        print('pusher Disconnected: $pusherDisConnected [${Get.find<SplashController>().pusherConnectionStatus == null} || ${Get.find<SplashController>().pusherConnectionStatus} || ${Get.find<SplashController>().configModel!.webSocketStatus == false}]');
+        print('pusher Disconnected: $pusherDisConnected [${Get.find<SplashController>().pusherConnectionStatus == null} || ${Get.find<SplashController>().pusherConnectionStatus} || ${Get.find<SplashController>().configModel?.webSocketStatus == false}]');
       }
       /// For Ride Share
       if (message.data['action'] == 'customer_driver_on_the_way' && pusherDisConnected) {
@@ -483,14 +487,17 @@ class NotificationHelper {
 
       // Check if current module is not ride-share, then switch to ride-share module
       if(Get.find<SplashController>().module?.moduleType != AppConstants.ride) {
-        for(ModuleModel module in Get.find<SplashController>().moduleList!) {
+        final List<ModuleModel>? moduleList = Get.find<SplashController>().moduleList;
+        if(moduleList != null) {
+          for(ModuleModel module in moduleList) {
 
-          if(module.moduleType == AppConstants.ride) {
-            await Get.find<SplashController>().setModule(module);
+            if(module.moduleType == AppConstants.ride) {
+              await Get.find<SplashController>().setModule(module);
 
-            // Execute the action after module is set
-            _executeRideRequestAction(data, formSplash);
-            break;
+              // Execute the action after module is set
+              _executeRideRequestAction(data, formSplash);
+              break;
+            }
           }
         }
         // Execute the action after module is set

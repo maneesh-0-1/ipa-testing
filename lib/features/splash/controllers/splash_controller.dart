@@ -146,64 +146,98 @@ class SplashController extends GetxController implements GetxService {
     DataSourceEnum source = DataSourceEnum.local, bool fromMainFunction = false, bool fromDemoReset = false, bool canRoute = true}) async {
     _hasConnection = true;
     _moduleIndex = 0;
-    Response response;
-    if(source == DataSourceEnum.local && !fromDemoReset) {
-      response = await splashServiceInterface.getConfigData(source: DataSourceEnum.local);
-      _handleConfigResponse(response, handleMaintenanceMode, loadModuleData, loadLandingData, fromMainFunction, fromDemoReset, notificationBody, canRoute);
-      getConfigData(handleMaintenanceMode: handleMaintenanceMode, loadModuleData: loadModuleData, loadLandingData: loadLandingData, source: DataSourceEnum.client);
-
-    } else {
-      response = await splashServiceInterface.getConfigData(source: DataSourceEnum.client);
-      _handleConfigResponse(response, handleMaintenanceMode, loadModuleData, loadLandingData, fromMainFunction, fromDemoReset, notificationBody, canRoute);
+    try {
+      Response response;
+      if(source == DataSourceEnum.local && !fromDemoReset) {
+        response = await splashServiceInterface.getConfigData(source: DataSourceEnum.local);
+        final bool routedLocally = await _handleConfigResponse(
+          response, handleMaintenanceMode, loadModuleData, loadLandingData,
+          fromMainFunction, fromDemoReset, notificationBody, canRoute,
+          source: DataSourceEnum.local,
+        );
+        await getConfigData(
+          handleMaintenanceMode: handleMaintenanceMode,
+          notificationBody: notificationBody,
+          loadModuleData: loadModuleData,
+          loadLandingData: loadLandingData,
+          source: DataSourceEnum.client,
+          fromMainFunction: fromMainFunction,
+          fromDemoReset: fromDemoReset,
+          canRoute: canRoute && !routedLocally,
+        );
+      } else {
+        response = await splashServiceInterface.getConfigData(source: DataSourceEnum.client);
+        await _handleConfigResponse(
+          response, handleMaintenanceMode, loadModuleData, loadLandingData,
+          fromMainFunction, fromDemoReset, notificationBody, canRoute,
+          source: DataSourceEnum.client,
+        );
+      }
+    } catch (e) {
+      if (source == DataSourceEnum.client && _configModel == null) {
+        _hasConnection = false;
+      }
+      update();
     }
-
   }
 
-  Future<void> _handleConfigResponse(Response response, bool handleMaintenanceMode, bool loadModuleData, bool loadLandingData, bool fromMainFunction, bool fromDemoReset, NotificationBodyModel? notificationBody, bool canRoute) async {
-    if(response.statusCode == 200) {
-      _data = response.body;
-      _configModel = ConfigModel.fromJson(response.body);
-      ModuleModel targetModule = _configModel!.module
-          ?? _module
-          ?? splashServiceInterface.getCacheModule()
-          ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
-      setModule(targetModule);
-      _selectedModuleIndex = 1;
-      print('=====deeplink url: $_deeplinkRoute and canRoute: $canRoute');
-      if(!canRoute || _deeplinkRoute != null) {
-        return;
-      }
-
-      bool isMaintenanceMode = _configModel!.maintenanceMode!;
-      bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
-
-      splashServiceInterface.handleInitialTopicSubscription();
-      if (isInMaintenance && handleMaintenanceMode) {
-        Get.offNamed(RouteHelper.getUpdateRoute(false));
-        _onRemoveLoader();
-        update();
-        return;
-      } else if (handleMaintenanceMode && ((Get.currentRoute.contains(RouteHelper.update) && !isMaintenanceMode) || !isInMaintenance)) {
-          Get.offNamed(RouteHelper.getInitialRoute());
+  Future<bool> _handleConfigResponse(Response response, bool handleMaintenanceMode, bool loadModuleData, bool loadLandingData, bool fromMainFunction, bool fromDemoReset, NotificationBodyModel? notificationBody, bool canRoute, {DataSourceEnum source = DataSourceEnum.client}) async {
+    bool didRoute = false;
+    if(response.statusCode == 200 && response.body is Map<String, dynamic>) {
+      try {
+        _data = response.body;
+        _configModel = ConfigModel.fromJson(response.body);
+        ModuleModel targetModule = _configModel!.module
+            ?? _module
+            ?? splashServiceInterface.getCacheModule()
+            ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
+        await setModule(targetModule);
+        _selectedModuleIndex = 1;
+        print('=====deeplink url: $_deeplinkRoute and canRoute: $canRoute');
+        if(!canRoute || _deeplinkRoute != null) {
+          update();
+          return false;
         }
 
-      // if(loadLandingData){
-      //   await getLandingPageData();
-      // }
-      if(fromMainFunction) {
-        _mainConfigRouting();
-      } else if (fromDemoReset) {
-        Get.offAllNamed(RouteHelper.getInitialRoute(fromSplash: true));
-      } else {
-        route(body: notificationBody);
+        bool isMaintenanceMode = _configModel?.maintenanceMode ?? false;
+        bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
+
+        splashServiceInterface.handleInitialTopicSubscription();
+        if (isInMaintenance && handleMaintenanceMode) {
+          Get.offNamed(RouteHelper.getUpdateRoute(false));
+          _onRemoveLoader();
+          update();
+          return true;
+        } else if (handleMaintenanceMode && ((Get.currentRoute.contains(RouteHelper.update) && !isMaintenanceMode) || !isInMaintenance)) {
+          Get.offNamed(RouteHelper.getInitialRoute());
+          didRoute = true;
+        }
+
+        // if(loadLandingData){
+        //   await getLandingPageData();
+        // }
+        if(fromMainFunction) {
+          await _mainConfigRouting();
+        } else if (fromDemoReset) {
+          Get.offAllNamed(RouteHelper.getInitialRoute(fromSplash: true));
+          didRoute = true;
+        } else {
+          await route(body: notificationBody);
+          didRoute = true;
+        }
+        _onRemoveLoader();
+      } catch (e) {
+        if (source == DataSourceEnum.client && !didRoute) {
+          _hasConnection = false;
+        }
       }
-      _onRemoveLoader();
-    }else {
-      if(response.statusText == ApiClient.noInternetMessage) {
+    } else if (source == DataSourceEnum.client) {
+      if (_configModel == null || response.statusText == ApiClient.noInternetMessage) {
         _hasConnection = false;
       }
     }
     update();
+    return didRoute;
   }
 
   Future<void> _mainConfigRouting() async {
@@ -223,6 +257,7 @@ class SplashController extends GetxController implements GetxService {
   }
 
   void _onRemoveLoader() {
+    if (!GetPlatform.isWeb) return;
     final preloader = html.document.querySelector('.preloader');
     if (preloader != null) {
       preloader.remove();
@@ -262,7 +297,10 @@ class SplashController extends GetxController implements GetxService {
   }
 
   void setCacheConfigModule(ModuleModel? cacheModule) {
-    _configModel!.moduleConfig!.module = Module.fromJson(_data!['module_config'][cacheModule!.moduleType]);
+    final dynamic moduleConfigMap = _data?['module_config'];
+    if (_configModel?.moduleConfig != null && cacheModule?.moduleType != null && moduleConfigMap is Map && moduleConfigMap[cacheModule!.moduleType] is Map<String, dynamic>) {
+      _configModel!.moduleConfig!.module = Module.fromJson(moduleConfigMap[cacheModule.moduleType]);
+    }
   }
 
   bool? showIntro() {
@@ -291,8 +329,9 @@ class SplashController extends GetxController implements GetxService {
     if(module != null) {
       Get.find<BannerController>().clearBanner();
       ShallowRouterHelper.updateParameter('module', module.slug != null ? module.slug.toString() : module.id.toString());
-      if(_configModel != null) {
-        _configModel!.moduleConfig!.module = Module.fromJson(_data!['module_config'][module.moduleType]);
+      final dynamic moduleConfigMap = _data?['module_config'];
+      if(_configModel?.moduleConfig != null && module.moduleType != null && moduleConfigMap is Map && moduleConfigMap[module.moduleType] is Map<String, dynamic>) {
+        _configModel!.moduleConfig!.module = Module.fromJson(moduleConfigMap[module.moduleType]);
       }
       _cacheModule = await splashServiceInterface.setCacheModule(module);
       if((AuthHelper.isLoggedIn() || AuthHelper.isGuestLoggedIn()) && cacheModule != null) {
@@ -325,9 +364,13 @@ class SplashController extends GetxController implements GetxService {
   }
 
   Module getModuleConfig(String? moduleType) {
-    Module module = Module.fromJson(_data!['module_config'][moduleType]);
-    moduleType == 'food' ? module.newVariation = true : module.newVariation = false;
-    return module;
+    final dynamic moduleConfigMap = _data?['module_config'];
+    if (moduleType != null && moduleConfigMap is Map && moduleConfigMap[moduleType] is Map<String, dynamic>) {
+      Module module = Module.fromJson(moduleConfigMap[moduleType]);
+      moduleType == 'food' ? module.newVariation = true : module.newVariation = false;
+      return module;
+    }
+    return Module(newVariation: moduleType == 'food');
   }
 
   Future<bool> getModules({Map<String, String>? headers, DataSourceEnum dataSource = DataSourceEnum.local}) async {

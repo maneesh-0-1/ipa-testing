@@ -144,23 +144,30 @@ class AuthRepository implements AuthRepositoryInterface{
     String? deviceToken;
     if(notificationDeviceToken.isEmpty){
       if (GetPlatform.isIOS && !GetPlatform.isWeb) {
-        FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
-        NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-          alert: true, announcement: false, badge: true, carPlay: false,
-          criticalAlert: false, provisional: false, sound: true,
-        );
-        if(settings.authorizationStatus == AuthorizationStatus.authorized) {
-          deviceToken = await saveDeviceToken();
-        }
+        try {
+          FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+          NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+            alert: true, announcement: false, badge: true, carPlay: false,
+            criticalAlert: false, provisional: false, sound: true,
+          );
+          if(settings.authorizationStatus == AuthorizationStatus.authorized) {
+            deviceToken = await saveDeviceToken();
+          }
+        } catch (_) {}
       }else {
         deviceToken = await saveDeviceToken();
       }
       if(!GetPlatform.isWeb) {
-        FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
-        FirebaseMessaging.instance.subscribeToTopic('zone_${AddressHelper.getUserAddressFromSharedPref()!.zoneId}_customer');
+        try {
+          FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
+          final int? zoneId = AddressHelper.getUserAddressFromSharedPref()?.zoneId;
+          if(zoneId != null) {
+            FirebaseMessaging.instance.subscribeToTopic('zone_${zoneId}_customer');
+          }
+        } catch (_) {}
       }
     }
-    return await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": notificationDeviceToken.isNotEmpty ? notificationDeviceToken : deviceToken}, handleError: false);
+    return await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": notificationDeviceToken.isNotEmpty ? notificationDeviceToken : (deviceToken ?? '@')}, handleError: false);
   }
 
   @override
@@ -168,7 +175,7 @@ class AuthRepository implements AuthRepositoryInterface{
     String? deviceToken = '@';
     if(!GetPlatform.isWeb) {
       try {
-        deviceToken = (await FirebaseMessaging.instance.getToken())!;
+        deviceToken = await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 5)) ?? '@';
       }catch(_) {}
     }
     if (deviceToken != null) {
@@ -213,8 +220,13 @@ class AuthRepository implements AuthRepositoryInterface{
   @override
   Future<bool> clearSharedData({bool removeToken = true}) async {
     if(!GetPlatform.isWeb) {
-      FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-      FirebaseMessaging.instance.unsubscribeFromTopic('zone_${AddressHelper.getUserAddressFromSharedPref()!.zoneId}_customer');
+      try {
+        FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
+        final int? zoneId = AddressHelper.getUserAddressFromSharedPref()?.zoneId;
+        if(zoneId != null) {
+          FirebaseMessaging.instance.unsubscribeFromTopic('zone_${zoneId}_customer');
+        }
+      } catch (_) {}
       if(removeToken){
         apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": '@'}, handleError: false);
       }
@@ -343,10 +355,15 @@ class AuthRepository implements AuthRepositoryInterface{
     }else {
       if(!GetPlatform.isWeb) {
         await updateToken(notificationDeviceToken: '@');
-        FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
-        if(isLoggedIn()) {
-          FirebaseMessaging.instance.unsubscribeFromTopic('zone_${AddressHelper.getUserAddressFromSharedPref()!.zoneId}_customer');
-        }
+        try {
+          FirebaseMessaging.instance.unsubscribeFromTopic(AppConstants.topic);
+          if(isLoggedIn()) {
+            final int? zoneId = AddressHelper.getUserAddressFromSharedPref()?.zoneId;
+            if(zoneId != null) {
+              FirebaseMessaging.instance.unsubscribeFromTopic('zone_${zoneId}_customer');
+            }
+          }
+        } catch (_) {}
       }
     }
     sharedPreferences.setBool(AppConstants.notification, isActive);

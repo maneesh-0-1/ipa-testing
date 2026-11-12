@@ -35,7 +35,9 @@ class LinkConverter{
     ///product details: https://ammart-8bc78.web.app/item-details/capsule-and-tablet-icon-illustration?id=403&page=item&module=grocery
     ///
 
-    Get.find<SplashController>().setDeeplink(uri);
+    if(link != null) {
+      Get.find<SplashController>().setDeeplink(uri);
+    }
 
     navigateFromLink(link, uri: uri);
     return link;

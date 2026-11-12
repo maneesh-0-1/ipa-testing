@@ -85,7 +85,7 @@ class ApiClient extends GetxService {
 
   Map<String, String> getHeader() => _mainHeaders;
 
-  Future<Response> getData(String uri, {Map<String, dynamic>? query, Map<String, String>? headers, bool handleError = true, bool moduleScoped = false}) async {
+  Future<Response> getData(String uri, {Map<String, dynamic>? query, Map<String, String>? headers, bool handleError = true, bool moduleScoped = false, int? timeout}) async {
     try {
       final Map<String, String> requestHeaders = headers ?? _mainHeaders;
       // For module-scoped calls, remember the module this request was sent for so a
@@ -94,10 +94,11 @@ class ApiClient extends GetxService {
       if (kDebugMode) {
         log('====> API Call: $uri\nHeader: $requestHeaders');
       }
-      http.Response response = await http.get(Uri.parse(appBaseUrl + uri), headers: requestHeaders).timeout(Duration(seconds: timeoutInSeconds));
-      if (response.statusCode == 503 || response.statusCode == 429) {
+      final int effectiveTimeout = timeout ?? timeoutInSeconds;
+      http.Response response = await http.get(Uri.parse(appBaseUrl + uri), headers: requestHeaders).timeout(Duration(seconds: effectiveTimeout));
+      if (timeout == null && (response.statusCode == 503 || response.statusCode == 429)) {
         await Future.delayed(const Duration(milliseconds: 600));
-        response = await http.get(Uri.parse(appBaseUrl + uri), headers: requestHeaders).timeout(Duration(seconds: timeoutInSeconds));
+        response = await http.get(Uri.parse(appBaseUrl + uri), headers: requestHeaders).timeout(Duration(seconds: effectiveTimeout));
       }
       // Module switched while this was in flight — drop it so it can't overwrite the
       // shared controllers bound to the now-active module's screen.

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/features/auth/controllers/auth_controller.dart';
 import 'package:sixam_mart/features/cart/controllers/cart_controller.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
@@ -31,19 +32,17 @@ class SplashScreenState extends State<SplashScreen> {
 
     bool firstTime = true;
     _onConnectivityChanged = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
-      bool isConnected = result.contains(ConnectivityResult.wifi) || result.contains(ConnectivityResult.mobile);
+      bool isConnected = result.contains(ConnectivityResult.wifi)
+          || result.contains(ConnectivityResult.mobile)
+          || result.contains(ConnectivityResult.ethernet)
+          || result.contains(ConnectivityResult.vpn)
+          || result.contains(ConnectivityResult.other);
 
-      if(!firstTime) {
-        isConnected ? ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar() : const SizedBox();
-        ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-          backgroundColor: isConnected ? Colors.green : Colors.red,
-          duration: Duration(seconds: isConnected ? 3 : 6000),
-          content: Text(isConnected ? 'connected'.tr : 'no_connection'.tr, textAlign: TextAlign.center),
-        ));
+      if(!firstTime && mounted) {
+        showCustomSnackBar(isConnected ? 'connected'.tr : 'no_connection'.tr, isError: !isConnected);
         if(isConnected) {
-          print('=========here coming-----1-->> ${Get.find<SplashController>().deeplinkRoute}');
           if(Get.find<SplashController>().deeplinkRoute == null) {
-            Get.find<SplashController>().getConfigData(notificationBody: widget.body);
+            _route();
           }
         }
       }
@@ -51,11 +50,18 @@ class SplashScreenState extends State<SplashScreen> {
       firstTime = false;
     });
 
-    Get.find<SplashController>().initSharedData();
+    _initAndRoute();
+  }
+
+  Future<void> _initAndRoute() async {
+    await Get.find<SplashController>().initSharedData();
+    if (!mounted) return;
+    if(AddressHelper.getUserAddressFromSharedPref() != null && AddressHelper.getUserAddressFromSharedPref()!.zoneIds == null) {
+      Get.find<AuthController>().clearSharedAddress();
+    }
     if((AuthHelper.getGuestId().isNotEmpty || AuthHelper.isLoggedIn()) && Get.find<SplashController>().cacheModule != null) {
       Get.find<CartController>().getAllCarts();
     }
-    // _route();
     if(Get.find<SplashController>().deeplinkRoute == null) {
       _route();
     }
@@ -63,9 +69,8 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    super.dispose();
-
     _onConnectivityChanged?.cancel();
+    super.dispose();
   }
 
   void _route() {
@@ -74,11 +79,6 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.find<SplashController>().initSharedData();
-    if(AddressHelper.getUserAddressFromSharedPref() != null && AddressHelper.getUserAddressFromSharedPref()!.zoneIds == null) {
-      Get.find<AuthController>().clearSharedAddress();
-    }
-
     return Scaffold(
       key: _globalKey,
       body: GetBuilder<SplashController>(builder: (splashController) {
@@ -89,7 +89,10 @@ class SplashScreenState extends State<SplashScreen> {
               Image.asset(Images.logo, width: 200),
               const SizedBox(height: Dimensions.paddingSizeSmall),
             ],
-          ) : NoInternetScreen(child: SplashScreen(body: widget.body, deeplinkUrl: widget.deeplinkUrl)),
+          ) : NoInternetScreen(
+            onRetry: _route,
+            child: SplashScreen(body: widget.body, deeplinkUrl: widget.deeplinkUrl),
+          ),
         );
       }),
     );

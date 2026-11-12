@@ -132,7 +132,7 @@ class DashboardScreenState extends State<DashboardScreen> {
     }
 
     if(_isLogin){
-      if(Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 && Get.find<AuthController>().getEarningPint().isNotEmpty
+      if(Get.find<SplashController>().configModel?.loyaltyPointStatus == 1 && Get.find<AuthController>().getEarningPint().isNotEmpty
           && !ResponsiveHelper.isDesktop(Get.context)){
         Future.delayed(const Duration(seconds: 1), () => showAnimatedDialog(Get.context!, const CongratulationDialogue()));
       }

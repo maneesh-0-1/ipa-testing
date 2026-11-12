@@ -15,43 +15,49 @@ class PriceConverter {
         price = price! - ((discount / 100) * price);
       }
     }
-    bool isRightSide = Get.find<SplashController>().configModel!.currencySymbolDirection == 'right';
+    final configModel = Get.find<SplashController>().configModel;
+    final bool isRightSide = configModel?.currencySymbolDirection == 'right';
+    final String currencySymbol = configModel?.currencySymbol ?? '';
+    final int digitAfterDecimal = configModel?.digitAfterDecimalPoint ?? 2;
 
     if(forMenuWallet) {
-      return '${isRightSide ? '' : '${Get.find<SplashController>().configModel!.currencySymbol!} '}'
+      return '${isRightSide ? '' : '$currencySymbol '}'
           '${intl.NumberFormat.compact().format(price)}'
-          '${isRightSide ? ' ${Get.find<SplashController>().configModel!.currencySymbol!}' : ''}';
+          '${isRightSide ? ' $currencySymbol' : ''}';
     }
 
-    if(forTaxi && price! > 100000) {
-      return '${isRightSide ? '' : '${Get.find<SplashController>().configModel!.currencySymbol!} '}'
+    if(forTaxi && (price ?? 0) > 100000) {
+      return '${isRightSide ? '' : '$currencySymbol '}'
           '${intl.NumberFormat.compact().format(price)}'
-          '${isRightSide ? ' ${Get.find<SplashController>().configModel!.currencySymbol!}' : ''}';
+          '${isRightSide ? ' $currencySymbol' : ''}';
     }
-    return '${isRightSide ? '' : '${Get.find<SplashController>().configModel!.currencySymbol!} '}'
-        '${formatedStringPrice ?? toFixed(price!).toStringAsFixed(forDM ? 0 : Get.find<SplashController>().configModel!.digitAfterDecimalPoint!)
+    return '${isRightSide ? '' : '$currencySymbol '}'
+        '${formatedStringPrice ?? toFixed(price ?? 0).toStringAsFixed(forDM ? 0 : digitAfterDecimal)
         .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-        '${isRightSide ? ' ${Get.find<SplashController>().configModel!.currencySymbol!}' : ''}';
+        '${isRightSide ? ' $currencySymbol' : ''}';
   }
 
   static Widget convertAnimationPrice(double? price, {double? discount, String? discountType, bool forDM = false, TextStyle? textStyle}) {
     if(discount != null && discountType != null){
       if(discountType == 'amount') {
-        price = price! - discount;
+        price = (price ?? 0) - discount;
       }else if(discountType == 'percent') {
-        price = price! - ((discount / 100) * price);
+        price = (price ?? 0) - ((discount / 100) * (price ?? 0));
       }
     }
-    bool isRightSide = Get.find<SplashController>().configModel!.currencySymbolDirection == 'right';
+    final configModel = Get.find<SplashController>().configModel;
+    final bool isRightSide = configModel?.currencySymbolDirection == 'right';
+    final String currencySymbol = configModel?.currencySymbol ?? '';
+    final int digitAfterDecimal = configModel?.digitAfterDecimalPoint ?? 2;
     return Directionality(
       textDirection: TextDirection.ltr,
       child: AnimatedFlipCounter(
         duration: const Duration(milliseconds: 500),
-        value: toFixed(price!),
+        value: toFixed(price ?? 0),
         textStyle: textStyle ?? robotoMedium,
-        fractionDigits: forDM ? 0 : Get.find<SplashController>().configModel!.digitAfterDecimalPoint!,
-        prefix: isRightSide ? '' : '${Get.find<SplashController>().configModel!.currencySymbol!} ',
-        suffix: isRightSide ? '${Get.find<SplashController>().configModel!.currencySymbol!} ' : '',
+        fractionDigits: forDM ? 0 : digitAfterDecimal,
+        prefix: isRightSide ? '' : '$currencySymbol ',
+        suffix: isRightSide ? '$currencySymbol ' : '',
       ),
     );
   }
@@ -76,12 +82,14 @@ class PriceConverter {
   }
 
   static String percentageCalculation(String price, String discount, String discountType) {
-    return '$discount${discountType == 'percent' ? '%' : Get.find<SplashController>().configModel!.currencySymbol}';
+    final String currencySymbol = Get.find<SplashController>().configModel?.currencySymbol ?? '';
+    return '$discount${discountType == 'percent' ? '%' : currencySymbol}';
   }
 
   static double toFixed(double val) {
-    num mod = power(10, Get.find<SplashController>().configModel!.digitAfterDecimalPoint!);
-    return (((val * mod).toPrecision(Get.find<SplashController>().configModel!.digitAfterDecimalPoint!)).floor().toDouble() / mod);
+    final int digitAfterDecimal = Get.find<SplashController>().configModel?.digitAfterDecimalPoint ?? 2;
+    num mod = power(10, digitAfterDecimal);
+    return (((val * mod).toPrecision(digitAfterDecimal)).floor().toDouble() / mod);
   }
 
   static int power(int x, int n) {

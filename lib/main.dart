@@ -99,7 +99,7 @@ Future<void> main() async {
   NotificationBodyModel? body;
   try {
     if (GetPlatform.isMobile) {
-      final RemoteMessage? remoteMessage = await FirebaseMessaging.instance.getInitialMessage();
+      final RemoteMessage? remoteMessage = await FirebaseMessaging.instance.getInitialMessage().timeout(const Duration(seconds: 3));
       if (remoteMessage != null) {
         body = NotificationHelper.convertNotification(remoteMessage.data);
       }
@@ -219,7 +219,7 @@ class _MyAppState extends State<MyApp> {
                     widget!,
 
                     GetBuilder<SplashController>(builder: (splashController){
-                      if(!splashController.savedCookiesData && !splashController.getAcceptCookiesStatus(splashController.configModel != null ? splashController.configModel!.cookiesText! : '')){
+                      if(!splashController.savedCookiesData && !splashController.getAcceptCookiesStatus(splashController.configModel?.cookiesText ?? '')){
                         return ResponsiveHelper.isWeb() ? const Align(alignment: Alignment.bottomCenter, child: CookiesView()) : const SizedBox();
                       }else{
                         return const SizedBox();

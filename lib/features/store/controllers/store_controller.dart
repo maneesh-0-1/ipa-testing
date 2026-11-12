@@ -523,14 +523,22 @@ class StoreController extends GetxController implements GetxService {
         if(!fromCart && slug.isEmpty){
           Get.find<CheckoutController>().getDistanceInKM(
             LatLng(
-              double.parse(AddressHelper.getUserAddressFromSharedPref()?.latitude??'0'),
-              double.parse(AddressHelper.getUserAddressFromSharedPref()?.longitude??'0'),
+              double.tryParse(AddressHelper.getUserAddressFromSharedPref()?.latitude ?? '0') ?? 0,
+              double.tryParse(AddressHelper.getUserAddressFromSharedPref()?.longitude ?? '0') ?? 0,
             ),
-            LatLng(double.parse(_store!.latitude!), double.parse(_store!.longitude!)),
+            LatLng(
+              double.tryParse(_store?.latitude ?? '0') ?? 0,
+              double.tryParse(_store?.longitude ?? '0') ?? 0,
+            ),
           );
         }
         if(slug.isNotEmpty){
-          await Get.find<LocationController>().setStoreAddressToUserAddress(LatLng(double.parse(_store!.latitude!), double.parse(_store!.longitude!)));
+          await Get.find<LocationController>().setStoreAddressToUserAddress(
+            LatLng(
+              double.tryParse(_store?.latitude ?? '0') ?? 0,
+              double.tryParse(_store?.longitude ?? '0') ?? 0,
+            ),
+          );
         }
         if(fromModule) {
           HomeScreen.loadData(true);

@@ -11,10 +11,10 @@ import 'package:sixam_mart/util/app_constants.dart';
 
 // class SplashRouteHelper{
 
-  void route({NotificationBodyModel? body}) {
-    double? minimumVersion = _getMinimumVersion();
+  Future<void> route({NotificationBodyModel? body}) async {
+    double minimumVersion = _getMinimumVersion() ?? 0;
     bool isMaintenanceMode = MaintenanceHelper.isMaintenanceEnable();
-    bool needsUpdate = AppConstants.appVersion < minimumVersion!;
+    bool needsUpdate = AppConstants.appVersion < minimumVersion;
 
     if(needsUpdate || isMaintenanceMode) {
       Get.offNamed(RouteHelper.getUpdateRoute(needsUpdate));
@@ -22,16 +22,17 @@ import 'package:sixam_mart/util/app_constants.dart';
       if(body != null) {
         _forNotificationRouteProcess(body);
       }else {
-        _handleUserRouting();
+        await _handleUserRouting();
       }
     }
   }
 
   double? _getMinimumVersion() {
+    final configModel = Get.find<SplashController>().configModel;
     if (GetPlatform.isAndroid) {
-      return Get.find<SplashController>().configModel!.appMinimumVersionAndroid;
+      return configModel?.appMinimumVersionAndroid ?? 0;
     } else if (GetPlatform.isIOS) {
-      return Get.find<SplashController>().configModel!.appMinimumVersionIos;
+      return configModel?.appMinimumVersionIos ?? 0;
     }
     return 0;
   }
@@ -70,10 +71,14 @@ import 'package:sixam_mart/util/app_constants.dart';
   }
 
   Future<void> _forLoggedInUserRouteProcess() async {
-    Get.find<AuthController>().updateToken();
-    if(Get.find<SplashController>().module != null && Get.find<SplashController>().module!.moduleType.toString() != AppConstants.ride) {
-      await Get.find<FavouriteController>().getFavouriteList();
-    }
+    try {
+      Get.find<AuthController>().updateToken();
+    } catch (_) {}
+    try {
+      if(Get.find<SplashController>().module != null && Get.find<SplashController>().module!.moduleType.toString() != AppConstants.ride) {
+        await Get.find<FavouriteController>().getFavouriteList().timeout(const Duration(seconds: 8));
+      }
+    } catch (_) {}
     Get.offNamed(RouteHelper.getInitialRoute(fromSplash: true));
   }
 
@@ -91,13 +96,15 @@ import 'package:sixam_mart/util/app_constants.dart';
 
   Future<void> _handleUserRouting() async {
     if (AuthHelper.isLoggedIn()) {
-      _forLoggedInUserRouteProcess();
+      await _forLoggedInUserRouteProcess();
     } else if (Get.find<SplashController>().showIntro() == true) {
       _newlyRegisteredRouteProcess();
     } else if (AuthHelper.isGuestLoggedIn()) {
       _forGuestUserRouteProcess();
     } else {
-      await Get.find<AuthController>().guestLogin();
+      try {
+        await Get.find<AuthController>().guestLogin().timeout(const Duration(seconds: 10));
+      } catch (_) {}
       _forGuestUserRouteProcess();
     }
   }
