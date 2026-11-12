@@ -63,10 +63,17 @@ class ApiClient extends GetxService {
       effectiveZoneIds.add(2);
     }
 
-    if (moduleID != null || sharedPreferences.getString(AppConstants.cacheModuleId) != null) {
-      header.addAll({AppConstants.moduleId: '${moduleID ?? ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.cacheModuleId)!)).id}'});
+    String? resolvedModuleId = moduleID;
+    if (resolvedModuleId == null && sharedPreferences.getString(AppConstants.cacheModuleId) != null) {
+      try {
+        resolvedModuleId = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.cacheModuleId)!)).id?.toString();
+      } catch (_) {}
+    }
+    if (resolvedModuleId != null) {
+      header.addAll({AppConstants.moduleId: resolvedModuleId});
     }
     header.addAll({
+      'Accept': 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
       AppConstants.zoneId: (zoneId != null && fromModule) ? '$zoneId' : jsonEncode(effectiveZoneIds),
 
@@ -75,8 +82,10 @@ class ApiClient extends GetxService {
       AppConstants.localizationKey: languageCode ?? AppConstants.languages[0].languageCode!,
       AppConstants.latitude: latitude ?? '',
       AppConstants.longitude: longitude ?? '',
-      'Authorization': 'Bearer $token',
     });
+    if (token != null && token.isNotEmpty && token != 'null') {
+      header['Authorization'] = 'Bearer $token';
+    }
     if (setHeader) {
       _mainHeaders = header;
     }
@@ -242,7 +251,10 @@ class ApiClient extends GetxService {
   ) {
     dynamic body;
     try {
-      body = jsonDecode(response.body);
+      final String rawBody = response.body.replaceFirst('\uFEFF', '').trim();
+      if (rawBody.isNotEmpty) {
+        body = jsonDecode(rawBody);
+      }
     } catch (_) {}
     Response response0 = Response(
       body: body ?? response.body,

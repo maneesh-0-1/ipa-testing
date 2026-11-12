@@ -109,11 +109,13 @@ class CartRepository implements CartRepositoryInterface<OnlineCart> {
 
   Future<List<OnlineCartModel>?> _getCartDataOnline({int? storeId}) async {
     List<OnlineCartModel>? onlineCartList;
-    Map<String, String>? header ={
+    final String? token = sharedPreferences.getString(AppConstants.token);
+    final Map<String, String> header = {
+      'Accept': 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
       AppConstants.localizationKey: AppConstants.languages[0].languageCode!,
       AppConstants.moduleId: '${ModuleHelper.getCacheModule()?.id}',
-      'Authorization': 'Bearer ${sharedPreferences.getString(AppConstants.token)}'
+      if (token != null && token.isNotEmpty && token != 'null') 'Authorization': 'Bearer $token',
     };
 
     final List<String> queryParams = <String>[];
@@ -128,10 +130,15 @@ class CartRepository implements CartRepositoryInterface<OnlineCart> {
     Response response = await apiClient.getData(
       '${AppConstants.getCartListUri}$querySuffix',
       headers: ModuleHelper.getModule()?.id == null ? header : null,
+      handleError: false,
     );
-    if(response.statusCode == 200) {
+    if(response.statusCode == 200 && response.body is List) {
       onlineCartList = [];
-      response.body.forEach((cart) => onlineCartList!.add(OnlineCartModel.fromJson(cart)));
+      for (final dynamic cart in response.body as List) {
+        if (cart is Map<String, dynamic>) {
+          onlineCartList.add(OnlineCartModel.fromJson(cart));
+        }
+      }
     }
     return onlineCartList;
   }
@@ -168,11 +175,13 @@ class CartRepository implements CartRepositoryInterface<OnlineCart> {
   @override
   Future<List<AllCartsModel>?> getAllCarts() async {
     List<AllCartsModel>? allCarts;
-    Map<String, String>? header = {
+    final String? token = sharedPreferences.getString(AppConstants.token);
+    final Map<String, String> header = {
+      'Accept': 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
       AppConstants.localizationKey: AppConstants.languages[0].languageCode!,
       AppConstants.moduleId: '${ModuleHelper.getCacheModule()?.id}',
-      'Authorization': 'Bearer ${sharedPreferences.getString(AppConstants.token)}',
+      if (token != null && token.isNotEmpty && token != 'null') 'Authorization': 'Bearer $token',
     };
     if(ModuleHelper.getCacheModule()?.id == null) {
       return [];
@@ -181,10 +190,15 @@ class CartRepository implements CartRepositoryInterface<OnlineCart> {
     Response response = await apiClient.getData(
       '${AppConstants.getAllCartsUri}${!AuthHelper.isLoggedIn() ? '?guest_id=${AuthHelper.getGuestId()}' : ''}',
       headers: ModuleHelper.getModule()?.id == null ? header : null,
+      handleError: false,
     );
-    if(response.statusCode == 200) {
+    if(response.statusCode == 200 && response.body is List) {
       allCarts = [];
-      response.body.forEach((group) => allCarts!.add(AllCartsModel.fromJson(group)));
+      for (final dynamic group in response.body as List) {
+        if (group is Map<String, dynamic>) {
+          allCarts.add(AllCartsModel.fromJson(group));
+        }
+      }
     }
     return allCarts;
   }

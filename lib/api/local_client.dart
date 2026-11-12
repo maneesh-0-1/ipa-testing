@@ -21,7 +21,7 @@ class LocalClient {
           if(GetPlatform.isWeb) {
             await sharedPreferences.setString(cacheId, responseBody??'');
           } else {
-            DbHelper.insertOrUpdate(
+            await DbHelper.insertOrUpdate(
               id: cacheId,
               data: CacheResponseCompanion(
                 endPoint: drift.Value(cacheId),

@@ -26,10 +26,25 @@ class SplashRepository implements SplashRepositoryInterface {
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.configUri, handleError: false, timeout: 15);
+        Response response = await apiClient.getData(AppConstants.configUri, handleError: false, timeout: 25);
+        if (response.statusCode != 200 || response.body is! Map<String, dynamic>) {
+          final Map<String, String> cleanHeaders = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json; charset=UTF-8',
+            AppConstants.localizationKey: sharedPreferences.getString(AppConstants.languageCode)
+                ?? AppConstants.languages[0].languageCode!,
+          };
+          await Future.delayed(const Duration(milliseconds: 600));
+          response = await apiClient.getData(
+            AppConstants.configUri,
+            headers: cleanHeaders,
+            handleError: false,
+            timeout: 25,
+          );
+        }
         if (response.statusCode == 200 && response.body is Map<String, dynamic>) {
           responseData = Response(statusCode: 200, body: response.body);
-          LocalClient.organize(source, cacheId, jsonEncode(response.body), apiClient.getHeader());
+          await LocalClient.organize(source, cacheId, jsonEncode(response.body), apiClient.getHeader());
         } else {
           responseData = Response(
             statusCode: response.statusCode ?? 0,
@@ -156,19 +171,30 @@ class SplashRepository implements SplashRepositoryInterface {
 
     switch(source) {
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.moduleUri, headers: headers);
+        Response response = await apiClient.getData(AppConstants.moduleUri, headers: headers, handleError: false);
         if (response.statusCode == 200 && response.body is List) {
           moduleList = [];
-          response.body.forEach((storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)));
-          LocalClient.organize(source, cacheId, jsonEncode(response.body), apiClient.getHeader());
+          for (final dynamic storeCategory in response.body as List) {
+            if (storeCategory is Map<String, dynamic>) {
+              moduleList.add(ModuleModel.fromJson(storeCategory));
+            }
+          }
+          await LocalClient.organize(source, cacheId, jsonEncode(response.body), apiClient.getHeader());
         }
 
       case DataSourceEnum.local:
         String? cacheResponseData = await LocalClient.organize(source, cacheId, null, null);
         if(cacheResponseData != null && cacheResponseData.isNotEmpty) {
           try {
-            moduleList = [];
-            jsonDecode(cacheResponseData).forEach((storeCategory) => moduleList!.add(ModuleModel.fromJson(storeCategory)));
+            final dynamic decoded = jsonDecode(cacheResponseData);
+            if (decoded is List) {
+              moduleList = [];
+              for (final dynamic storeCategory in decoded) {
+                if (storeCategory is Map<String, dynamic>) {
+                  moduleList.add(ModuleModel.fromJson(storeCategory));
+                }
+              }
+            }
           } catch (e) {
             debugPrint('Module cache decode error: $e');
           }
@@ -360,10 +386,9 @@ class SplashRepository implements SplashRepositoryInterface {
   bool handleInitialTopicSubscription() {
     try{
       if(!GetPlatform.isWeb) {
-        FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic);
-        FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic);
+        FirebaseMessaging.instance.subscribeToTopic(AppConstants.topic).catchError((_) {});
+        FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic).catchError((_) {});
       }
-      print('====Topic Subscription Successful');
       return true;
     }catch(e) {
       debugPrint('Topic Subscription Failed, $e');

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:sixam_mart/common/enums/data_source_enum.dart';
 import 'package:sixam_mart/common/models/response_model.dart';
 import 'package:sixam_mart/features/auth/controllers/auth_controller.dart';
@@ -187,22 +188,39 @@ class SplashController extends GetxController implements GetxService {
       try {
         _data = response.body;
         _configModel = ConfigModel.fromJson(response.body);
+      } catch (e) {
+        debugPrint('Config parse error ($source): $e');
+        if (source == DataSourceEnum.client && _configModel == null) {
+          _hasConnection = false;
+        }
+        update();
+        return false;
+      }
+
+      try {
         ModuleModel targetModule = _configModel!.module
             ?? _module
             ?? splashServiceInterface.getCacheModule()
             ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
         await setModule(targetModule);
-        _selectedModuleIndex = 1;
-        print('=====deeplink url: $_deeplinkRoute and canRoute: $canRoute');
-        if(!canRoute || _deeplinkRoute != null) {
-          update();
-          return false;
-        }
+      } catch (e) {
+        debugPrint('setModule warning ($source): $e');
+      }
 
-        bool isMaintenanceMode = _configModel?.maintenanceMode ?? false;
-        bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
+      _selectedModuleIndex = 1;
+      if(!canRoute || _deeplinkRoute != null) {
+        update();
+        return false;
+      }
 
+      bool isMaintenanceMode = _configModel?.maintenanceMode ?? false;
+      bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
+
+      try {
         splashServiceInterface.handleInitialTopicSubscription();
+      } catch (_) {}
+
+      try {
         if (isInMaintenance && handleMaintenanceMode) {
           Get.offNamed(RouteHelper.getUpdateRoute(false));
           _onRemoveLoader();
@@ -213,9 +231,6 @@ class SplashController extends GetxController implements GetxService {
           didRoute = true;
         }
 
-        // if(loadLandingData){
-        //   await getLandingPageData();
-        // }
         if(fromMainFunction) {
           await _mainConfigRouting();
         } else if (fromDemoReset) {
@@ -227,8 +242,10 @@ class SplashController extends GetxController implements GetxService {
         }
         _onRemoveLoader();
       } catch (e) {
-        if (source == DataSourceEnum.client && !didRoute) {
-          _hasConnection = false;
+        debugPrint('Config routing fallback ($source): $e');
+        if (!didRoute && !fromMainFunction) {
+          Get.offNamed(RouteHelper.getInitialRoute(fromSplash: true));
+          didRoute = true;
         }
       }
     } else if (source == DataSourceEnum.client) {
@@ -293,7 +310,7 @@ class SplashController extends GetxController implements GetxService {
         ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
     _cacheModule ??= _module;
     _selectedModuleIndex = 1;
-    setModule(_module, notify: false);
+    await setModule(_module, notify: false);
   }
 
   void setCacheConfigModule(ModuleModel? cacheModule) {
@@ -325,38 +342,48 @@ class SplashController extends GetxController implements GetxService {
 
   Future<void> setModule(ModuleModel? module, {bool notify = true, bool fromModuleDialog = false}) async {
     _module = module;
-    splashServiceInterface.setModule(module);
+    await splashServiceInterface.setModule(module);
     if(module != null) {
-      Get.find<BannerController>().clearBanner();
-      ShallowRouterHelper.updateParameter('module', module.slug != null ? module.slug.toString() : module.id.toString());
+      try {
+        Get.find<BannerController>().clearBanner();
+      } catch (_) {}
+      try {
+        ShallowRouterHelper.updateParameter('module', module.slug != null ? module.slug.toString() : module.id.toString());
+      } catch (_) {}
       final dynamic moduleConfigMap = _data?['module_config'];
       if(_configModel?.moduleConfig != null && module.moduleType != null && moduleConfigMap is Map && moduleConfigMap[module.moduleType] is Map<String, dynamic>) {
         _configModel!.moduleConfig!.module = Module.fromJson(moduleConfigMap[module.moduleType]);
       }
       _cacheModule = await splashServiceInterface.setCacheModule(module);
-      if((AuthHelper.isLoggedIn() || AuthHelper.isGuestLoggedIn()) && cacheModule != null) {
-        Get.find<CartController>().getAllCarts();
+      if((AuthHelper.isLoggedIn() || AuthHelper.isGuestLoggedIn()) && _cacheModule != null) {
+        try {
+          Get.find<CartController>().getAllCarts();
+        } catch (_) {}
       }
     }
 
     if(_cacheModule != null && _cacheModule!.moduleType.toString() == AppConstants.taxi) {
-      Get.find<TaxiCartController>().getCarCartList();
+      try {
+        Get.find<TaxiCartController>().getCarCartList();
+      } catch (_) {}
     }
 
     if(AuthHelper.isLoggedIn()) {
-      if(Get.find<SplashController>().module != null) {
-        Get.find<HomeController>().getCashBackOfferList();
-        if(Get.find<ProfileController>().userInfoModel?.proStatus ?? false) {
-          Get.find<ProController>().getProActiveOffer(moduleType: module?.moduleType);
+      try {
+        if(Get.find<SplashController>().module != null) {
+          Get.find<HomeController>().getCashBackOfferList();
+          if(Get.find<ProfileController>().userInfoModel?.proStatus ?? false) {
+            Get.find<ProController>().getProActiveOffer(moduleType: module?.moduleType);
+          }
+          if(module?.moduleType.toString() == AppConstants.taxi) {
+            Get.find<TaxiFavouriteController>().getFavouriteTaxiList();
+          } else if(module?.moduleType.toString() != AppConstants.ride) {
+            Get.find<FavouriteController>().getFavouriteList();
+          }
+        } else if (_cacheModule != null && _cacheModule!.moduleType.toString() == AppConstants.taxi){
+          Get.find<TaxiCartController>().getCarCartList();
         }
-        if(module?.moduleType.toString() == AppConstants.taxi) {
-          Get.find<TaxiFavouriteController>().getFavouriteTaxiList();
-        } else if(module?.moduleType.toString() != AppConstants.ride) {
-          Get.find<FavouriteController>().getFavouriteList();
-        }
-      } else if (_cacheModule != null && _cacheModule!.moduleType.toString() == AppConstants.taxi){
-        Get.find<TaxiCartController>().getCarCartList();
-      }
+      } catch (_) {}
     }
     if(notify) {
       update();

@@ -264,173 +264,173 @@ class ConfigModel {
   });
 
   ConfigModel.fromJson(Map<String, dynamic> json) {
-    businessName = json['business_name'];
-    logoFullUrl = json['logo_full_url'];
-    address = json['address'];
-    phone = json['phone'];
-    email = json['email'];
+    businessName = TypeConverterHelper.getNullableString(json['business_name']);
+    logoFullUrl = TypeConverterHelper.getNullableString(json['logo_full_url']);
+    address = TypeConverterHelper.getNullableString(json['address']);
+    phone = TypeConverterHelper.getNullableString(json['phone']);
+    email = TypeConverterHelper.getNullableString(json['email']);
     country = 'KW';
-    defaultLocation = json['default_location'] != null ? DefaultLocation.fromJson(json['default_location']) : DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);
-    if(defaultLocation?.lat == null || defaultLocation?.lng == null || (defaultLocation!.lat!.startsWith('25.') && defaultLocation!.lng!.startsWith('55.'))) {
+    defaultLocation = json['default_location'] is Map<String, dynamic>
+        ? DefaultLocation.fromJson(json['default_location'])
+        : DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);
+    if (defaultLocation?.lat == null || defaultLocation?.lng == null || (defaultLocation!.lat!.startsWith('25.') && defaultLocation!.lng!.startsWith('55.'))) {
       defaultLocation = DefaultLocation(lat: AppConstants.defaultLatitude, lng: AppConstants.defaultLongitude);
     }
-    currencySymbol = json['currency_symbol'];
-    currencySymbolDirection = json['currency_symbol_direction'];
-    appMinimumVersionAndroid = json['app_minimum_version_android']?.toDouble() ?? 0.0;
-    appUrlAndroid = json['app_url_android'];
-    appMinimumVersionIos = json['app_minimum_version_ios']?.toDouble() ?? 0.0;
-    appUrlIos = json['app_url_ios'];
-    customerVerification = json['customer_verification'];
-    scheduleOrder = json['schedule_order'];
-    orderDeliveryVerification = json['order_delivery_verification'];
-    cashOnDelivery = json['cash_on_delivery'];
-    digitalPayment = json['digital_payment'];
-    perKmShippingCharge = json['per_km_shipping_charge']?.toDouble();
-    minimumShippingCharge = json['minimum_shipping_charge']?.toDouble();
-    demo = json['demo'];
-    maintenanceMode = json['maintenance_mode'];
-    orderConfirmationModel = json['order_confirmation_model'];
-    showDmEarning = json['show_dm_earning'];
-    canceledByDeliveryman = json['canceled_by_deliveryman'];
-    timeformat = json['timeformat'];
-    if (json['language'] != null) {
+    currencySymbol = TypeConverterHelper.getNullableString(json['currency_symbol']);
+    currencySymbolDirection = TypeConverterHelper.getNullableString(json['currency_symbol_direction']);
+    appMinimumVersionAndroid = TypeConverterHelper.getNullableDouble(json['app_minimum_version_android']) ?? 0.0;
+    appUrlAndroid = TypeConverterHelper.getNullableString(json['app_url_android']);
+    appMinimumVersionIos = TypeConverterHelper.getNullableDouble(json['app_minimum_version_ios']) ?? 0.0;
+    appUrlIos = TypeConverterHelper.getNullableString(json['app_url_ios']);
+    customerVerification = TypeConverterHelper.getNullableBool(json['customer_verification']);
+    scheduleOrder = TypeConverterHelper.getNullableBool(json['schedule_order']);
+    orderDeliveryVerification = TypeConverterHelper.getNullableBool(json['order_delivery_verification']);
+    cashOnDelivery = TypeConverterHelper.getNullableBool(json['cash_on_delivery']);
+    digitalPayment = TypeConverterHelper.getNullableBool(json['digital_payment']);
+    perKmShippingCharge = TypeConverterHelper.getNullableDouble(json['per_km_shipping_charge']);
+    minimumShippingCharge = TypeConverterHelper.getNullableDouble(json['minimum_shipping_charge']);
+    demo = TypeConverterHelper.getNullableBool(json['demo']);
+    maintenanceMode = TypeConverterHelper.getNullableBool(json['maintenance_mode']);
+    orderConfirmationModel = TypeConverterHelper.getNullableString(json['order_confirmation_model']);
+    showDmEarning = TypeConverterHelper.getNullableBool(json['show_dm_earning']);
+    canceledByDeliveryman = TypeConverterHelper.getNullableBool(json['canceled_by_deliveryman']);
+    timeformat = TypeConverterHelper.getNullableString(json['timeformat']);
+    if (json['language'] is List) {
       language = <Language>[];
-      json['language'].forEach((v) {
-        language!.add(Language.fromJson(v));
-      });
+      for (final dynamic v in json['language'] as List) {
+        if (v is Map<String, dynamic>) {
+          language!.add(Language.fromJson(v));
+        }
+      }
     }
-    toggleVegNonVeg = json['toggle_veg_non_veg'];
-    toggleDmRegistration = json['toggle_dm_registration'];
-    toggleRiderRegistration = json['toggle_rider_registration'];
-    toggleStoreRegistration = json['toggle_store_registration'];
-    scheduleOrderSlotDuration = json['schedule_order_slot_duration'] == 0 ? 30 : json['schedule_order_slot_duration'];
-    digitAfterDecimalPoint = json['digit_after_decimal_point'];
-    module = json['module'] != null ? ModuleModel.fromJson(json['module']) : null;
-    moduleConfig = json['module_config'] != null ? ModuleConfig.fromJson(json['module_config']) : null;
-    parcelPerKmShippingCharge = json['parcel_per_km_shipping_charge']?.toDouble();
-    parcelMinimumShippingCharge = json['parcel_minimum_shipping_charge']?.toDouble();
-    landingPageSettings = json['landing_page_settings'] != null ? LandingPageSettings.fromJson(json['landing_page_settings']) : null;
-    if (json['social_media'] != null) {
+    toggleVegNonVeg = TypeConverterHelper.getNullableBool(json['toggle_veg_non_veg']);
+    toggleDmRegistration = TypeConverterHelper.getNullableBool(json['toggle_dm_registration']);
+    toggleRiderRegistration = TypeConverterHelper.getNullableBool(json['toggle_rider_registration']);
+    toggleStoreRegistration = TypeConverterHelper.getNullableBool(json['toggle_store_registration']);
+    final int? rawSlotDuration = TypeConverterHelper.getNullableInt(json['schedule_order_slot_duration']);
+    scheduleOrderSlotDuration = rawSlotDuration == 0 ? 30 : rawSlotDuration;
+    digitAfterDecimalPoint = TypeConverterHelper.getNullableInt(json['digit_after_decimal_point']);
+    module = json['module'] is Map<String, dynamic> ? ModuleModel.fromJson(json['module']) : null;
+    moduleConfig = json['module_config'] is Map<String, dynamic> ? ModuleConfig.fromJson(json['module_config']) : null;
+    parcelPerKmShippingCharge = TypeConverterHelper.getNullableDouble(json['parcel_per_km_shipping_charge']);
+    parcelMinimumShippingCharge = TypeConverterHelper.getNullableDouble(json['parcel_minimum_shipping_charge']);
+    landingPageSettings = json['landing_page_settings'] is Map<String, dynamic> ? LandingPageSettings.fromJson(json['landing_page_settings']) : null;
+    if (json['social_media'] is List) {
       socialMedia = <SocialMedia>[];
-      json['social_media'].forEach((v) {
-        socialMedia!.add(SocialMedia.fromJson(v));
-      });
+      for (final dynamic v in json['social_media'] as List) {
+        if (v is Map<String, dynamic>) {
+          socialMedia!.add(SocialMedia.fromJson(v));
+        }
+      }
     }
-    footerText = json['footer_text'];
-    downloadUserAppLinks = json['download_user_app_links'] != null ? DownloadUserAppLinks.fromJson(json['download_user_app_links']) : null;
-    loyaltyPointExchangeRate = json['loyalty_point_exchange_rate'];
-    loyaltyPointItemPurchasePoint = json['loyalty_point_item_purchase_point']?.toDouble();
-    loyaltyPointStatus = json['loyalty_point_status'] ;
-    minimumPointToTransfer = json['loyalty_point_minimum_point'];
-    customerWalletStatus = json['customer_wallet_status'];
-    dmTipsStatus = json['dm_tips_status'];
-    refEarningStatus = json['ref_earning_status'];
-    refundActiveStatus = json['refund_active_status'];
-    refEarningExchangeRate = json['ref_earning_exchange_rate']?.toDouble();
-    if (json['social_login'] != null) {
+    footerText = TypeConverterHelper.getNullableString(json['footer_text']);
+    downloadUserAppLinks = json['download_user_app_links'] is Map<String, dynamic> ? DownloadUserAppLinks.fromJson(json['download_user_app_links']) : null;
+    loyaltyPointExchangeRate = TypeConverterHelper.getNullableInt(json['loyalty_point_exchange_rate']);
+    loyaltyPointItemPurchasePoint = TypeConverterHelper.getNullableDouble(json['loyalty_point_item_purchase_point']);
+    loyaltyPointStatus = TypeConverterHelper.getNullableInt(json['loyalty_point_status']);
+    minimumPointToTransfer = TypeConverterHelper.getNullableInt(json['loyalty_point_minimum_point']);
+    customerWalletStatus = TypeConverterHelper.getNullableInt(json['customer_wallet_status']);
+    dmTipsStatus = TypeConverterHelper.getNullableInt(json['dm_tips_status']);
+    refEarningStatus = TypeConverterHelper.getNullableInt(json['ref_earning_status']);
+    refundActiveStatus = TypeConverterHelper.getNullableBool(json['refund_active_status']);
+    refEarningExchangeRate = TypeConverterHelper.getNullableDouble(json['ref_earning_exchange_rate']);
+    if (json['social_login'] is List) {
       socialLogin = <SocialLogin>[];
-      json['social_login'].forEach((v) {
-        socialLogin!.add(SocialLogin.fromJson(v));
-      });
+      for (final dynamic v in json['social_login'] as List) {
+        if (v is Map<String, dynamic>) {
+          socialLogin!.add(SocialLogin.fromJson(v));
+        }
+      }
     }
-    if (json['apple_login'] != null) {
+    if (json['apple_login'] is List) {
       appleLogin = <SocialLogin>[];
-      json['apple_login'].forEach((v) {
-        appleLogin!.add(SocialLogin.fromJson(v));
-      });
+      for (final dynamic v in json['apple_login'] as List) {
+        if (v is Map<String, dynamic>) {
+          appleLogin!.add(SocialLogin.fromJson(v));
+        }
+      }
     }
-    refundPolicyStatus = json['refund_policy'];
-    cancellationPolicyStatus = json['cancelation_policy'];
-    shippingPolicyStatus = json['shipping_policy'];
-    prescriptionStatus = json['prescription_order_status'];
-    cookiesText = json['cookies_text'];
-    homeDeliveryStatus = json['home_delivery_status'];
-    takeawayStatus = json['takeaway_status'];
-    partialPaymentStatus = json['partial_payment_status'] == 1;
-    partialPaymentMethod = json['partial_payment_method'];
-    additionalChargeStatus = json['additional_charge_status'] == 1;
-    additionalChargeName = json['additional_charge_name'];
-    additionCharge = json['additional_charge']?.toDouble() ?? 0;
-    if (json['active_payment_method_list'] != null) {
+    refundPolicyStatus = TypeConverterHelper.getNullableInt(json['refund_policy']);
+    cancellationPolicyStatus = TypeConverterHelper.getNullableInt(json['cancelation_policy']);
+    shippingPolicyStatus = TypeConverterHelper.getNullableInt(json['shipping_policy']);
+    prescriptionStatus = TypeConverterHelper.getNullableBool(json['prescription_order_status']);
+    cookiesText = TypeConverterHelper.getNullableString(json['cookies_text']);
+    homeDeliveryStatus = TypeConverterHelper.getNullableInt(json['home_delivery_status']);
+    takeawayStatus = TypeConverterHelper.getNullableInt(json['takeaway_status']);
+    partialPaymentStatus = TypeConverterHelper.getNullableBool(json['partial_payment_status']) ?? false;
+    partialPaymentMethod = TypeConverterHelper.getNullableString(json['partial_payment_method']);
+    additionalChargeStatus = TypeConverterHelper.getNullableBool(json['additional_charge_status']) ?? false;
+    additionalChargeName = TypeConverterHelper.getNullableString(json['additional_charge_name']);
+    additionCharge = TypeConverterHelper.getNullableDouble(json['additional_charge']) ?? 0;
+    if (json['active_payment_method_list'] is List) {
       activePaymentMethodList = <PaymentBody>[];
-      json['active_payment_method_list'].forEach((v) {
-        activePaymentMethodList!.add(PaymentBody.fromJson(v));
-      });
+      for (final dynamic v in json['active_payment_method_list'] as List) {
+        if (v is Map<String, dynamic>) {
+          activePaymentMethodList!.add(PaymentBody.fromJson(v));
+        }
+      }
     }
-    digitalPaymentInfo = json['digital_payment_info'] != null ? DigitalPaymentInfo.fromJson(json['digital_payment_info']) : null;
-    validationConfig = json['validation_config'] != null ? ValidationConfig.fromJson(json['validation_config']) : null;
-    addFundStatus = json['add_fund_status'] == 1;
-    offlinePaymentStatus = json['offline_payment_status'] == 1;
-    guestCheckoutStatus = json['guest_checkout_status'] == 1;
-    adminCommission = json['admin_commission']?.toDouble();
-    subscriptionFreeTrialDays = json['subscription_free_trial_days'];
-    subscriptionFreeTrialStatus = json['subscription_free_trial_status'] == 1 ? true : false;
-    subscriptionBusinessModel = json['subscription_business_model'];
-    commissionBusinessModel = json['commission_business_model'];
-    subscriptionFreeTrialType = json['subscription_free_trial_type'];
+    digitalPaymentInfo = json['digital_payment_info'] is Map<String, dynamic> ? DigitalPaymentInfo.fromJson(json['digital_payment_info']) : null;
+    validationConfig = json['validation_config'] is Map<String, dynamic> ? ValidationConfig.fromJson(json['validation_config']) : null;
+    addFundStatus = TypeConverterHelper.getNullableBool(json['add_fund_status']) ?? false;
+    offlinePaymentStatus = TypeConverterHelper.getNullableBool(json['offline_payment_status']) ?? false;
+    guestCheckoutStatus = TypeConverterHelper.getNullableBool(json['guest_checkout_status']) ?? false;
+    adminCommission = TypeConverterHelper.getNullableDouble(json['admin_commission']);
+    subscriptionFreeTrialDays = TypeConverterHelper.getNullableInt(json['subscription_free_trial_days']);
+    subscriptionFreeTrialStatus = TypeConverterHelper.getNullableBool(json['subscription_free_trial_status']) ?? false;
+    subscriptionBusinessModel = TypeConverterHelper.getNullableInt(json['subscription_business_model']);
+    commissionBusinessModel = TypeConverterHelper.getNullableInt(json['commission_business_model']);
+    subscriptionFreeTrialType = TypeConverterHelper.getNullableString(json['subscription_free_trial_type']);
     countryPickerStatus = false;
-    firebaseOtpVerification = json['firebase_otp_verification'] == 1;
-    centralizeLoginSetup = json['centralize_login'] != null ? CentralizeLoginSetup.fromJson(json['centralize_login']) : null;
-    vehicleDistanceMinPrice = json['vehicle_distance_min']?.toDouble();
-    vehicleHourlyMinPrice = json['vehicle_hourly_min']?.toDouble();
-    vehicleDayWiseMinPrice = json['vehicle_day_wise_min']?.toDouble();
-    adminFreeDelivery = json['admin_free_delivery'] != null ? AdminFreeDelivery.fromJson(json['admin_free_delivery']) : null;
-    isSmsActive = json['is_sms_active'];
-    isMailActive = json['is_mail_active'];
-    parcelCancellationStatus = json['parcel_cancellation_status'];
-    parcelCancellationBasicSetup = json['parcel_cancellation_basic_setup'] != null ? ParcelCancellationBasicSetup.fromJson(json['parcel_cancellation_basic_setup']) : null;
-    parcelReturnTimeFee = json['parcel_return_time_fee'] != null ? ParcelReturnTimeFee.fromJson(json['parcel_return_time_fee']) : null;
-    websocketEnabled = json['websocket_status'] == 1;
-    websocketUrl = json['websocket_url'];
+    firebaseOtpVerification = TypeConverterHelper.getNullableBool(json['firebase_otp_verification']) ?? false;
+    centralizeLoginSetup = json['centralize_login'] is Map<String, dynamic> ? CentralizeLoginSetup.fromJson(json['centralize_login']) : null;
+    vehicleDistanceMinPrice = TypeConverterHelper.getNullableDouble(json['vehicle_distance_min']);
+    vehicleHourlyMinPrice = TypeConverterHelper.getNullableDouble(json['vehicle_hourly_min']);
+    vehicleDayWiseMinPrice = TypeConverterHelper.getNullableDouble(json['vehicle_day_wise_min']);
+    adminFreeDelivery = json['admin_free_delivery'] is Map<String, dynamic> ? AdminFreeDelivery.fromJson(json['admin_free_delivery']) : null;
+    isSmsActive = TypeConverterHelper.getNullableBool(json['is_sms_active']);
+    isMailActive = TypeConverterHelper.getNullableBool(json['is_mail_active']);
+    parcelCancellationStatus = TypeConverterHelper.getNullableInt(json['parcel_cancellation_status']);
+    parcelCancellationBasicSetup = json['parcel_cancellation_basic_setup'] is Map<String, dynamic> ? ParcelCancellationBasicSetup.fromJson(json['parcel_cancellation_basic_setup']) : null;
+    parcelReturnTimeFee = json['parcel_return_time_fee'] is Map<String, dynamic> ? ParcelReturnTimeFee.fromJson(json['parcel_return_time_fee']) : null;
+    websocketEnabled = TypeConverterHelper.getNullableBool(json['websocket_status']) ?? false;
+    websocketUrl = TypeConverterHelper.getNullableString(json['websocket_url']);
 
-    safetyFeatureStatus = json['safety_feature_status'] == 1;
-    safetyFeatureMinimumTripDelayTime = json['ride_safety_delay_time'];
-    safetyFeatureMinimumTripDelayTimeType = json['ride_safety_delay_time_format'];
-    afterTripCompleteSafetyFeatureActiveStatus = json['safety_feature_after_ride_complete_status'] == 1;
-    afterTripCompleteSafetyFeatureSetTime = int.tryParse(json['safety_feature_after_ride_complete_time'].toString());
-    afterTripCompleteSafetyFeatureSetTimeFormat = json['safety_feature_after_ride_complete_time_format'];
-    safetyFeatureEmergencyGovtNumber = json['emergency_govt_number'];
+    safetyFeatureStatus = TypeConverterHelper.getNullableBool(json['safety_feature_status']) ?? false;
+    safetyFeatureMinimumTripDelayTime = TypeConverterHelper.getNullableInt(json['ride_safety_delay_time']);
+    safetyFeatureMinimumTripDelayTimeType = TypeConverterHelper.getNullableString(json['ride_safety_delay_time_format']);
+    afterTripCompleteSafetyFeatureActiveStatus = TypeConverterHelper.getNullableBool(json['safety_feature_after_ride_complete_status']) ?? false;
+    afterTripCompleteSafetyFeatureSetTime = TypeConverterHelper.getNullableInt(json['safety_feature_after_ride_complete_time']);
+    afterTripCompleteSafetyFeatureSetTimeFormat = TypeConverterHelper.getNullableString(json['safety_feature_after_ride_complete_time_format']);
+    safetyFeatureEmergencyGovtNumber = TypeConverterHelper.getNullableString(json['emergency_govt_number']);
 
-    reviewStatus = json['review_status'];
-    popularTips = json['popular_tips'];
-    if(json['ride_search_radius'] != null){
-      try{
-        searchRadius = json['ride_search_radius'].toDouble();
-      }catch(e){
-        searchRadius = double.parse(json['ride_search_radius'].toString());
-      }
-    }
-    otpConfirmationForTrip = json['ride_otp_confirmation'] == 1;
-    minBookingAmount = double.tryParse('${json['min_booking_amount']}');
-    maxBookingAmount = double.tryParse('${json['max_booking_amount']}');
-    scheduleBooking = int.tryParse('${json['schedule_booking']}');
-    directProviderBooking = int.tryParse('${json['direct_provider_booking']}');
-    serviceAtProviderLocation = int.tryParse(json['service_at_provider_place'].toString());
-    repeatBooking = int.tryParse(json['repeat_booking'].toString());
-    instantBooking = int.tryParse(json['instant_booking'].toString());
-    // scheduleBookingTimeRestriction = int.tryParse(json['schedule_booking_time_restriction'].toString());
-    advanceBooking= json['advanced_booking'] != null ? AdvanceBooking.fromJson(json['advanced_booking']) : null;
+    reviewStatus = TypeConverterHelper.getNullableBool(json['review_status']);
+    popularTips = TypeConverterHelper.getNullableInt(json['popular_tips']);
+    searchRadius = TypeConverterHelper.getNullableDouble(json['ride_search_radius']);
+    otpConfirmationForTrip = TypeConverterHelper.getNullableBool(json['ride_otp_confirmation']) ?? false;
+    minBookingAmount = TypeConverterHelper.getNullableDouble(json['min_booking_amount']);
+    maxBookingAmount = TypeConverterHelper.getNullableDouble(json['max_booking_amount']);
+    scheduleBooking = TypeConverterHelper.getNullableInt(json['schedule_booking']);
+    directProviderBooking = TypeConverterHelper.getNullableInt(json['direct_provider_booking']);
+    serviceAtProviderLocation = TypeConverterHelper.getNullableInt(json['service_at_provider_place']);
+    repeatBooking = TypeConverterHelper.getNullableInt(json['repeat_booking']);
+    instantBooking = TypeConverterHelper.getNullableInt(json['instant_booking']);
+    advanceBooking = json['advanced_booking'] is Map<String, dynamic> ? AdvanceBooking.fromJson(json['advanced_booking']) : null;
     if (json['confirm_otp_for_complete_service'] != null) {
-      confirmationOtpStatus= json['confirm_otp_for_complete_service'] == 1 ? true : false;
+      confirmationOtpStatus = TypeConverterHelper.getNullableBool(json['confirm_otp_for_complete_service']) ?? false;
     }
-    bidingStatus = int.tryParse('${json['bidding_status']}');
-    referralEarningStatus = int.tryParse(json['rider_referral_earning_status'].toString());
-    if(json['rider_completion_radius'] != null){
-      try{
-        completionRadius = json['rider_completion_radius'].toDouble();
-      }catch(e){
-        completionRadius = double.parse(json['rider_completion_radius'].toString());
-      }
-    }
-    dmReferralData = json['dm_referral_data'] != null ? ReferralData.fromJson(json['dm_referral_data']) : null;
-    riderReferralData = json['rider_referral_data'] != null ? ReferralData.fromJson(json['rider_referral_data']) : null;
-    customerRoutePreference = json['customer_route_preference'];
-    repeatOrderOption = json['repeat_order_option'];
-    monthlyOrderRemainder = json['monthly_order_reminder'];
-    maintenanceModeData = json['maintenance_mode_data'] != null ? MaintenanceModeData.fromJson(json['maintenance_mode_data']) : null;
+    bidingStatus = TypeConverterHelper.getNullableInt(json['bidding_status']);
+    referralEarningStatus = TypeConverterHelper.getNullableInt(json['rider_referral_earning_status']);
+    completionRadius = TypeConverterHelper.getNullableDouble(json['rider_completion_radius']);
+    dmReferralData = json['dm_referral_data'] is Map<String, dynamic> ? ReferralData.fromJson(json['dm_referral_data']) : null;
+    riderReferralData = json['rider_referral_data'] is Map<String, dynamic> ? ReferralData.fromJson(json['rider_referral_data']) : null;
+    customerRoutePreference = TypeConverterHelper.getNullableInt(json['customer_route_preference']);
+    repeatOrderOption = TypeConverterHelper.getNullableInt(json['repeat_order_option']);
+    monthlyOrderRemainder = TypeConverterHelper.getNullableInt(json['monthly_order_reminder']);
+    maintenanceModeData = json['maintenance_mode_data'] is Map<String, dynamic> ? MaintenanceModeData.fromJson(json['maintenance_mode_data']) : null;
     proMemberStatus = TypeConverterHelper.getBool(json['pro_member_status']);
     aiChatStatus = TypeConverterHelper.getBool(json['ai_chat_status']);
-    systemTaxIncludeStatus = json['system_tax_include_status'];
+    systemTaxIncludeStatus = TypeConverterHelper.getNullableInt(json['system_tax_include_status']);
   }
 
   Map<String, dynamic> toJson() {
@@ -671,8 +671,8 @@ class DefaultLocation {
   DefaultLocation({this.lat, this.lng});
 
   DefaultLocation.fromJson(Map<String, dynamic> json) {
-    lat = json['lat'];
-    lng = json['lng'];
+    lat = TypeConverterHelper.getNullableString(json['lat']);
+    lng = TypeConverterHelper.getNullableString(json['lng']);
     if(lat == null || lng == null || lat == '0' || lng == '0' || (lat != null && lat!.startsWith('25.') && lng != null && lng!.startsWith('55.'))) {
       lat = AppConstants.defaultLatitude;
       lng = AppConstants.defaultLongitude;
@@ -694,8 +694,8 @@ class Language {
   Language({this.key, this.value});
 
   Language.fromJson(Map<String, dynamic> json) {
-    key = json['key'];
-    value = json['value'];
+    key = TypeConverterHelper.getNullableString(json['key']);
+    value = TypeConverterHelper.getNullableString(json['value']);
   }
 
   Map<String, dynamic> toJson() {
@@ -762,18 +762,18 @@ class Module {
   });
 
   Module.fromJson(Map<String, dynamic> json) {
-    orderPlaceToScheduleInterval = json['order_place_to_schedule_interval'];
-    addOn = json['add_on'];
-    stock = json['stock'];
-    vegNonVeg = json['veg_non_veg'];
-    unit = json['unit'];
-    orderAttachment = json['order_attachment'];
-    showRestaurantText = json['show_restaurant_text'];
-    isParcel = json['is_parcel'];
-    isTaxi = json['is_taxi']?? false;
-    isRide = json['is_ride']?? false;
-    newVariation = json['new_variation'];
-    description = json['description'];
+    orderPlaceToScheduleInterval = TypeConverterHelper.getNullableBool(json['order_place_to_schedule_interval']);
+    addOn = TypeConverterHelper.getNullableBool(json['add_on']);
+    stock = TypeConverterHelper.getNullableBool(json['stock']);
+    vegNonVeg = TypeConverterHelper.getNullableBool(json['veg_non_veg']);
+    unit = TypeConverterHelper.getNullableBool(json['unit']);
+    orderAttachment = TypeConverterHelper.getNullableBool(json['order_attachment']);
+    showRestaurantText = TypeConverterHelper.getNullableBool(json['show_restaurant_text']);
+    isParcel = TypeConverterHelper.getNullableBool(json['is_parcel']);
+    isTaxi = TypeConverterHelper.getNullableBool(json['is_taxi']) ?? false;
+    isRide = TypeConverterHelper.getNullableBool(json['is_ride']) ?? false;
+    newVariation = TypeConverterHelper.getNullableBool(json['new_variation']);
+    description = TypeConverterHelper.getNullableString(json['description']);
   }
 
   Map<String, dynamic> toJson() {
@@ -799,7 +799,7 @@ class OrderStatus {
   OrderStatus({this.accepted});
 
   OrderStatus.fromJson(Map<String, dynamic> json) {
-    accepted = json['accepted'];
+    accepted = TypeConverterHelper.getNullableBool(json['accepted']);
   }
 
   Map<String, dynamic> toJson() {
@@ -816,8 +816,8 @@ class LandingPageSettings {
   LandingPageSettings({this.mobileAppSectionImage, this.topContentImage});
 
   LandingPageSettings.fromJson(Map<String, dynamic> json) {
-    mobileAppSectionImage = json['mobile_app_section_image'];
-    topContentImage = json['top_content_image'];
+    mobileAppSectionImage = TypeConverterHelper.getNullableString(json['mobile_app_section_image']);
+    topContentImage = TypeConverterHelper.getNullableString(json['top_content_image']);
   }
 
   Map<String, dynamic> toJson() {
@@ -842,10 +842,10 @@ class SocialMedia {
   });
 
   SocialMedia.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    link = json['link'];
-    status = json['status'];
+    id = TypeConverterHelper.getNullableInt(json['id']);
+    name = TypeConverterHelper.getNullableString(json['name']);
+    link = TypeConverterHelper.getNullableString(json['link']);
+    status = TypeConverterHelper.getNullableInt(json['status']);
   }
 
   Map<String, dynamic> toJson() {
@@ -872,10 +872,10 @@ class DownloadUserAppLinks {
   });
 
   DownloadUserAppLinks.fromJson(Map<String, dynamic> json) {
-    playStoreUrlStatus = json['playstore_url_status'].toString();
-    playStoreUrl = json['playstore_url'];
-    appleStoreUrlStatus = json['apple_store_url_status'].toString();
-    appleStoreUrl = json['apple_store_url'];
+    playStoreUrlStatus = TypeConverterHelper.getNullableString(json['playstore_url_status']);
+    playStoreUrl = TypeConverterHelper.getNullableString(json['playstore_url']);
+    appleStoreUrlStatus = TypeConverterHelper.getNullableString(json['apple_store_url_status']);
+    appleStoreUrl = TypeConverterHelper.getNullableString(json['apple_store_url']);
   }
 
   Map<String, dynamic> toJson() {
@@ -897,10 +897,10 @@ class SocialLogin {
   SocialLogin({this.loginMedium, this.status, this.clientId, this.redirectUrl});
 
   SocialLogin.fromJson(Map<String, dynamic> json) {
-    loginMedium = json['login_medium'];
-    status = json['status'];
-    clientId = json['client_id'];
-    redirectUrl = json['redirect_url_flutter'];
+    loginMedium = TypeConverterHelper.getNullableString(json['login_medium']);
+    status = TypeConverterHelper.getNullableBool(json['status']);
+    clientId = TypeConverterHelper.getNullableString(json['client_id']);
+    redirectUrl = TypeConverterHelper.getNullableString(json['redirect_url_flutter']);
   }
 
   Map<String, dynamic> toJson() {
@@ -921,9 +921,9 @@ class PaymentBody {
   PaymentBody({this.getWay, this.getWayTitle, this.getWayImageFullUrl});
 
   PaymentBody.fromJson(Map<String, dynamic> json) {
-    getWay = json['gateway'];
-    getWayTitle = json['gateway_title'];
-    getWayImageFullUrl = json['gateway_image_full_url'] ?? '';
+    getWay = TypeConverterHelper.getNullableString(json['gateway']);
+    getWayTitle = TypeConverterHelper.getNullableString(json['gateway_title']);
+    getWayImageFullUrl = TypeConverterHelper.getNullableString(json['gateway_image_full_url']) ?? '';
   }
 
   Map<String, dynamic> toJson() {
@@ -943,9 +943,9 @@ class DigitalPaymentInfo {
   DigitalPaymentInfo({this.digitalPayment, this.pluginPaymentGateways, this.defaultPaymentGateways});
 
   DigitalPaymentInfo.fromJson(Map<String, dynamic> json) {
-    digitalPayment =  json['digital_payment'];
-    pluginPaymentGateways = json['plugin_payment_gateways'];
-    defaultPaymentGateways = json['default_payment_gateways'];
+    digitalPayment = TypeConverterHelper.getNullableBool(json['digital_payment']);
+    pluginPaymentGateways = TypeConverterHelper.getNullableBool(json['plugin_payment_gateways']);
+    defaultPaymentGateways = TypeConverterHelper.getNullableBool(json['default_payment_gateways']);
   }
 
   Map<String, dynamic> toJson() {
@@ -978,20 +978,20 @@ class ValidationConfig {
     this.audioExtension, this.fileFormat, this.fileFormatForImagePicker, this.fileExtension, this.maxFileSize});
 
   ValidationConfig.fromJson(Map<String, dynamic> json) {
-    imageFormat = json['image_format'];
-    imageExtension = json['image_extension'];
-    imageFormatForValidation = json['image_format_for_validation'];
-    videoFormat = json['video_format'];
-    videoExtension = json['video_extension'];
-    productVideoMaxFileSize = json['product_video_max_file_size'];
-    documentFormat = json['document_format'];
-    documentExtension = json['document_extension'];
-    audioFormat = json['audio_format'];
-    audioExtension = json['audio_extension'];
-    fileFormat = json['file_format'];
-    fileFormatForImagePicker = json['file_format_for_image_picker'];
-    fileExtension = json['file_extension'];
-    maxFileSize = json['max_file_size'];
+    imageFormat = TypeConverterHelper.getNullableString(json['image_format']);
+    imageExtension = TypeConverterHelper.getNullableString(json['image_extension']);
+    imageFormatForValidation = TypeConverterHelper.getNullableString(json['image_format_for_validation']);
+    videoFormat = TypeConverterHelper.getNullableString(json['video_format']);
+    videoExtension = TypeConverterHelper.getNullableString(json['video_extension']);
+    productVideoMaxFileSize = TypeConverterHelper.getNullableInt(json['product_video_max_file_size']);
+    documentFormat = TypeConverterHelper.getNullableString(json['document_format']);
+    documentExtension = TypeConverterHelper.getNullableString(json['document_extension']);
+    audioFormat = TypeConverterHelper.getNullableString(json['audio_format']);
+    audioExtension = TypeConverterHelper.getNullableString(json['audio_extension']);
+    fileFormat = TypeConverterHelper.getNullableString(json['file_format']);
+    fileFormatForImagePicker = TypeConverterHelper.getNullableString(json['file_format_for_image_picker']);
+    fileExtension = TypeConverterHelper.getNullableString(json['file_extension']);
+    maxFileSize = TypeConverterHelper.getNullableInt(json['max_file_size']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1021,8 +1021,8 @@ class BusinessPlan {
   BusinessPlan({this.commission, this.subscription});
 
   BusinessPlan.fromJson(Map<String, dynamic> json) {
-    commission = json['commission'];
-    subscription = json['subscription'];
+    commission = TypeConverterHelper.getNullableInt(json['commission']);
+    subscription = TypeConverterHelper.getNullableInt(json['subscription']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1055,14 +1055,14 @@ class CentralizeLoginSetup {
   });
 
   CentralizeLoginSetup.fromJson(Map<String, dynamic> json) {
-    manualLoginStatus = json['manual_login_status'] == 1;
-    otpLoginStatus = json['otp_login_status'] == 1;
-    socialLoginStatus = json['social_login_status'] == 1;
-    googleLoginStatus = json['google_login_status'] == 1;
-    facebookLoginStatus = json['facebook_login_status'] == 1;
-    appleLoginStatus = json['apple_login_status'] == 1;
-    emailVerificationStatus = json['email_verification_status'] == 1;
-    phoneVerificationStatus = json['phone_verification_status'] == 1;
+    manualLoginStatus = TypeConverterHelper.getNullableBool(json['manual_login_status']) ?? false;
+    otpLoginStatus = TypeConverterHelper.getNullableBool(json['otp_login_status']) ?? false;
+    socialLoginStatus = TypeConverterHelper.getNullableBool(json['social_login_status']) ?? false;
+    googleLoginStatus = TypeConverterHelper.getNullableBool(json['google_login_status']) ?? false;
+    facebookLoginStatus = TypeConverterHelper.getNullableBool(json['facebook_login_status']) ?? false;
+    appleLoginStatus = TypeConverterHelper.getNullableBool(json['apple_login_status']) ?? false;
+    emailVerificationStatus = TypeConverterHelper.getNullableBool(json['email_verification_status']) ?? false;
+    phoneVerificationStatus = TypeConverterHelper.getNullableBool(json['phone_verification_status']) ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -1087,9 +1087,9 @@ class AdminFreeDelivery {
   AdminFreeDelivery({this.status, this.type, this.freeDeliveryOver});
 
   AdminFreeDelivery.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    type = json['type'];
-    freeDeliveryOver = json['free_delivery_over']?.toDouble();
+    status = TypeConverterHelper.getNullableBool(json['status']);
+    type = TypeConverterHelper.getNullableString(json['type']);
+    freeDeliveryOver = TypeConverterHelper.getNullableDouble(json['free_delivery_over']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1109,8 +1109,8 @@ class ParcelCancellationBasicSetup {
   ParcelCancellationBasicSetup({this.returnFeeStatus, this.returnFee, /*this.doNotChargeReturnFeeOnDeliverymanCancel*/});
 
   ParcelCancellationBasicSetup.fromJson(Map<String, dynamic> json) {
-    returnFeeStatus = json['return_fee_status'];
-    returnFee = json['return_fee'];
+    returnFeeStatus = TypeConverterHelper.getNullableString(json['return_fee_status']);
+    returnFee = TypeConverterHelper.getNullableString(json['return_fee']);
     //doNotChargeReturnFeeOnDeliverymanCancel = json['do_not_charge_return_fee_on_deliveryman_cancel'];
   }
 
@@ -1132,10 +1132,10 @@ class ParcelReturnTimeFee {
   ParcelReturnTimeFee({this.status, this.parcelReturnTime, this.returnTimeType, this.returnFeeForDm});
 
   ParcelReturnTimeFee.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    parcelReturnTime = json['parcel_return_time'];
-    returnTimeType = json['return_time_type'];
-    returnFeeForDm = json['return_fee_for_dm'];
+    status = TypeConverterHelper.getNullableString(json['status']);
+    parcelReturnTime = TypeConverterHelper.getNullableString(json['parcel_return_time']);
+    returnTimeType = TypeConverterHelper.getNullableString(json['return_time_type']);
+    returnFeeForDm = TypeConverterHelper.getNullableString(json['return_fee_for_dm']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1160,10 +1160,9 @@ class AdvanceBooking {
   });
 
   AdvanceBooking.fromJson(Map<String, dynamic> json) {
-    advancedBookingRestrictionValue = json['advanced_booking_restriction_value'];
-    advancedBookingRestrictionValueStatus =
-        int.tryParse('${json['advanced_booking_restriction_value_status']}');
-    advancedBookingRestrictionType = json['advanced_booking_restriction_type'];
+    advancedBookingRestrictionValue = TypeConverterHelper.getNullableInt(json['advanced_booking_restriction_value']);
+    advancedBookingRestrictionValueStatus = TypeConverterHelper.getNullableInt(json['advanced_booking_restriction_value_status']);
+    advancedBookingRestrictionType = TypeConverterHelper.getNullableString(json['advanced_booking_restriction_type']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1186,8 +1185,8 @@ class ReferralData {
   ReferralData({this.referalStatus, this.referalAmount});
 
   ReferralData.fromJson(Map<String, dynamic> json) {
-    referalStatus = json['referal_status'];
-    referalAmount = json['referal_amount']?.toDouble();
+    referalStatus = TypeConverterHelper.getNullableBool(json['referal_status']);
+    referalAmount = TypeConverterHelper.getNullableDouble(json['referal_amount']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1206,14 +1205,18 @@ class MaintenanceModeData {
   MaintenanceModeData({this.maintenanceSystemSetup, this.maintenanceDurationSetup, this.maintenanceMessageSetup});
 
   MaintenanceModeData.fromJson(Map<String, dynamic> json) {
-    if (json['maintenance_system_setup'] != null) {
+    if (json['maintenance_system_setup'] is List) {
       maintenanceSystemSetup = <String>[];
-      json['maintenance_system_setup'].forEach((v) {
+      for (final dynamic v in json['maintenance_system_setup'] as List) {
         maintenanceSystemSetup!.add(v.toString());
-      });
+      }
     }
-    maintenanceDurationSetup = json['maintenance_duration_setup'] != null ? MaintenanceDurationSetup.fromJson(json['maintenance_duration_setup']) : null;
-    maintenanceMessageSetup = json['maintenance_message_setup'] != null ? MaintenanceMessageSetup.fromJson(json['maintenance_message_setup']) : null;
+    maintenanceDurationSetup = json['maintenance_duration_setup'] is Map<String, dynamic>
+        ? MaintenanceDurationSetup.fromJson(json['maintenance_duration_setup'])
+        : null;
+    maintenanceMessageSetup = json['maintenance_message_setup'] is Map<String, dynamic>
+        ? MaintenanceMessageSetup.fromJson(json['maintenance_message_setup'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -1239,9 +1242,9 @@ class MaintenanceDurationSetup {
   MaintenanceDurationSetup({this.maintenanceDuration, this.startDate, this.endDate});
 
   MaintenanceDurationSetup.fromJson(Map<String, dynamic> json) {
-    maintenanceDuration = json['maintenance_duration'];
-    startDate = json['start_date'];
-    endDate = json['end_date'];
+    maintenanceDuration = TypeConverterHelper.getNullableString(json['maintenance_duration']);
+    startDate = TypeConverterHelper.getNullableString(json['start_date']);
+    endDate = TypeConverterHelper.getNullableString(json['end_date']);
   }
 
   Map<String, dynamic> toJson() {
@@ -1262,10 +1265,10 @@ class MaintenanceMessageSetup {
   MaintenanceMessageSetup({this.businessNumber, this.businessEmail, this.maintenanceMessage, this.messageBody});
 
   MaintenanceMessageSetup.fromJson(Map<String, dynamic> json) {
-    businessNumber = json['business_number'];
-    businessEmail = json['business_email'];
-    maintenanceMessage = json['maintenance_message'];
-    messageBody = json['message_body'];
+    businessNumber = TypeConverterHelper.getNullableInt(json['business_number']);
+    businessEmail = TypeConverterHelper.getNullableInt(json['business_email']);
+    maintenanceMessage = TypeConverterHelper.getNullableString(json['maintenance_message']);
+    messageBody = TypeConverterHelper.getNullableString(json['message_body']);
   }
 
   Map<String, dynamic> toJson() {

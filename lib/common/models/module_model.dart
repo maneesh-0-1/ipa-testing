@@ -1,3 +1,4 @@
+import 'package:sixam_mart/helper/type_converter_helper.dart';
 
 class ModuleModel {
   int? id;
@@ -39,28 +40,32 @@ class ModuleModel {
   });
 
   ModuleModel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    moduleName = json['module_name'];
-    moduleType = json['module_type'];
-    slug = json['slug'];
-    thumbnailFullUrl = json['thumbnail_full_url'];
-    iconFullUrl = json['icon_full_url'];
-    themeId = json['theme_id'];
-    shortDescription = json['short_description'];
-    description = json['description'];
-    storesCount = json['stores_count'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    if (json['zones'] != null) {
+    id = TypeConverterHelper.getNullableInt(json['id']);
+    moduleName = TypeConverterHelper.getNullableString(json['module_name']);
+    moduleType = TypeConverterHelper.getNullableString(json['module_type']);
+    slug = TypeConverterHelper.getNullableString(json['slug']);
+    thumbnailFullUrl = TypeConverterHelper.getNullableString(json['thumbnail_full_url']);
+    iconFullUrl = TypeConverterHelper.getNullableString(json['icon_full_url']);
+    themeId = TypeConverterHelper.getNullableInt(json['theme_id']);
+    shortDescription = TypeConverterHelper.getNullableString(json['short_description']);
+    description = TypeConverterHelper.getNullableString(json['description']);
+    storesCount = TypeConverterHelper.getNullableInt(json['stores_count']);
+    createdAt = TypeConverterHelper.getNullableString(json['created_at']);
+    updatedAt = TypeConverterHelper.getNullableString(json['updated_at']);
+    if (json['zones'] is List) {
       zones = <ModuleZoneData>[];
-      json['zones'].forEach((v) => zones!.add(ModuleZoneData.fromJson(v)));
+      for (final dynamic v in json['zones'] as List) {
+        if (v is Map<String, dynamic>) {
+          zones!.add(ModuleZoneData.fromJson(v));
+        }
+      }
     }
-    topOffer = json['top_offer'] != null
+    topOffer = json['top_offer'] is Map<String, dynamic>
         ? TopOffer.fromJson(json['top_offer'])
         : null;
-    minDeliveryTime = json['min_delivery_time'];
-    flashSale = json['flash_sale'];
-    freeDelivery = json['free_delivery'];
+    minDeliveryTime = TypeConverterHelper.getNullableString(json['min_delivery_time']);
+    flashSale = TypeConverterHelper.getNullableInt(json['flash_sale']);
+    freeDelivery = TypeConverterHelper.getNullableInt(json['free_delivery']);
   }
 
   Map<String, dynamic> toJson() {
@@ -110,13 +115,13 @@ class ModuleZoneData {
   });
 
   ModuleZoneData.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    status = json['status'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    cashOnDelivery = json['cash_on_delivery'];
-    digitalPayment = json['digital_payment'];
+    id = TypeConverterHelper.getNullableInt(json['id']);
+    name = TypeConverterHelper.getNullableString(json['name']);
+    status = TypeConverterHelper.getNullableInt(json['status']);
+    createdAt = TypeConverterHelper.getNullableString(json['created_at']);
+    updatedAt = TypeConverterHelper.getNullableString(json['updated_at']);
+    cashOnDelivery = TypeConverterHelper.getNullableBool(json['cash_on_delivery']);
+    digitalPayment = TypeConverterHelper.getNullableBool(json['digital_payment']);
   }
 
   Map<String, dynamic> toJson() {
@@ -139,8 +144,8 @@ class TopOffer {
   TopOffer({this.discount, this.discountType});
 
   TopOffer.fromJson(Map<String, dynamic> json) {
-    discount = json['discount'];
-    discountType = json['discount_type'];
+    discount = TypeConverterHelper.getNullableInt(json['discount']);
+    discountType = TypeConverterHelper.getNullableString(json['discount_type']);
   }
 
   Map<String, dynamic> toJson() {

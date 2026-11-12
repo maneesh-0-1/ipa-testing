@@ -68,8 +68,13 @@ class AuthRepository implements AuthRepositoryInterface{
   Future<ResponseModel> guestLogin() async {
     ResponseModel responseModel;
     String? deviceToken = await saveDeviceToken();
-    Response response = await apiClient.postData(AppConstants.guestLoginUri, {'fcm_token': deviceToken});
-    if (response.statusCode == 200) {
+    Response response = await apiClient.postData(
+      AppConstants.guestLoginUri,
+      {'fcm_token': deviceToken},
+      handleError: false,
+      timeout: 15,
+    );
+    if (response.statusCode == 200 && response.body is Map && response.body['guest_id'] != null) {
       await saveSharedPrefGuestId(response.body['guest_id'].toString());
       responseModel = ResponseModel(true, '${response.body['guest_id']}');
     } else {

@@ -33,31 +33,33 @@ class NoInternetScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            GestureDetector(
-              onTap: () async {
-                final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
-                final bool offline = connectivityResult.isEmpty ||
-                    (connectivityResult.length == 1 && connectivityResult.contains(ConnectivityResult.none));
-                if(!offline) {
-                  if (onRetry != null) {
-                    onRetry!();
-                  } else if (child != null) {
-                    Get.off(() => child!);
+            Material(
+              color: Theme.of(context).primaryColor,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () async {
+                  final List<ConnectivityResult> connectivityResult = await Connectivity().checkConnectivity();
+                  final bool isConnected = connectivityResult.contains(ConnectivityResult.wifi)
+                      || connectivityResult.contains(ConnectivityResult.mobile)
+                      || connectivityResult.contains(ConnectivityResult.ethernet)
+                      || connectivityResult.contains(ConnectivityResult.vpn)
+                      || connectivityResult.contains(ConnectivityResult.other);
+                  if (isConnected) {
+                    if (onRetry != null) {
+                      onRetry!();
+                    } else if (child != null) {
+                      Get.off(() => child!);
+                    } else {
+                      Get.offAllNamed(RouteHelper.getInitialRoute());
+                    }
                   } else {
-                    Get.offAllNamed(RouteHelper.getInitialRoute());
+                    showCustomSnackBar('no_internet_connection'.tr);
                   }
-                } else {
-                  showCustomSnackBar('no_internet_connection'.tr);
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).primaryColor,
-                ),
-                padding: const EdgeInsets.all(10),
-                child: InkWell(
-                  child: Center(child: Icon(Icons.refresh, size: 34, color: Theme.of(context).cardColor)),
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Icon(Icons.refresh, size: 34, color: Theme.of(context).cardColor),
                 ),
               ),
             ),
