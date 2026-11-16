@@ -49,8 +49,16 @@ class ApiClient extends GetxService {
       } catch (_) {}
     }
     moduleID ??= 2;
-    updateHeader(token, addressModel?.zoneIds, addressModel?.areaIds, sharedPreferences.getString(AppConstants.languageCode),
-      moduleID.toString(), addressModel?.latitude, addressModel?.longitude, null);
+    updateHeader(
+      token,
+      addressModel?.zoneIds ?? [1],
+      addressModel?.areaIds,
+      sharedPreferences.getString(AppConstants.languageCode),
+      moduleID.toString(),
+      addressModel?.latitude ?? AppConstants.defaultLatitude,
+      addressModel?.longitude ?? AppConstants.defaultLongitude,
+      null,
+    );
   }
 
   Map<String, String> updateHeader(String? token, List<int>? zoneIDs, List<int>? operationIds, String? languageCode, String? moduleID,
@@ -58,10 +66,17 @@ class ApiClient extends GetxService {
   }) {
     Map<String, String> header = {};
 
-    List<int> effectiveZoneIds = zoneIDs != null ? List<int>.from(zoneIDs) : [];
-    if (!effectiveZoneIds.contains(2)) {
-      effectiveZoneIds.add(2);
+    List<int> effectiveZoneIds = (zoneIDs != null && zoneIDs.isNotEmpty) ? List<int>.from(zoneIDs) : [1];
+    if (!effectiveZoneIds.contains(1)) {
+      effectiveZoneIds.add(1);
     }
+
+    final String effectiveLatitude = (latitude != null && latitude.isNotEmpty && latitude != '0')
+        ? latitude
+        : AppConstants.defaultLatitude;
+    final String effectiveLongitude = (longitude != null && longitude.isNotEmpty && longitude != '0')
+        ? longitude
+        : AppConstants.defaultLongitude;
 
     String? resolvedModuleId = moduleID;
     if (resolvedModuleId == null && sharedPreferences.getString(AppConstants.cacheModuleId) != null) {
@@ -69,9 +84,9 @@ class ApiClient extends GetxService {
         resolvedModuleId = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.cacheModuleId)!)).id?.toString();
       } catch (_) {}
     }
-    if (resolvedModuleId != null) {
-      header.addAll({AppConstants.moduleId: resolvedModuleId});
-    }
+    resolvedModuleId ??= '2';
+    header.addAll({AppConstants.moduleId: resolvedModuleId});
+
     header.addAll({
       'Accept': 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
@@ -80,8 +95,8 @@ class ApiClient extends GetxService {
       ///this will add in ride module
       // AppConstants.operationAreaId: operationIds != null ? jsonEncode(operationIds) : '',
       AppConstants.localizationKey: languageCode ?? AppConstants.languages[0].languageCode!,
-      AppConstants.latitude: latitude ?? '',
-      AppConstants.longitude: longitude ?? '',
+      AppConstants.latitude: effectiveLatitude,
+      AppConstants.longitude: effectiveLongitude,
     });
     if (token != null && token.isNotEmpty && token != 'null') {
       header['Authorization'] = 'Bearer $token';

@@ -57,6 +57,11 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to the camera to upload customer profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

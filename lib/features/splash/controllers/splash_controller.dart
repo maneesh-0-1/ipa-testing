@@ -21,6 +21,8 @@ import 'package:sixam_mart/common/models/module_model.dart';
 import 'package:get/get.dart';
 import 'package:sixam_mart/features/rental_module/rental_cart_screen/controllers/taxi_cart_controller.dart';
 import 'package:sixam_mart/features/rental_module/rental_favourite/controllers/taxi_favourite_controller.dart';
+import 'package:sixam_mart/features/address/domain/models/address_model.dart';
+import 'package:sixam_mart/helper/address_helper.dart';
 import 'package:sixam_mart/helper/auth_helper.dart';
 import 'package:sixam_mart/helper/maintance_helper.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
@@ -310,6 +312,20 @@ class SplashController extends GetxController implements GetxService {
         ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
     _cacheModule ??= _module;
     _selectedModuleIndex = 1;
+
+    AddressModel? currentAddress = AddressHelper.getUserAddressFromSharedPref();
+    if (currentAddress == null || currentAddress.zoneIds == null || currentAddress.zoneIds!.isEmpty) {
+      AddressModel defaultAddress = AddressModel(
+        latitude: AppConstants.defaultLatitude,
+        longitude: AppConstants.defaultLongitude,
+        addressType: 'others',
+        zoneId: 1,
+        zoneIds: [1],
+        address: 'Kuwait City, Kuwait',
+      );
+      await AddressHelper.saveUserAddressInSharedPref(defaultAddress);
+    }
+
     await setModule(_module, notify: false);
   }
 

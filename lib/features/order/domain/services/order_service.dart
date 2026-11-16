@@ -172,22 +172,38 @@ class OrderService implements OrderServiceInterface {
     bool forSubscription = (subscriptionUrl != null && subscriptionUrl.isNotEmpty && addFundUrl == '' && addFundUrl!.isEmpty);
 
     if(canRedirect) {
+      final bool urlHasSuccess = url.startsWith('${AppConstants.baseUrl}/payment-success')
+          || url.contains('admin.domains4gulf.com/payment-success')
+          || url.contains('pay-success')
+          || url.contains('/payment-success');
+      final bool urlHasFail = url.startsWith('${AppConstants.baseUrl}/payment-fail')
+          || url.contains('admin.domains4gulf.com/payment-fail')
+          || url.contains('pay-fail')
+          || url.contains('/payment-fail');
+      final bool urlHasCancel = url.startsWith('${AppConstants.baseUrl}/payment-cancel')
+          || url.contains('admin.domains4gulf.com/payment-cancel')
+          || url.contains('pay-cancel')
+          || url.contains('/payment-cancel');
+
       bool isSuccess;
       bool isFailed;
       bool isCancel;
 
       if(isProSubscription) {
         // Pro subscription gateway redirects to the regular payment callbacks.
-        isSuccess = url.startsWith('${AppConstants.baseUrl}/payment-success');
-        isFailed = url.startsWith('${AppConstants.baseUrl}/payment-fail');
-        isCancel = url.startsWith('${AppConstants.baseUrl}/payment-cancel');
+        isSuccess = urlHasSuccess;
+        isFailed = urlHasFail;
+        isCancel = urlHasCancel;
       } else {
-        isSuccess = forSubscription ? url.startsWith('${AppConstants.baseUrl}/subscription-success')
-            : url.startsWith('${AppConstants.baseUrl}/payment-success');
-        isFailed = forSubscription ? url.startsWith('${AppConstants.baseUrl}/subscription-fail')
-            : url.startsWith('${AppConstants.baseUrl}/payment-fail');
-        isCancel = forSubscription ? url.startsWith('${AppConstants.baseUrl}/subscription-cancel')
-            : url.startsWith('${AppConstants.baseUrl}/payment-cancel');
+        isSuccess = forSubscription
+            ? (url.contains('/subscription-success') || urlHasSuccess)
+            : urlHasSuccess;
+        isFailed = forSubscription
+            ? (url.contains('/subscription-fail') || urlHasFail)
+            : urlHasFail;
+        isCancel = forSubscription
+            ? (url.contains('/subscription-cancel') || urlHasCancel)
+            : urlHasCancel;
       }
       if (isSuccess || isFailed || isCancel) {
         canRedirect = false;

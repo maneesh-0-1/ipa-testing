@@ -19,17 +19,26 @@ class HeaderHelper {
         moduleID = ModuleModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.moduleId)!)).id;
       }catch(_) {}
     }
-    List<int> effectiveZoneIds = addressModel?.zoneIds != null ? List<int>.from(addressModel!.zoneIds!) : [];
-    if (!effectiveZoneIds.contains(2)) {
-      effectiveZoneIds.add(2);
+    moduleID ??= 2;
+    List<int> effectiveZoneIds = (addressModel?.zoneIds != null && addressModel!.zoneIds!.isNotEmpty)
+        ? List<int>.from(addressModel.zoneIds!)
+        : [1];
+    if (!effectiveZoneIds.contains(1)) {
+      effectiveZoneIds.add(1);
     }
+    final String effectiveLat = (addressModel?.latitude != null && addressModel!.latitude!.isNotEmpty && addressModel.latitude != '0')
+        ? addressModel.latitude!
+        : AppConstants.defaultLatitude;
+    final String effectiveLng = (addressModel?.longitude != null && addressModel!.longitude!.isNotEmpty && addressModel.longitude != '0')
+        ? addressModel.longitude!
+        : AppConstants.defaultLongitude;
     return {
       'Content-Type': 'application/json; charset=UTF-8',
       AppConstants.zoneId: jsonEncode(effectiveZoneIds),
-      if (moduleID != null) AppConstants.moduleId: '$moduleID',
+      AppConstants.moduleId: '$moduleID',
       AppConstants.localizationKey: sharedPreferences.getString(AppConstants.languageCode) ?? AppConstants.languages[0].languageCode!,
-      AppConstants.latitude: addressModel?.latitude ?? '0',
-      AppConstants.longitude: addressModel?.longitude ?? '0',
+      AppConstants.latitude: effectiveLat,
+      AppConstants.longitude: effectiveLng,
       // 'Authorization': 'Bearer $token'
     };
   }

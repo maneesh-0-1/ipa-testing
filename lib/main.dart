@@ -72,7 +72,18 @@ Future<void> main() async {
 
   try {
     if (Firebase.apps.isEmpty) {
-      if (GetPlatform.isWeb) {
+      if (GetPlatform.isAndroid) {
+        await Firebase.initializeApp(
+          options: const FirebaseOptions(
+            apiKey: "AIzaSyCvJ6BO5DQQ4UMr04Hn4y7mPkuegumLEN0",
+            appId: "1:237762489358:android:844ee94b0614651b9fa05f",
+            messagingSenderId: "237762489358",
+            projectId: "blaban-2d4e2",
+          ),
+        );
+      } else if (GetPlatform.isIOS) {
+        await Firebase.initializeApp(); // Reads from GoogleService-Info.plist in Runner
+      } else if (GetPlatform.isWeb) {
         await Firebase.initializeApp(
           options: const FirebaseOptions(
             apiKey: "AIzaSyCvJ6BO5DQQ4UMr04Hn4y7mPkuegumLEN0",
@@ -81,7 +92,6 @@ Future<void> main() async {
             storageBucket: "stackmart-500c7.appspot.com",
             messagingSenderId: "237762489358",
             appId: "1:237762489358:android:844ee94b0614651b9fa05f",
-
           ),
         );
       } else {

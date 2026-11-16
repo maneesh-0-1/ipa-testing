@@ -61,9 +61,9 @@ class LocationService implements LocationServiceInterface{
 
   @override
   Map<String, String> prepareHeader(List<int>? zoneIds) {
-    List<int> effectiveZoneIds = zoneIds != null ? List<int>.from(zoneIds) : [];
-    if (!effectiveZoneIds.contains(2)) {
-      effectiveZoneIds.add(2);
+    List<int> effectiveZoneIds = (zoneIds != null && zoneIds.isNotEmpty) ? List<int>.from(zoneIds) : [1];
+    if (!effectiveZoneIds.contains(1)) {
+      effectiveZoneIds.add(1);
     }
     Map<String, String> header = {
       'Content-Type': 'application/json; charset=UTF-8',

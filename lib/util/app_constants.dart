@@ -12,13 +12,13 @@ class AppConstants {
   static const String defaultLongitude = '47.9774';
   static const bool payInWevView = false;
   static const int balanceInputLen = 10;
-  static const String webHostedUrl = 'https://admin.blabankw.com';
+  static const String webHostedUrl = 'https://store.domains4gulf.com';
   static const bool useReactWebsite = false;
   static const bool stopPolylineAnimation = false;
   static const String googleServerClientId = '491987943015-agln6biv84krpnngdphj87jkko7r9lb8.apps.googleusercontent.com';
   static const String pusherBroadcustUrl = '/api/v1/broadcasting/user-auth';
 
-  static const String baseUrl = 'https://admin.blabankw.com';
+  static const String baseUrl = 'https://admin.domains4gulf.com';
   static const String categoryUri = '/api/v1/categories';
   static const String topCategoriesUri = '/api/v1/categories/top';
   static const String trendingSearchesUri = '/api/v1/trending-searches';

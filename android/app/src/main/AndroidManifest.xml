@@ -93,8 +93,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="admin.blabankw.com" />
-                <data android:scheme="https" android:host="blabankw.com" />
+                <data android:scheme="https" android:host="admin.domains4gulf.com" />
+                <data android:scheme="https" android:host="store.domains4gulf.com" />
             </intent-filter>
 
         </activity>

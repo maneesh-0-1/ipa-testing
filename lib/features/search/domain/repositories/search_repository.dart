@@ -169,9 +169,9 @@ class SearchRepository implements SearchRepositoryInterface {
     required List<int> zoneIds,
   }) async {
     List<BrandModel>? brandList;
-    List<int> effectiveZoneIds = List<int>.from(zoneIds);
-    if (!effectiveZoneIds.contains(2)) {
-      effectiveZoneIds.add(2);
+    List<int> effectiveZoneIds = zoneIds.isNotEmpty ? List<int>.from(zoneIds) : [1];
+    if (!effectiveZoneIds.contains(1)) {
+      effectiveZoneIds.add(1);
     }
     final Map<String, String> headers = {
       ...apiClient.getHeader(),
