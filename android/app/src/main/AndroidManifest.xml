@@ -23,6 +23,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <queries>
+        <!-- Package visibility for Google Play Services & Maps -->
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" />
+
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />
