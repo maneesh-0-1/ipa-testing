@@ -8,7 +8,6 @@ import 'package:sixam_mart/common/enums/data_source_enum.dart';
 import 'package:sixam_mart/common/models/module_model.dart';
 import 'package:sixam_mart/common/models/response_model.dart';
 import 'package:sixam_mart/common/widgets/custom_loader.dart';
-import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/common/widgets/image_viewer_screen.dart';
 import 'package:sixam_mart/common/widgets/not_found.dart';
 import 'package:sixam_mart/common/widgets/zone_warning_dialog.dart';
@@ -1211,26 +1210,21 @@ Future<void> _moduleCheck(String moduleSlug, ApiClient apiClient, SharedPreferen
           break;
         }
       }
-      print('-------found module: ${foundModule?.slug ?? foundModule?.id} // route module slug: $moduleSlug');
-      if(foundModule != null) {
-        Get.find<SplashController>().setModule(foundModule);
-        apiClient.updateHeader(
-            sharedPreferences.getString(AppConstants.token), addressModel.zoneIds, addressModel.areaIds,
-            sharedPreferences.getString(AppConstants.languageCode), moduleSlug, addressModel.latitude, addressModel.longitude, null
-        );
-        Get.find<SplashController>().clearDataNull(foundModule);
-
-        HomeScreen.loadData(true);
-
-      } else {
-        Get.find<SplashController>().setModule(null);
-        apiClient.updateHeader(
-            sharedPreferences.getString(AppConstants.token), addressModel.zoneIds, addressModel.areaIds,
-            sharedPreferences.getString(AppConstants.languageCode), null, addressModel.latitude, addressModel.longitude, null
-        );
-        showCustomSnackBar('no_module_found'.tr);
-        Get.offAllNamed(RouteHelper.getInitialRoute());
+      ModuleModel fallbackModule = ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
+      if(foundModule == null && (Get.find<SplashController>().moduleList?.isNotEmpty ?? false)) {
+        foundModule = Get.find<SplashController>().moduleList!.first;
       }
+      foundModule ??= fallbackModule;
+
+      print('-------found module: ${foundModule.slug ?? foundModule.id} // route module slug: $moduleSlug');
+      Get.find<SplashController>().setModule(foundModule);
+      apiClient.updateHeader(
+          sharedPreferences.getString(AppConstants.token), addressModel.zoneIds ?? AppConstants.defaultZoneIds, addressModel.areaIds,
+          sharedPreferences.getString(AppConstants.languageCode), foundModule.slug ?? moduleSlug, addressModel.latitude, addressModel.longitude, null
+      );
+      Get.find<SplashController>().clearDataNull(foundModule);
+
+      HomeScreen.loadData(true);
     }
   }
 

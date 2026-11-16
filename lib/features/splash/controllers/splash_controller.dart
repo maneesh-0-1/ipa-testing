@@ -152,12 +152,17 @@ class SplashController extends GetxController implements GetxService {
     try {
       Response response;
       if(source == DataSourceEnum.local && !fromDemoReset) {
-        response = await splashServiceInterface.getConfigData(source: DataSourceEnum.local);
-        final bool routedLocally = await _handleConfigResponse(
-          response, handleMaintenanceMode, loadModuleData, loadLandingData,
-          fromMainFunction, fromDemoReset, notificationBody, canRoute,
-          source: DataSourceEnum.local,
-        );
+        bool routedLocally = false;
+        try {
+          response = await splashServiceInterface.getConfigData(source: DataSourceEnum.local);
+          routedLocally = await _handleConfigResponse(
+            response, handleMaintenanceMode, loadModuleData, loadLandingData,
+            fromMainFunction, fromDemoReset, notificationBody, canRoute,
+            source: DataSourceEnum.local,
+          );
+        } catch (e) {
+          debugPrint('Local config fetch error: $e');
+        }
         await getConfigData(
           handleMaintenanceMode: handleMaintenanceMode,
           notificationBody: notificationBody,
@@ -204,7 +209,7 @@ class SplashController extends GetxController implements GetxService {
             ?? _module
             ?? splashServiceInterface.getCacheModule()
             ?? ModuleModel(id: 2, moduleName: 'B.Laban', moduleType: AppConstants.food, slug: 'blaban');
-        await setModule(targetModule);
+        await setModule(targetModule, notify: false);
       } catch (e) {
         debugPrint('setModule warning ($source): $e');
       }
@@ -314,13 +319,18 @@ class SplashController extends GetxController implements GetxService {
     _selectedModuleIndex = 1;
 
     AddressModel? currentAddress = AddressHelper.getUserAddressFromSharedPref();
-    if (currentAddress == null || currentAddress.zoneIds == null || currentAddress.zoneIds!.isEmpty) {
+    bool needsAddressReset = currentAddress == null
+        || currentAddress.zoneIds == null
+        || currentAddress.zoneIds!.isEmpty
+        || !currentAddress.zoneIds!.contains(AppConstants.defaultZoneId);
+
+    if (needsAddressReset) {
       AddressModel defaultAddress = AddressModel(
         latitude: AppConstants.defaultLatitude,
         longitude: AppConstants.defaultLongitude,
         addressType: 'others',
-        zoneId: 1,
-        zoneIds: [1],
+        zoneId: AppConstants.defaultZoneId,
+        zoneIds: List<int>.from(AppConstants.defaultZoneIds),
         address: 'Kuwait City, Kuwait',
       );
       await AddressHelper.saveUserAddressInSharedPref(defaultAddress);

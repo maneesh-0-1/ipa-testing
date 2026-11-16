@@ -199,53 +199,58 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return GetBuilder<ThemeController>(builder: (themeController) {
       return GetBuilder<LocalizationController>(builder: (localizeController) {
-        return GetBuilder<SplashController>(builder: (splashController) {
-          return (GetPlatform.isWeb && splashController.configModel == null) ? const SizedBox() : GetMaterialApp(
-            title: AppConstants.appName,
-            debugShowCheckedModeBanner: false,
-            navigatorKey: Get.key,
-            scrollBehavior: const MaterialScrollBehavior().copyWith(
-              dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch},
-            ),
-            theme: themeController.darkTheme ? dark() : light(),
-            locale: localizeController.locale,
-            translations: Messages(languages: widget.languages),
-            fallbackLocale: Locale(AppConstants.languages[0].languageCode!, AppConstants.languages[0].countryCode),
-            initialRoute: _initialRoute,
-            getPages: RouteHelper.routes,
-            routingCallback: (routing) {
-              if (routing == null || (routing.isBottomSheet ?? false) || (routing.isDialog ?? false)) return;
-              if (Get.isRegistered<ProController>()) {
-                Get.find<ProController>().maybeShowRenewOnRoute(routing.current);
-              }
-            },
-            defaultTransition: GetPlatform.isWeb ? Transition.fadeIn : Transition.topLevel,
-            transitionDuration: const Duration(milliseconds: 700),
-            builder: (BuildContext context, widget) {
-              return MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)), child: Material(
-                child: SafeArea(
-                  top: false, bottom: GetPlatform.isAndroid,
-                  child: Stack(children: [
-                    widget!,
+        Widget app = GetMaterialApp(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          navigatorKey: Get.key,
+          scrollBehavior: const MaterialScrollBehavior().copyWith(
+            dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch},
+          ),
+          theme: themeController.darkTheme ? dark() : light(),
+          locale: localizeController.locale,
+          translations: Messages(languages: widget.languages),
+          fallbackLocale: Locale(AppConstants.languages[0].languageCode!, AppConstants.languages[0].countryCode),
+          initialRoute: _initialRoute,
+          getPages: RouteHelper.routes,
+          routingCallback: (routing) {
+            if (routing == null || (routing.isBottomSheet ?? false) || (routing.isDialog ?? false)) return;
+            if (Get.isRegistered<ProController>()) {
+              Get.find<ProController>().maybeShowRenewOnRoute(routing.current);
+            }
+          },
+          defaultTransition: GetPlatform.isWeb ? Transition.fadeIn : Transition.topLevel,
+          transitionDuration: const Duration(milliseconds: 700),
+          builder: (BuildContext context, widget) {
+            return MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)), child: Material(
+              child: SafeArea(
+                top: false, bottom: GetPlatform.isAndroid,
+                child: Stack(children: [
+                  widget!,
 
-                    GetBuilder<SplashController>(builder: (splashController){
-                      if(!splashController.savedCookiesData && !splashController.getAcceptCookiesStatus(splashController.configModel?.cookiesText ?? '')){
-                        return ResponsiveHelper.isWeb() ? const Align(alignment: Alignment.bottomCenter, child: CookiesView()) : const SizedBox();
-                      }else{
-                        return const SizedBox();
-                      }
-                    }),
+                  GetBuilder<SplashController>(builder: (splashController){
+                    if(!splashController.savedCookiesData && !splashController.getAcceptCookiesStatus(splashController.configModel?.cookiesText ?? '')){
+                      return ResponsiveHelper.isWeb() ? const Align(alignment: Alignment.bottomCenter, child: CookiesView()) : const SizedBox();
+                    }else{
+                      return const SizedBox();
+                    }
+                  }),
 
-                    // Keeps the home dashboard status-bar tint stable above modal
-                    // barriers (bottom sheets / dialogs). Inert unless the home tab
-                    // is the visible, uncovered page.
-                    const HomeStatusBarTintOverlay(),
-                  ]),
-                ),
-              ));
-            },
-          );
-        });
+                  // Keeps the home dashboard status-bar tint stable above modal
+                  // barriers (bottom sheets / dialogs). Inert unless the home tab
+                  // is the visible, uncovered page.
+                  const HomeStatusBarTintOverlay(),
+                ]),
+              ),
+            ));
+          },
+        );
+
+        if (GetPlatform.isWeb) {
+          return GetBuilder<SplashController>(builder: (splashController) {
+            return splashController.configModel == null ? const SizedBox() : app;
+          });
+        }
+        return app;
       });
     });
   }

@@ -28,7 +28,7 @@ class LocalClient {
                 header: drift.Value(header.toString()),
                 response: drift.Value(responseBody??''),
               ),
-            );
+            ).timeout(const Duration(seconds: 2));
           }
         } catch(e) {
           if (kDebugMode) {
@@ -41,7 +41,7 @@ class LocalClient {
             String? cacheData = sharedPreferences.getString(cacheId);
             return cacheData;
           } else {
-            final CacheResponseData? cacheResponseData = await database.getCacheResponseById(cacheId);
+            final CacheResponseData? cacheResponseData = await database.getCacheResponseById(cacheId).timeout(const Duration(seconds: 2));
             return cacheResponseData?.response;
           }
 

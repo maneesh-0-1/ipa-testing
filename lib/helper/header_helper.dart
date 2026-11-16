@@ -22,9 +22,9 @@ class HeaderHelper {
     moduleID ??= 2;
     List<int> effectiveZoneIds = (addressModel?.zoneIds != null && addressModel!.zoneIds!.isNotEmpty)
         ? List<int>.from(addressModel.zoneIds!)
-        : [1];
-    if (!effectiveZoneIds.contains(1)) {
-      effectiveZoneIds.add(1);
+        : List<int>.from(AppConstants.defaultZoneIds);
+    if (!effectiveZoneIds.contains(AppConstants.defaultZoneId)) {
+      effectiveZoneIds.insert(0, AppConstants.defaultZoneId);
     }
     final String effectiveLat = (addressModel?.latitude != null && addressModel!.latitude!.isNotEmpty && addressModel.latitude != '0')
         ? addressModel.latitude!

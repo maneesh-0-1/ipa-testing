@@ -1,30 +1,14 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets_new in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:sixam_mart/main.dart';
+import 'package:sixam_mart/util/app_constants.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp(languages: null, body: null));
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  test('AppConstants B.Laban configuration verification', () {
+    expect(AppConstants.appName, 'B.Laban');
+    expect(AppConstants.baseUrl, 'https://admin.domains4gulf.com');
+    expect(AppConstants.webHostedUrl, 'https://store.domains4gulf.com');
+    expect(AppConstants.defaultLatitude, '29.3759');
+    expect(AppConstants.defaultLongitude, '47.9774');
+    expect(AppConstants.defaultZoneId, 6);
+    expect(AppConstants.defaultZoneIds, contains(6));
   });
 }

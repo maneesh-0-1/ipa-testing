@@ -51,7 +51,7 @@ class ApiClient extends GetxService {
     moduleID ??= 2;
     updateHeader(
       token,
-      addressModel?.zoneIds ?? [1],
+      addressModel?.zoneIds ?? AppConstants.defaultZoneIds,
       addressModel?.areaIds,
       sharedPreferences.getString(AppConstants.languageCode),
       moduleID.toString(),
@@ -66,9 +66,9 @@ class ApiClient extends GetxService {
   }) {
     Map<String, String> header = {};
 
-    List<int> effectiveZoneIds = (zoneIDs != null && zoneIDs.isNotEmpty) ? List<int>.from(zoneIDs) : [1];
-    if (!effectiveZoneIds.contains(1)) {
-      effectiveZoneIds.add(1);
+    List<int> effectiveZoneIds = (zoneIDs != null && zoneIDs.isNotEmpty) ? List<int>.from(zoneIDs) : List<int>.from(AppConstants.defaultZoneIds);
+    if (!effectiveZoneIds.contains(AppConstants.defaultZoneId)) {
+      effectiveZoneIds.insert(0, AppConstants.defaultZoneId);
     }
 
     final String effectiveLatitude = (latitude != null && latitude.isNotEmpty && latitude != '0')

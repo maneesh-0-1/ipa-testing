@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:sixam_mart/common/enums/data_source_enum.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
 import 'package:sixam_mart/features/auth/controllers/auth_controller.dart';
 import 'package:sixam_mart/features/cart/controllers/cart_controller.dart';
@@ -7,6 +8,7 @@ import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/notification/domain/models/notification_body_model.dart';
 import 'package:sixam_mart/helper/address_helper.dart';
 import 'package:sixam_mart/helper/auth_helper.dart';
+import 'package:sixam_mart/helper/route_helper.dart';
 import 'package:sixam_mart/util/dimensions.dart';
 import 'package:sixam_mart/util/images.dart';
 import 'package:sixam_mart/common/widgets/no_internet_screen.dart';
@@ -25,6 +27,8 @@ class SplashScreen extends StatefulWidget {
 class SplashScreenState extends State<SplashScreen> {
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
   StreamSubscription<List<ConnectivityResult>>? _onConnectivityChanged;
+  Timer? _watchdogTimer;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -40,7 +44,7 @@ class SplashScreenState extends State<SplashScreen> {
 
       if(!firstTime && mounted) {
         showCustomSnackBar(isConnected ? 'connected'.tr : 'no_connection'.tr, isError: !isConnected);
-        if(isConnected) {
+        if(isConnected && !_hasNavigated) {
           if(Get.find<SplashController>().deeplinkRoute == null) {
             _route();
           }
@@ -51,24 +55,45 @@ class SplashScreenState extends State<SplashScreen> {
     });
 
     _initAndRoute();
+
+    // Safety watchdog: ensure splash screen transitions even under network/cache jitter
+    _watchdogTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted && !_hasNavigated) {
+        final splashCtrl = Get.find<SplashController>();
+        if (splashCtrl.configModel != null) {
+          _hasNavigated = true;
+          Get.offNamed(RouteHelper.getInitialRoute(fromSplash: true));
+        } else {
+          splashCtrl.getConfigData(source: DataSourceEnum.client, handleMaintenanceMode: false, notificationBody: widget.body);
+        }
+      }
+    });
   }
 
   Future<void> _initAndRoute() async {
-    await Get.find<SplashController>().initSharedData();
-    if (!mounted) return;
-    if(AddressHelper.getUserAddressFromSharedPref() != null && AddressHelper.getUserAddressFromSharedPref()!.zoneIds == null) {
-      Get.find<AuthController>().clearSharedAddress();
-    }
-    if((AuthHelper.getGuestId().isNotEmpty || AuthHelper.isLoggedIn()) && Get.find<SplashController>().cacheModule != null) {
-      Get.find<CartController>().getAllCarts();
-    }
-    if(Get.find<SplashController>().deeplinkRoute == null) {
-      _route();
+    try {
+      await Get.find<SplashController>().initSharedData();
+      if (!mounted) return;
+      if(AddressHelper.getUserAddressFromSharedPref() != null && AddressHelper.getUserAddressFromSharedPref()!.zoneIds == null) {
+        Get.find<AuthController>().clearSharedAddress();
+      }
+      if((AuthHelper.getGuestId().isNotEmpty || AuthHelper.isLoggedIn()) && Get.find<SplashController>().cacheModule != null) {
+        Get.find<CartController>().getAllCarts();
+      }
+      if(Get.find<SplashController>().deeplinkRoute == null) {
+        _route();
+      }
+    } catch (e) {
+      debugPrint('SplashScreen init error: $e');
+      if (mounted && !_hasNavigated) {
+        _route();
+      }
     }
   }
 
   @override
   void dispose() {
+    _watchdogTimer?.cancel();
     _onConnectivityChanged?.cancel();
     super.dispose();
   }

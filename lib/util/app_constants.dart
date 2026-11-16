@@ -10,6 +10,8 @@ class AppConstants {
   static const String fontFamily = 'DMSans';
   static const String defaultLatitude = '29.3759';
   static const String defaultLongitude = '47.9774';
+  static const int defaultZoneId = 6;
+  static const List<int> defaultZoneIds = [6, 7, 8, 9, 10];
   static const bool payInWevView = false;
   static const int balanceInputLen = 10;
   static const String webHostedUrl = 'https://store.domains4gulf.com';
