@@ -82,7 +82,21 @@ Future<void> main() async {
           ),
         );
       } else if (GetPlatform.isIOS) {
-        await Firebase.initializeApp(); // Reads from GoogleService-Info.plist in Runner
+        if (Firebase.apps.isEmpty) {
+          try {
+            await Firebase.initializeApp(); // Reads from GoogleService-Info.plist in Runner
+          } catch (_) {
+            await Firebase.initializeApp(
+              options: const FirebaseOptions(
+                apiKey: "AIzaSyB_vFbARPMGEAX57vvh2TFehb4trkaXgwA",
+                appId: "1:237762489358:ios:d906f6ec56104ace9fa05f",
+                messagingSenderId: "237762489358",
+                projectId: "blaban-2d4e2",
+                storageBucket: "blaban-2d4e2.firebasestorage.app",
+              ),
+            );
+          }
+        }
       } else if (GetPlatform.isWeb) {
         await Firebase.initializeApp(
           options: const FirebaseOptions(
